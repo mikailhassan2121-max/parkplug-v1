@@ -1,0 +1,17 @@
+{
+  "name": "ParkPlug",
+  "short_name": "ParkPlug",
+  "description": "Find reservable private parking and recently reported free spaces near your destination.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#12816f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
