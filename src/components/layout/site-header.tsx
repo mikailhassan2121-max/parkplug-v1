@@ -127,16 +127,16 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Mobile search shortcut */}
-          <ButtonLink
-            href="/search"
-            variant="ghost"
-            size="sm"
-            aria-label="Find parking"
-            className="lg:hidden"
-          >
-            <IconSearch className="text-lg" />
-          </ButtonLink>
+          {/*
+            Responsive visibility lives on a wrapper, never on the button
+            itself: Button/ButtonLink carry `inline-flex` in their base classes,
+            which beats a `hidden` utility passed through `className`.
+          */}
+          <span className="lg:hidden">
+            <ButtonLink href="/search" variant="ghost" size="sm" aria-label="Find parking">
+              <IconSearch className="text-lg" />
+            </ButtonLink>
+          </span>
 
           {session.status === "loading" ? (
             <div className="h-9 w-24 skeleton rounded-xl" aria-hidden="true" />
@@ -168,25 +168,28 @@ export function SiteHeader() {
               />
             </>
           ) : (
-            <>
-              <ButtonLink href="/signin" variant="ghost" size="sm" className="hidden sm:inline-flex">
+            // Below `sm` these give way to the menu, which carries the same
+            // actions — otherwise they overflow a 320px header.
+            <span className="hidden items-center gap-2 sm:flex">
+              <ButtonLink href="/signin" variant="ghost" size="sm">
                 Sign In
               </ButtonLink>
-              <ButtonLink href="/signup" size="sm" className="hidden sm:inline-flex">
+              <ButtonLink href="/signup" size="sm">
                 Create Account
               </ButtonLink>
-            </>
+            </span>
           )}
 
-          <IconButton
-            label={menuOpen ? "Close menu" : "Open menu"}
-            icon={menuOpen ? <IconX /> : <IconMenu />}
-            size="sm"
-            className="lg:hidden"
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setMenuOpen((v) => !v)}
-          />
+          <span className="lg:hidden">
+            <IconButton
+              label={menuOpen ? "Close menu" : "Open menu"}
+              icon={menuOpen ? <IconX /> : <IconMenu />}
+              size="sm"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              onClick={() => setMenuOpen((v) => !v)}
+            />
+          </span>
         </div>
       </div>
 

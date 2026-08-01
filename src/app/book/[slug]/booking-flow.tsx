@@ -506,14 +506,14 @@ function StepDetails({
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <fieldset>
           <legend className="text-sm font-semibold text-ink-800">Arrival</legend>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <div className="mt-1.5 grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-2">
             <Input type="date" aria-label="Arrival date" value={startDate} onChange={(e) => onChange.setStartDate(e.target.value)} />
             <Input type="time" aria-label="Arrival time" step={900} value={startTime} onChange={(e) => onChange.setStartTime(e.target.value)} />
           </div>
         </fieldset>
         <fieldset>
           <legend className="text-sm font-semibold text-ink-800">Departure</legend>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <div className="mt-1.5 grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-2">
             <Input type="date" aria-label="Departure date" min={startDate} value={endDate} onChange={(e) => onChange.setEndDate(e.target.value)} />
             <Input type="time" aria-label="Departure time" step={900} value={endTime} onChange={(e) => onChange.setEndTime(e.target.value)} />
           </div>

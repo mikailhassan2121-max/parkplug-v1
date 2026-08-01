@@ -93,7 +93,7 @@ export function BookingCard({
       <div className="mt-4 grid gap-3">
         <fieldset>
           <legend className="text-sm font-semibold text-ink-800">Arrival</legend>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <div className="mt-1.5 grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-2">
             <Input
               type="date"
               aria-label="Arrival date"
@@ -111,7 +111,7 @@ export function BookingCard({
         </fieldset>
         <fieldset>
           <legend className="text-sm font-semibold text-ink-800">Departure</legend>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <div className="mt-1.5 grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-2">
             <Input
               type="date"
               aria-label="Departure date"

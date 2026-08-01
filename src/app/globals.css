@@ -165,6 +165,39 @@
       font-size: inherit;
     }
   }
+
+  /*
+     Native date and time controls reserve room for their own picker icon on
+     top of the value. Without tighter padding the value is clipped mid-year
+     ("08/01/2C") in the two-up arrival/departure grid.
+  */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    padding-inline: 0.625rem;
+    font-size: max(16px, 0.9375rem);
+  }
+
+  @media (min-width: 640px) {
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"] {
+      font-size: 0.9375rem;
+    }
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    margin-inline-start: 0;
+    padding-inline: 0;
+    cursor: pointer;
+    opacity: 0.55;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
 }
 
 /* ==========================================================================

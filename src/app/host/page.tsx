@@ -65,9 +65,12 @@ export default function HostOverviewPage() {
           </h1>
           <p className="mt-1.5 text-sm text-ink-600">Welcome back, {firstName}.</p>
         </div>
-        <ButtonLink href="/host/listings/new" leadingIcon={<IconPlus />} className="lg:hidden">
-          New Listing
-        </ButtonLink>
+        {/* The sidebar carries this action from `lg` upwards. */}
+        <span className="lg:hidden">
+          <ButtonLink href="/host/listings/new" leadingIcon={<IconPlus />}>
+            New Listing
+          </ButtonLink>
+        </span>
       </div>
 
       {/* ------------------------------------------------------------ Stats */}

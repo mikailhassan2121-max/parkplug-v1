@@ -178,15 +178,17 @@ export function PhotoUploader({
           <Button variant="secondary" size="sm" onClick={() => inputRef.current?.click()}>
             Browse files
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            leadingIcon={<IconCamera />}
-            onClick={() => cameraRef.current?.click()}
-            className="sm:hidden"
-          >
-            Take a photo
-          </Button>
+          {/* Camera capture is only meaningful on a phone. */}
+          <span className="sm:hidden">
+            <Button
+              variant="secondary"
+              size="sm"
+              leadingIcon={<IconCamera />}
+              onClick={() => cameraRef.current?.click()}
+            >
+              Take a photo
+            </Button>
+          </span>
         </div>
 
         <input
