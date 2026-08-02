@@ -1,30 +1,21 @@
-import nodemailer from "nodemailer";
 import { emailConfigured, env } from "../env.js";
 
-let transporter: nodemailer.Transporter | null = null;
-
-function getTransporter(): nodemailer.Transporter {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: env.SMTP_HOST,
-      port: env.SMTP_PORT,
-      secure: env.SMTP_PORT === 465,
-      auth: env.SMTP_USER ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
-    });
-  }
-  return transporter;
-}
+const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
 /**
- * Sends when SMTP is configured; otherwise logs to the console clearly
+ * Sends when Resend is configured; otherwise logs to the console clearly
  * labelled as unsent, rather than reporting success for an email nobody
  * received. Never throws — a delivery failure should not fail the request
  * that triggered it (e.g. sign-up still succeeds if the welcome email fails).
+ *
+ * Goes over Resend's HTTP API rather than SMTP: some hosts (Railway's trial
+ * tier among them) block outbound SMTP ports 465/587 entirely at the network
+ * level, while plain HTTPS on 443 is never blocked.
  */
 export async function sendMail(input: { to: string; subject: string; text: string }): Promise<void> {
   if (!emailConfigured) {
     console.log(
-      `[mailer] SMTP not configured — not sent.\n  to: ${input.to}\n  subject: ${input.subject}\n  body:\n${input.text
+      `[mailer] Resend not configured — not sent.\n  to: ${input.to}\n  subject: ${input.subject}\n  body:\n${input.text
         .split("\n")
         .map((l) => "    " + l)
         .join("\n")}`,
@@ -33,12 +24,22 @@ export async function sendMail(input: { to: string; subject: string; text: strin
   }
 
   try {
-    await getTransporter().sendMail({
-      from: env.SMTP_FROM,
-      to: input.to,
-      subject: input.subject,
-      text: input.text,
+    const response = await fetch(RESEND_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: env.MAIL_FROM,
+        to: input.to,
+        subject: input.subject,
+        text: input.text,
+      }),
     });
+    if (!response.ok) {
+      console.error(`[mailer] Resend responded ${response.status}:`, await response.text());
+    }
   } catch (error) {
     console.error("[mailer] send failed:", error);
   }

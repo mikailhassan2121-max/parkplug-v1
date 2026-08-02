@@ -27,11 +27,13 @@ Deploy the **backend first** — the frontend needs its live URL.
    | `SESSION_SECRET` | a random 32+ byte hex string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
    | `PUBLIC_UPLOAD_BASE_URL` | your Railway public domain + `/uploads`, e.g. `https://parkplug-api.up.railway.app/uploads` |
    | `UPLOAD_DIR` | `./uploads` |
+   | `RESEND_API_KEY` | your Resend API key — email goes over Resend's HTTPS API, not SMTP, because Railway blocks outbound SMTP ports 465/587 at the network level |
+   | `MAIL_FROM` | e.g. `ParkPlug <no-reply@yourdomain.com>` (must be a domain verified in Resend, or `onboarding@resend.dev` for testing) |
 
-   Leave `STRIPE_SECRET_KEY`, `SMTP_*`, `SERVICE_FEE_BPS`, `HOST_FEE_BPS`,
-   `TAX_BPS` unset for now — the app already renders honest "not configured"
-   states for payments, email, and fees rather than faking them. Add real
-   values later without any code changes when you're ready.
+   Leave `STRIPE_SECRET_KEY`, `SERVICE_FEE_BPS`, `HOST_FEE_BPS`, `TAX_BPS`
+   unset for now — the app already renders honest "not configured" states
+   for payments and fees rather than faking them. Add real values later
+   without any code changes when you're ready.
 
 5. **Settings → Networking → Generate Domain** to get a public URL
    (`https://<something>.up.railway.app`). That's your API base URL.
@@ -87,11 +89,10 @@ Both Netlify and Railway support adding a custom domain under their
 dashboard gives you, then update `CORS_ORIGIN` and `NEXT_PUBLIC_SITE_URL` to
 match and redeploy both services.
 
-## 5. Turning on payments and email later
+## 5. Turning on payments later
 
-Set `STRIPE_SECRET_KEY` (with Stripe Connect enabled for host payouts) and
-`SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM` on the Railway
-API service, plus `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` and the fee-rate
-variables on Netlify. No code changes are needed — the app already branches
-on whether these are configured (see `server/README.md`, "What's real, what's
-gated").
+Set `STRIPE_SECRET_KEY` (with Stripe Connect enabled for host payouts) on
+the Railway API service, plus `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` and the
+fee-rate variables on Netlify. No code changes are needed — the app already
+branches on whether these are configured (see `server/README.md`, "What's
+real, what's gated").

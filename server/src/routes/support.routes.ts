@@ -50,9 +50,13 @@ supportRouter.post(
       subject: `We received your message — ${reference}`,
       text: `Thanks for contacting ParkPlug support.\n\nReference: ${reference}\nCategory: ${d.category}\n\n${d.description}\n\nWe will follow up at this address.`,
     });
-    if (env.SMTP_USER) {
+    if (env.SUPPORT_NOTIFY_EMAIL) {
       // Best-effort internal notice; failure here must never fail the ticket.
-      void sendMail({ to: env.SMTP_USER, subject: `New support ticket ${reference}`, text: d.description });
+      void sendMail({
+        to: env.SUPPORT_NOTIFY_EMAIL,
+        subject: `New support ticket ${reference}`,
+        text: d.description,
+      });
     }
 
     res.status(201).json({ ticketReference: reference });

@@ -27,7 +27,7 @@ Every "not yet configured" state the frontend already knows how to render is bac
 |---|---|---|
 | Payments | `POST /reservations` returns `402 payment_unavailable` before any charge is attempted | Real Stripe PaymentIntents, refunds on cancellation |
 | Fees | `quote()` computes a $0 service/host fee and reports `feesKnown: false` | Real fee math from `SERVICE_FEE_BPS` / `HOST_FEE_BPS` / `TAX_BPS` |
-| Email | Verification and reset links are logged to the console, never silently dropped | Sent via `nodemailer` over the configured SMTP server |
+| Email | Verification and reset links are logged to the console, never silently dropped | Sent via [Resend](https://resend.com)'s HTTP API |
 | Payouts | `GET /host/payouts` returns `not_started`; `POST /host/payouts/start` returns `payment_unavailable` | Real Stripe Connect Express onboarding, redirecting to a hosted link |
 
 Set the corresponding `.env` values to move any of these from "not configured" to real. See `.env.example` for the full list.

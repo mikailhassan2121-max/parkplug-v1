@@ -8,11 +8,16 @@ const schema = z.object({
   CORS_ORIGIN: z.string().min(1),
   SESSION_SECRET: z.string().min(16, "SESSION_SECRET must be at least 16 characters"),
   STRIPE_SECRET_KEY: z.string().optional().default(""),
-  SMTP_HOST: z.string().optional().default(""),
-  SMTP_PORT: z.coerce.number().optional().default(587),
-  SMTP_USER: z.string().optional().default(""),
-  SMTP_PASS: z.string().optional().default(""),
-  SMTP_FROM: z.string().optional().default("ParkPlug <no-reply@parkplug.example>"),
+
+  // Email goes through Resend's HTTP API (not SMTP) — some hosts, including
+  // Railway's trial tier, block outbound SMTP ports 465/587 entirely, while
+  // plain HTTPS (443) is never blocked.
+  RESEND_API_KEY: z.string().optional().default(""),
+  MAIL_FROM: z.string().optional().default("ParkPlug <no-reply@parkplug.example>"),
+  // Internal address that gets a copy of each support ticket. Optional —
+  // leave unset to skip the internal notice (the reporter's own confirmation
+  // email still sends).
+  SUPPORT_NOTIFY_EMAIL: z.string().optional().default(""),
   UPLOAD_DIR: z.string().optional().default("./uploads"),
   PUBLIC_UPLOAD_BASE_URL: z.string().optional().default("http://localhost:4000/uploads"),
   FRONTEND_URL: z.string().optional().default("http://localhost:3000"),
@@ -42,6 +47,6 @@ export const env = parsed.data;
 
 export const corsOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim());
 export const paymentsConfigured = env.STRIPE_SECRET_KEY.length > 0;
-export const emailConfigured = env.SMTP_HOST.length > 0;
+export const emailConfigured = env.RESEND_API_KEY.length > 0;
 export const feesConfigured = env.SERVICE_FEE_BPS !== undefined;
 
