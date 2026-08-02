@@ -21,6 +21,7 @@ import { supportRouter } from "./routes/support.routes.js";
 import { hostRouter } from "./routes/host.routes.js";
 import { conversationsRouter } from "./routes/conversations.routes.js";
 import { uploadsRouter } from "./routes/uploads.routes.js";
+import { geocodeRouter } from "./routes/geocode.routes.js";
 
 export function createApp() {
   const app = express();
@@ -50,6 +51,13 @@ export function createApp() {
     "/auth/password-reset",
     rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }),
   );
+  // Nominatim's own usage policy caps free-tier traffic at roughly 1 req/sec
+  // in aggregate — this keeps one client from burning through that budget.
+  // A commercial geocoder is worth switching to before heavy production use.
+  app.use(
+    "/geocode",
+    rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: true, legacyHeaders: false }),
+  );
   app.use(rateLimit({ windowMs: 60_000, limit: 300, standardHeaders: true, legacyHeaders: false }));
 
   app.use(attachSession);
@@ -73,6 +81,7 @@ export function createApp() {
   app.use("/host", hostRouter);
   app.use("/conversations", conversationsRouter);
   app.use("/media", uploadsRouter); // upload endpoints; served files are under /uploads (static, above)
+  app.use("/geocode", geocodeRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

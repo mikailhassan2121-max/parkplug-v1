@@ -67,7 +67,11 @@ authRouter.post(
 
     const session = await createSession(user.id, req.headers["user-agent"]);
     setSessionCookie(res, session.id, session.expiresAt);
-    res.status(201).json(toSessionUser(user));
+    // sessionToken lets the frontend fall back to an Authorization header
+    // when third-party cookies are blocked (Safari ITP, Firefox ETP, privacy
+    // extensions) — it's the same session id the cookie carries, not a
+    // separate secret.
+    res.status(201).json({ ...toSessionUser(user), sessionToken: session.id });
   }),
 );
 
@@ -94,7 +98,7 @@ authRouter.post(
 
     const session = await createSession(user.id, req.headers["user-agent"]);
     setSessionCookie(res, session.id, session.expiresAt);
-    res.json(toSessionUser(user));
+    res.json({ ...toSessionUser(user), sessionToken: session.id });
   }),
 );
 

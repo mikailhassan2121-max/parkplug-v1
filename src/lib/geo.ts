@@ -100,10 +100,14 @@ export type GeocodeMatch = {
 };
 
 /**
- * Address lookup. Defaults to the OpenStreetMap Nominatim service, which needs
- * no API key; point `NEXT_PUBLIC_GEOCODER_URL` at a commercial geocoder for
- * production traffic. Returns an empty list rather than throwing so callers can
- * show a "no matches" state.
+ * Address lookup. When `NEXT_PUBLIC_API_BASE_URL` is set, this goes through
+ * the API's own `/geocode/search` proxy — Nominatim's usage policy requires a
+ * custom User-Agent identifying the caller, which browsers refuse to let
+ * client-side JS set, so the server is the only place that can do this
+ * correctly (and it keeps any future paid-geocoder key off the client).
+ * Without a backend, it falls back to calling Nominatim directly so the
+ * browser-local demo build still works. Returns an empty list rather than
+ * throwing so callers can show a "no matches" state.
  */
 export async function geocode(
   query: string,
@@ -112,18 +116,41 @@ export async function geocode(
   const trimmed = query.trim();
   if (trimmed.length < 3) return [];
 
-  const base =
-    process.env.NEXT_PUBLIC_GEOCODER_URL ?? "https://nominatim.openstreetmap.org/search";
-  const url = `${base}?q=${encodeURIComponent(trimmed)}&format=jsonv2&addressdetails=1&limit=6`;
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  const url = apiBase
+    ? `${apiBase}/geocode/search?q=${encodeURIComponent(trimmed)}`
+    : `${process.env.NEXT_PUBLIC_GEOCODER_URL ?? "https://nominatim.openstreetmap.org/search"}?q=${encodeURIComponent(trimmed)}&format=jsonv2&addressdetails=1&limit=6`;
 
   const response = await fetch(url, {
     signal,
+    credentials: apiBase ? "include" : undefined,
     headers: { Accept: "application/json" },
   });
   if (!response.ok) throw new Error(`Geocoder responded ${response.status}`);
 
   const payload: unknown = await response.json();
   if (!Array.isArray(payload)) return [];
+
+  // The API proxy already returns this exact shape, so pass it through
+  // as-is; the direct-Nominatim fallback still needs the raw fields mapped.
+  if (apiBase) {
+    return payload.flatMap((entry): GeocodeMatch[] => {
+      if (typeof entry !== "object" || entry === null) return [];
+      const row = entry as Record<string, unknown>;
+      const center = row.center as { lat?: unknown; lng?: unknown } | undefined;
+      const lat = Number(center?.lat);
+      const lng = Number(center?.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return [];
+      return [
+        {
+          label: String(row.label ?? trimmed),
+          center: { lat, lng },
+          city: typeof row.city === "string" ? row.city : undefined,
+          state: typeof row.state === "string" ? row.state : undefined,
+        },
+      ];
+    });
+  }
 
   return payload.flatMap((entry): GeocodeMatch[] => {
     if (typeof entry !== "object" || entry === null) return [];

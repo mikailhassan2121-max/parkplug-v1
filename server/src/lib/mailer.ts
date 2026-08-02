@@ -1,21 +1,88 @@
-import { emailConfigured, env } from "../env.js";
+import { emailConfigured, env, mailProvider } from "../env.js";
 
-const RESEND_ENDPOINT = "https://api.resend.com/emails";
+type SendResult = { ok: true } | { ok: false; error: string };
+
+type MailProviderClient = {
+  name: string;
+  send(input: { to: string; subject: string; text: string }): Promise<SendResult>;
+};
+
+/** Splits "Name <email@domain>" into parts; falls back to treating the whole string as the email. */
+function parseFromAddress(raw: string): { name?: string; email: string } {
+  const match = raw.match(/^\s*(.*?)\s*<([^<>]+)>\s*$/);
+  if (match) {
+    const name = match[1]?.replace(/^"|"$/g, "").trim();
+    return { name: name || undefined, email: (match[2] ?? "").trim() };
+  }
+  return { email: raw.trim() };
+}
+
+async function bodyOrStatus(response: Response): Promise<string> {
+  const text = await response.text().catch(() => "");
+  return text ? `${response.status}: ${text}` : String(response.status);
+}
+
+function resendClient(apiKey: string): MailProviderClient {
+  return {
+    name: "resend",
+    async send({ to, subject, text }) {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: env.MAIL_FROM, to, subject, text }),
+      });
+      if (!response.ok) {
+        return {
+          ok: false,
+          error:
+            `Resend responded ${await bodyOrStatus(response)}. ` +
+            "Resend refuses to deliver to anyone but the account owner until a sending domain is verified — " +
+            "verify one at resend.com/domains, or set MAIL_PROVIDER=brevo with BREVO_API_KEY instead.",
+        };
+      }
+      return { ok: true };
+    },
+  };
+}
+
+function brevoClient(apiKey: string): MailProviderClient {
+  return {
+    name: "brevo",
+    async send({ to, subject, text }) {
+      const sender = parseFromAddress(env.MAIL_FROM);
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ sender, to: [{ email: to }], subject, textContent: text }),
+      });
+      if (!response.ok) {
+        return {
+          ok: false,
+          error:
+            `Brevo responded ${await bodyOrStatus(response)}. ` +
+            "Check that the MAIL_FROM address is verified as a sender in Brevo (Senders & IPs).",
+        };
+      }
+      return { ok: true };
+    },
+  };
+}
+
+function clientFor(provider: NonNullable<typeof mailProvider>): MailProviderClient {
+  return provider.name === "resend" ? resendClient(provider.apiKey) : brevoClient(provider.apiKey);
+}
 
 /**
- * Sends when Resend is configured; otherwise logs to the console clearly
- * labelled as unsent, rather than reporting success for an email nobody
- * received. Never throws — a delivery failure should not fail the request
- * that triggered it (e.g. sign-up still succeeds if the welcome email fails).
- *
- * Goes over Resend's HTTP API rather than SMTP: some hosts (Railway's trial
- * tier among them) block outbound SMTP ports 465/587 entirely at the network
- * level, while plain HTTPS on 443 is never blocked.
+ * Sends via whichever provider is configured (MAIL_PROVIDER, or inferred from
+ * whichever API key is set); otherwise logs to the console clearly labelled
+ * as unsent, rather than reporting success for an email nobody received.
+ * Never throws — a delivery failure should not fail the request that
+ * triggered it (e.g. sign-up still succeeds if the welcome email fails).
  */
 export async function sendMail(input: { to: string; subject: string; text: string }): Promise<void> {
-  if (!emailConfigured) {
+  if (!emailConfigured || !mailProvider) {
     console.log(
-      `[mailer] Resend not configured — not sent.\n  to: ${input.to}\n  subject: ${input.subject}\n  body:\n${input.text
+      `[mailer] no provider configured — not sent.\n  to: ${input.to}\n  subject: ${input.subject}\n  body:\n${input.text
         .split("\n")
         .map((l) => "    " + l)
         .join("\n")}`,
@@ -23,25 +90,14 @@ export async function sendMail(input: { to: string; subject: string; text: strin
     return;
   }
 
+  const client = clientFor(mailProvider);
   try {
-    const response = await fetch(RESEND_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: env.MAIL_FROM,
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-      }),
-    });
-    if (!response.ok) {
-      console.error(`[mailer] Resend responded ${response.status}:`, await response.text());
+    const result = await client.send(input);
+    if (!result.ok) {
+      console.error(`[mailer:${client.name}] send failed — ${result.error}`);
     }
   } catch (error) {
-    console.error("[mailer] send failed:", error);
+    console.error(`[mailer:${client.name}] send failed:`, error);
   }
 }
 

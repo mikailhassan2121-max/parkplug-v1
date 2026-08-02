@@ -1,5 +1,5 @@
 import { createApp } from "./app.js";
-import { env, paymentsConfigured, emailConfigured, feesConfigured } from "./env.js";
+import { env, paymentsConfigured, emailConfigured, mailProvider, feesConfigured } from "./env.js";
 import { prisma } from "./db.js";
 
 const app = createApp();
@@ -8,7 +8,7 @@ const server = app.listen(env.PORT, () => {
   console.log(`ParkPlug API listening on :${env.PORT} (${env.NODE_ENV})`);
   console.log(
     `  payments: ${paymentsConfigured ? "connected" : "not configured"} · ` +
-      `email: ${emailConfigured ? "connected" : "logging to console"} · ` +
+      `email: ${emailConfigured ? `connected (${mailProvider!.name})` : "logging to console"} · ` +
       `fees: ${feesConfigured ? "configured" : "not configured"}`,
   );
 });

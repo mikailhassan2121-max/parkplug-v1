@@ -51,7 +51,7 @@ reach a public page.
 | `NEXT_PUBLIC_LEGAL_NAME` | Legal pages use `[LEGAL BUSINESS NAME]`; the footer falls back to brand-only wording |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` / `NEXT_PUBLIC_PRIVACY_EMAIL` | Contact routes through the support form only |
 | `NEXT_PUBLIC_MAP_TILE_URL` | Defaults to OpenStreetMap tiles (not licensed for production traffic) |
-| `NEXT_PUBLIC_GEOCODER_URL` | Defaults to OpenStreetMap Nominatim |
+| `NEXT_PUBLIC_GEOCODER_URL` | Only used without a backend (`NEXT_PUBLIC_API_BASE_URL` unset) — defaults to calling OpenStreetMap Nominatim directly. With a backend, address search always goes through the API's `/geocode/search` proxy instead (see `server/README.md`) |
 | `NEXT_PUBLIC_ANALYTICS_ID` | No cookie banner is shown, because no optional cookies are set |
 
 ## Architecture
@@ -139,6 +139,28 @@ cd server && npm run dev &                          # :4000
 QA_BASE_URL=http://localhost:3000 \
 QA_API_BASE_URL=http://localhost:4000 \
   node scripts/qa-live-backend.mjs
+```
+
+Three more scripts exercise surfaces that only exist with the real backend
+connected:
+
+- `qa-cross-site-auth.mjs` — proves sign-in survives a page reload when the
+  frontend and API are on genuinely different sites (it runs one on
+  `localhost`, the other on `127.0.0.1`, which browsers treat as different
+  sites the same way Netlify and Railway are). Point `QA_API_BASE_URL` — via
+  `NEXT_PUBLIC_API_BASE_URL` at build time — at a cross-site API to reproduce
+  this for real.
+- `qa-report-parking.mjs` — the community-reporting wizard end to end:
+  the address combobox never spins forever and always shows a real state,
+  "Use my current location" works, and a submitted report is genuinely
+  persisted and retrievable via `/search`.
+- `qa-remaining-flows.mjs` — email verification, forgot/reset password, host
+  listing creation, the listing detail page, and saved spaces, all against
+  the real API.
+
+```bash
+QA_BASE_URL=http://localhost:3000 node scripts/qa-report-parking.mjs
+QA_BASE_URL=http://localhost:3000 node scripts/qa-remaining-flows.mjs
 ```
 
 Set `CHROMIUM_PATH` if you have a Chromium build outside Playwright's own

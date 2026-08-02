@@ -44,6 +44,7 @@ export function DestinationInput({
   const [locating, setLocating] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [lookupFailed, setLookupFailed] = useState(false);
+  const [noMatches, setNoMatches] = useState(false);
 
   const debounced = useDebounced(value, 350);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -58,16 +59,19 @@ export function DestinationInput({
     if (debounced.trim().length < 3) {
       setMatches([]);
       setLookupFailed(false);
+      setNoMatches(false);
       return;
     }
 
     const controller = new AbortController();
     setLoading(true);
     setLookupFailed(false);
+    setNoMatches(false);
     geocode(debounced, controller.signal)
       .then((results) => {
         setMatches(results);
         setOpen(results.length > 0);
+        setNoMatches(results.length === 0);
         setActiveIndex(-1);
       })
       .catch((err: unknown) => {
@@ -96,6 +100,7 @@ export function DestinationInput({
     onSelect({ label: short, center: match.center });
     setOpen(false);
     setMatches([]);
+    setNoMatches(false);
   }
 
   async function applyCurrentLocation() {
@@ -107,6 +112,8 @@ export function DestinationInput({
       toast({ tone: "warning", title: copy.title, description: copy.description });
       return;
     }
+    setNoMatches(false);
+    setLookupFailed(false);
     suppressRef.current = true;
     onChange("Your current location");
     onSelect({ label: "Your current location", center: result.center });
@@ -207,6 +214,13 @@ export function DestinationInput({
         <p className="mt-1.5 text-xs text-warning-700">
           Address lookup is unavailable right now. You can still search by moving
           the map.
+        </p>
+      ) : null}
+
+      {noMatches && !lookupFailed && !error ? (
+        <p className="mt-1.5 text-xs text-ink-500">
+          No matches for &ldquo;{value.trim()}&rdquo;. Try a different spelling, or use
+          your current location instead.
         </p>
       ) : null}
 

@@ -122,6 +122,8 @@ export function newReference(): string {
 
 export const COLLECTIONS = {
   session: "session",
+  /** Bearer-token fallback for the HTTP adapter — see api/index.ts. */
+  sessionToken: "session-token",
   users: "users",
   vehicles: "vehicles",
   listings: "listings",

@@ -19,6 +19,23 @@ npm run typecheck
 npm run prisma:studio        # browse the database
 ```
 
+### Using Supabase (or any Postgres where tables shouldn't live in `public`)
+
+`schema.prisma` has no `@@schema(...)` annotations — it's single-schema, so
+every table is created wherever the connection's `DATABASE_URL` points.
+Postgres uses `public` by default; to put ParkPlug's tables in a different
+schema (a common choice on Supabase, to stay out of the schemas Supabase
+itself reserves), add `?schema=app` to `DATABASE_URL` — e.g.
+`postgresql://user:pass@host:5432/postgres?schema=app` — before running
+`prisma migrate deploy`. Prisma creates the schema and every table inside it
+automatically; no code or model changes are needed either way, since the app
+never hardcodes a schema name and always goes through Prisma's own client.
+The one thing to get right is consistency: whatever `DATABASE_URL` (and its
+`schema` parameter) the migration ran against is the one the running server
+must also use — pointing `prisma migrate deploy` and the app's `DATABASE_URL`
+at two different schemas is what actually causes drift, not anything in this
+repo.
+
 ## What's real, what's gated
 
 Every "not yet configured" state the frontend already knows how to render is backed by a real, empty configuration here — not a fake success:
@@ -27,7 +44,8 @@ Every "not yet configured" state the frontend already knows how to render is bac
 |---|---|---|
 | Payments | `POST /reservations` returns `402 payment_unavailable` before any charge is attempted | Real Stripe PaymentIntents, refunds on cancellation |
 | Fees | `quote()` computes a $0 service/host fee and reports `feesKnown: false` | Real fee math from `SERVICE_FEE_BPS` / `HOST_FEE_BPS` / `TAX_BPS` |
-| Email | Verification and reset links are logged to the console, never silently dropped | Sent via [Resend](https://resend.com)'s HTTP API |
+| Email | Verification and reset links are logged to the console, never silently dropped | Sent via [Resend](https://resend.com) or [Brevo](https://brevo.com)'s HTTP API — pick with `MAIL_PROVIDER` |
+| Geocoding | N/A — always on, no key needed | `/geocode/search` proxies OpenStreetMap Nominatim |
 | Payouts | `GET /host/payouts` returns `not_started`; `POST /host/payouts/start` returns `payment_unavailable` | Real Stripe Connect Express onboarding, redirecting to a hosted link |
 
 Set the corresponding `.env` values to move any of these from "not configured" to real. See `.env.example` for the full list.
@@ -50,7 +68,8 @@ src/
     pricing.ts          Fee math, ported line-for-line from the frontend's quote()
     geo.ts              Distance, walking time, address-privacy offset — also ported
     reservation-lifecycle.ts   Lazy confirmed -> completed transition (see below)
-    cookies.ts, tokens.ts, password.ts, mailer.ts, uploads.ts, notifications.ts
+    mailer.ts           Provider-agnostic email (Resend or Brevo), see below
+    cookies.ts, tokens.ts, password.ts, uploads.ts, notifications.ts
 prisma/
   schema.prisma       Full data model — 19 tables
 scripts/
@@ -58,9 +77,11 @@ scripts/
   dev-seed-future-reservation.ts  DEV-ONLY fixture, see below
 ```
 
-### Sessions
+### Sessions, and staying signed in across a cross-site deploy
 
-Cookie-based, not JWT: `pp_session` is an opaque id pointing at a `Session` row, so "sign out of all devices" is a real `DELETE` on that table rather than something a stolen token can outlive. `httpOnly`, `SameSite=Lax`, `Secure` in production.
+Cookie-based, not JWT: `pp_session` is an opaque id pointing at a `Session` row, so "sign out of all devices" is a real `DELETE` on that table rather than something a stolen token can outlive. `httpOnly` always; in production it's `Secure` and `SameSite=None`, because a frontend on Netlify and an API on Railway are different registrable domains — every request between them is cross-site, and `SameSite=Lax` cookies are never sent on cross-site fetch/XHR (only on a top-level navigation), so the session would silently vanish on every API call. `SameSite=None` requires `Secure`, so both flip together, and only in production — local dev (`localhost` talking to `127.0.0.1`) is same-site enough for `Lax` and doesn't need it.
+
+Even `SameSite=None; Secure` isn't a complete answer: Safari's ITP and Firefox's ETP block third-party cookies outright regardless of `SameSite`, and plenty of privacy extensions do the same — and a cookie set by a different domain than the page is, by definition, third-party here. So sign-in and sign-up also return the session id as `sessionToken` in the JSON body; the frontend stores it and replays it as `Authorization: Bearer <token>` on every request (`resolveSessionId` in `lib/cookies.ts` checks the cookie first, then falls back to the header). It's the same id, not a separate secret — this is a delivery-mechanism fallback, not a second credential.
 
 ### Address privacy is enforced at the API layer, not just the UI
 
@@ -81,6 +102,14 @@ There's no cron in this deployment. `settleOverdueReservations()` runs at the to
 ### Explicit error codes
 
 Three frontend `ApiErrorCode` values — `payment_failed`, `payment_unavailable`, `upload_failed` — have no natural HTTP status of their own. `ApiError` carries an optional `code` field that the frontend's `request()` helper reads directly when present (see `src/lib/api/index.ts` on the frontend), falling back to status-based mapping otherwise.
+
+### Email is provider-agnostic
+
+`mailer.ts` sends through whichever provider is configured (`MAIL_PROVIDER`, or inferred from whichever API key is set) behind a small `{ name, send() }` interface, not hardcoded to one vendor. Resend refuses to deliver to anyone but the account owner until a sending domain is verified, which blocks real signups on a fresh deploy — Brevo only needs single-sender verification and will send to any recipient immediately, so it's there as a same-signature swap while a domain is still pending. A failed send is logged with the provider name and an actionable hint, never thrown — same "log to console instead of a fabricated success" fallback as before when nothing is configured.
+
+### Address search is a server-side Nominatim proxy
+
+`GET /geocode/search?q=` (`geocode.routes.ts`) proxies OpenStreetMap Nominatim. This isn't just convenience: Nominatim's usage policy requires a custom `User-Agent` identifying the calling application, and browsers refuse to let client-side JS set that header at all — so a correct implementation has to live on the server. Rate-limited separately from the general API limit, since Nominatim's own free-tier policy caps aggregate traffic at roughly 1 req/sec.
 
 ## Dev-only test fixtures
 

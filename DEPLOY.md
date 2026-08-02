@@ -13,22 +13,29 @@ Deploy the **backend first** — the frontend needs its live URL.
    Project → Deploy from GitHub repo**, pick this repo.
 2. Railway will try to build the repo root. Open the new service's
    **Settings → Root Directory** and set it to `server`. Redeploy.
-3. **New → Database → PostgreSQL** in the same project. Railway creates it
-   and exposes `DATABASE_URL` — reference it from the API service's
-   variables as `${{Postgres.DATABASE_URL}}` (Railway's variable picker
-   offers this automatically).
+3. **Database**: either **New → Database → PostgreSQL** in the same Railway
+   project (Railway creates it and exposes `DATABASE_URL` — reference it from
+   the API service's variables as `${{Postgres.DATABASE_URL}}`, offered
+   automatically by Railway's variable picker), or point `DATABASE_URL` at a
+   Supabase Postgres project instead — both work identically from the app's
+   side, since it's just a connection string. On Supabase, append
+   `?schema=app` to keep ParkPlug's tables out of the schemas Supabase
+   reserves for itself; see `server/README.md`, "Using Supabase".
 4. On the API service, set these **Variables**:
    | Variable | Value |
    |---|---|
    | `DATABASE_URL` | reference to the Postgres plugin (step 3) |
    | `PORT` | `4000` (Railway also sets its own `PORT`; the app reads `process.env.PORT`) |
    | `NODE_ENV` | `production` |
-   | `CORS_ORIGIN` | your Netlify URL, e.g. `https://parkplug.netlify.app` (fill in after step 2 of the frontend section, then redeploy) |
+   | `CORS_ORIGIN` | **comma-separated, no trailing slash**: your Netlify URL plus `http://localhost:3000`, e.g. `https://parkplug.netlify.app,http://localhost:3000` (fill in the real Netlify URL after step 2 of the frontend section, then redeploy) — must be an explicit list, never `*`, since the API sends `Access-Control-Allow-Credentials: true` |
    | `SESSION_SECRET` | a random 32+ byte hex string — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
    | `PUBLIC_UPLOAD_BASE_URL` | your Railway public domain + `/uploads`, e.g. `https://parkplug-api.up.railway.app/uploads` |
    | `UPLOAD_DIR` | `./uploads` |
-   | `RESEND_API_KEY` | your Resend API key — email goes over Resend's HTTPS API, not SMTP, because Railway blocks outbound SMTP ports 465/587 at the network level |
-   | `MAIL_FROM` | e.g. `ParkPlug <no-reply@yourdomain.com>` (must be a domain verified in Resend, or `onboarding@resend.dev` for testing) |
+   | `RESEND_API_KEY` or `BREVO_API_KEY` | pick one — email goes over the provider's HTTPS API, not SMTP, because Railway blocks outbound SMTP ports 465/587 at the network level. **Resend refuses to deliver to anyone but the account owner until a sending domain is verified** — if you don't have a verified domain yet, use Brevo instead (only needs single-sender verification) so real signups aren't blocked. Set `MAIL_PROVIDER=brevo` if both keys happen to be set. |
+   | `MAIL_FROM` | e.g. `ParkPlug <no-reply@yourdomain.com>` — must be a verified domain (Resend) or verified sender (Brevo), or use each provider's own test sender address while you set that up |
+
+   Nothing extra is needed for address search — `/geocode/search` proxies
+   OpenStreetMap Nominatim with no API key.
 
    Leave `STRIPE_SECRET_KEY`, `SERVICE_FEE_BPS`, `HOST_FEE_BPS`, `TAX_BPS`
    unset for now — the app already renders honest "not configured" states
@@ -75,6 +82,12 @@ Deploy the **backend first** — the frontend needs its live URL.
 - Visit the Netlify URL, sign up for an account, add a vehicle, reload the
   page — if the vehicle is still there, the frontend is really talking to
   Railway's Postgres, not local storage.
+- Sign in, then reload the page again — you should stay signed in. If you
+  don't, double check `CORS_ORIGIN` on Railway matches the Netlify URL
+  exactly (no trailing slash) and that both services actually redeployed
+  after the env vars were set.
+- On `/report-parking`, typing an address should show live suggestions
+  within about a second — that's the `/geocode/search` proxy working.
 - `scripts/qa-live-backend.mjs` can be pointed at the deployed URLs locally:
   ```bash
   QA_BASE_URL=https://parkplug.netlify.app \

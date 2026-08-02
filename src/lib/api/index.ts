@@ -42,6 +42,24 @@ import {
   notify,
 } from "./store";
 
+/**
+ * Bearer-token fallback for cross-site auth. The frontend (Netlify) and API
+ * (Railway) are on different root domains, so some browsers block the
+ * session cookie outright regardless of SameSite (Safari ITP, Firefox ETP,
+ * privacy extensions). Sign-in/sign-up return the session id as
+ * `sessionToken`; it's stored here and replayed as `Authorization: Bearer`
+ * on every request so auth keeps working even when the cookie doesn't land.
+ */
+function getStoredToken(): string | null {
+  return readRecord<string>(COLLECTIONS.sessionToken);
+}
+function setStoredToken(token: string): void {
+  writeRecord(COLLECTIONS.sessionToken, token);
+}
+function clearStoredToken(): void {
+  writeRecord(COLLECTIONS.sessionToken, null);
+}
+
 export * from "./result";
 export { quote, estimateHostEarnings } from "./pricing";
 
@@ -65,14 +83,23 @@ async function request<T>(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), init?.timeoutMs ?? 15000);
   try {
+    const token = getStoredToken();
     const response = await fetch(`${API_BASE}${path}`, {
       ...init,
       signal: controller.signal,
       credentials: "include",
-      headers: { "Content-Type": "application/json", ...init?.headers },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init?.headers,
+      },
     });
 
     if (!response.ok) {
+      // A dead/revoked token would otherwise be replayed on every request
+      // forever — drop it so the UI falls back to a clean signed-out state.
+      if (response.status === 401 && token) clearStoredToken();
+
       const body = await response.json().catch(() => ({}) as Record<string, unknown>);
       const message = typeof body.message === "string" ? body.message : response.statusText;
       const fieldErrors = body.fieldErrors as Record<string, string> | undefined;
@@ -167,7 +194,18 @@ export const auth = {
     email: string;
     password: string;
   }): Promise<ApiResult<SessionUser>> {
-    if (API_BASE) return request<SessionUser>("/auth/sign-up", { method: "POST", body: JSON.stringify(input) });
+    if (API_BASE) {
+      const result = await request<SessionUser & { sessionToken?: string }>("/auth/sign-up", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      if (result.ok) {
+        const { sessionToken, ...user } = result.data;
+        if (sessionToken) setStoredToken(sessionToken);
+        return ok(user);
+      }
+      return result;
+    }
 
     const email = input.email.trim().toLowerCase();
     const existing = readCollection<StoredUser>(COLLECTIONS.users).find((u) => u.email === email);
@@ -206,7 +244,18 @@ export const auth = {
   },
 
   async signIn(input: { email: string; password: string }): Promise<ApiResult<SessionUser>> {
-    if (API_BASE) return request<SessionUser>("/auth/sign-in", { method: "POST", body: JSON.stringify(input) });
+    if (API_BASE) {
+      const result = await request<SessionUser & { sessionToken?: string }>("/auth/sign-in", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      if (result.ok) {
+        const { sessionToken, ...user } = result.data;
+        if (sessionToken) setStoredToken(sessionToken);
+        return ok(user);
+      }
+      return result;
+    }
 
     const email = input.email.trim().toLowerCase();
     const hash = await digest(input.password);
@@ -228,7 +277,11 @@ export const auth = {
   },
 
   async signOut(): Promise<ApiResult<null>> {
-    if (API_BASE) return request<null>("/auth/sign-out", { method: "POST" });
+    if (API_BASE) {
+      const result = await request<null>("/auth/sign-out", { method: "POST" });
+      clearStoredToken();
+      return result;
+    }
     writeRecord(COLLECTIONS.session, null);
     notify(COLLECTIONS.session);
     return settle(ok(null));
@@ -290,7 +343,11 @@ export const auth = {
   },
 
   async deleteAccount(): Promise<ApiResult<null>> {
-    if (API_BASE) return request<null>("/auth/account", { method: "DELETE" });
+    if (API_BASE) {
+      const result = await request<null>("/auth/account", { method: "DELETE" });
+      clearStoredToken();
+      return result;
+    }
     const id = readRecord<string>(COLLECTIONS.session);
     if (!id) return fail("unauthorized", "You are signed out.");
     mutateCollection<StoredUser>(COLLECTIONS.users, (users) => users.filter((u) => u.id !== id));

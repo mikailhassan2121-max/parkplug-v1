@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { prisma } from "../db.js";
-import { readSessionCookie, clearSessionCookie } from "../lib/cookies.js";
+import { resolveSessionId, clearSessionCookie } from "../lib/cookies.js";
 import { unauthorized } from "../lib/errors.js";
 
 /**
@@ -10,7 +10,7 @@ import { unauthorized } from "../lib/errors.js";
  * `req.user` to personalise a response without forcing sign-in.
  */
 export async function attachSession(req: Request, res: Response, next: NextFunction) {
-  const sessionId = readSessionCookie(req);
+  const sessionId = resolveSessionId(req);
   if (!sessionId) return next();
 
   const session = await prisma.session.findUnique({
