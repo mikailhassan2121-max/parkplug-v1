@@ -4,15 +4,30 @@ A parking marketplace where drivers reserve private spaces, homeowners and
 businesses list parking they are not using, and the community reports free
 public parking they have spotted.
 
-Built with Next.js 15 (App Router), TypeScript, and Tailwind CSS v4.
+Built with Next.js 15 (App Router), TypeScript, and Tailwind CSS v4, backed by
+a Node/Express + PostgreSQL API in `server/` (see `server/README.md`).
 
 ---
 
 ## Running it
 
+Frontend only, using the browser-local data adapter (no backend needed):
+
 ```bash
 npm install
 npm run dev          # http://localhost:3000
+```
+
+With the real backend:
+
+```bash
+cd server && npm install && cp .env.example .env   # fill in DATABASE_URL
+npx prisma migrate deploy && npm run dev             # http://localhost:4000
+
+# in the root directory
+cp .env.example .env.local
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:4000" >> .env.local
+npm install && npm run dev                           # http://localhost:3000
 ```
 
 ```bash
@@ -64,6 +79,7 @@ src/
     seo.ts             Metadata builder
   config/business.ts   Business and legal configuration
   content/             Help-centre articles
+server/                Node/Express + PostgreSQL API — see server/README.md
 ```
 
 ### The data layer
@@ -74,7 +90,9 @@ Everything the UI needs goes through `src/lib/api`. Two adapters sit behind it:
   pre-seeded, so an unconnected ParkPlug shows genuine empty states rather than
   invented listings, reviews, counts, or earnings.
 - **HTTP.** Set `NEXT_PUBLIC_API_BASE_URL` and every call is proxied to that
-  server. The request/response shapes are the types in `src/lib/types.ts`.
+  server. The request/response shapes are the types in `src/lib/types.ts`, and
+  `server/` implements exactly that contract against PostgreSQL — see
+  `server/README.md` for the backend's own architecture notes.
 
 Every call resolves to `ApiResult<T>` — either `{ ok: true, data }` or
 `{ ok: false, error }` with a typed `code` that maps onto a specific UI error
@@ -95,7 +113,7 @@ A listing's exact address is never published:
 
 ## QA
 
-Two Playwright scripts, both run against a running server:
+Three Playwright scripts:
 
 ```bash
 npm run build && npm run start &
@@ -106,10 +124,22 @@ QA_BASE_URL=http://localhost:3000 node scripts/qa-flows.mjs   # user journeys
 `qa-pages.mjs` checks every route at desktop and mobile for console errors,
 horizontal overflow, broken images, missing `alt`, heading structure, and
 unnamed controls, then sweeps 320/375/430/768/1024px for overflow and writes
-screenshots to `screenshots/`.
+screenshots to `screenshots/`. `qa-flows.mjs` drives sign-up, vehicle
+management, the listing wizard, search, the reporting flow, support, and
+keyboard access — both run fine against the browser-local adapter alone.
 
-`qa-flows.mjs` drives sign-up, vehicle management, the listing wizard, search,
-the reporting flow, support, and keyboard access.
+`qa-live-backend.mjs` requires the real API running (see `server/README.md`)
+and `NEXT_PUBLIC_API_BASE_URL` set before `npm run build`. It proves the
+integration is real rather than assumed: sign-up against Postgres, a genuine
+httpOnly session cookie, a vehicle that survives a full page reload, and a
+sign-out that actually clears the session server-side.
+
+```bash
+cd server && npm run dev &                          # :4000
+QA_BASE_URL=http://localhost:3000 \
+QA_API_BASE_URL=http://localhost:4000 \
+  node scripts/qa-live-backend.mjs
+```
 
 Set `CHROMIUM_PATH` if you have a Chromium build outside Playwright's own
 download directory.

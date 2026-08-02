@@ -1,39 +1,34 @@
 import { cn } from "@/lib/cn";
 
 /**
- * ParkPlug mark: a map pin whose counter forms a plug. Uses `currentColor` for
- * the wordmark so it inherits from context, and the brand ramp for the pin.
+ * ParkPlug mark: a navy rounded square, a bold white "P", and a plug glyph
+ * badge notched into the bottom-right corner. Matches the supplied brand
+ * artwork — `brand-600` (#184878) is sampled directly from it.
  */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 100 100"
       className={cn("h-8 w-8", className)}
       aria-hidden="true"
       focusable="false"
     >
-      <path
-        d="M16 2.5c-5.8 0-10.5 4.6-10.5 10.3 0 7.4 9.2 15.7 9.6 16.1a1.4 1.4 0 0 0 1.8 0c.4-.4 9.6-8.7 9.6-16.1C26.5 7.1 21.8 2.5 16 2.5Z"
-        className="fill-brand-600"
-      />
-      {/* Plug body */}
-      <rect x="11.6" y="10.4" width="8.8" height="7.2" rx="2.2" className="fill-white" />
-      {/* Prongs */}
-      <path
-        d="M13.9 7.6v3M18.1 7.6v3"
-        stroke="currentColor"
-        className="stroke-white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-      />
-      {/* Cord */}
-      <path
-        d="M16 17.6v2.6"
-        stroke="currentColor"
-        className="stroke-white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-      />
+      <rect x="6" y="6" width="88" height="88" rx="22" className="fill-brand-600" />
+
+      {/* "P" bowl, with a punched counter revealing the navy behind it */}
+      <rect x="26" y="24" width="42" height="32" rx="16" className="fill-white" />
+      <rect x="40" y="33" width="16" height="10" rx="5" className="fill-brand-600" />
+      {/* "P" stem, drawn last so it stays solid where it meets the bowl */}
+      <rect x="26" y="24" width="16" height="54" rx="7" className="fill-white" />
+
+      {/* Plug badge, overlapping the rounded corner like the source mark */}
+      <rect x="59" y="59" width="37" height="37" rx="13" className="fill-white" />
+      <g transform="translate(77.5 77.5) rotate(45)" className="fill-brand-600">
+        <rect x="-7" y="-2" width="14" height="9" rx="3" />
+        <rect x="-4.3" y="-9.5" width="2.8" height="8.5" rx="1.4" />
+        <rect x="1.5" y="-9.5" width="2.8" height="8.5" rx="1.4" />
+        <rect x="-1.4" y="6.5" width="2.8" height="7" rx="1.4" />
+      </g>
     </svg>
   );
 }

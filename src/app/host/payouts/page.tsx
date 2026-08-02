@@ -1,15 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import { host as hostApi } from "@/lib/api";
 import { useAsync } from "@/lib/use-async";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { ErrorState, Skeleton } from "@/components/ui/feedback";
+import { useToast } from "@/components/ui/toast";
 import { IconCheckCircle, IconLock } from "@/components/ui/icons";
 
 export default function HostPayoutsPage() {
   const state = useAsync(() => hostApi.payoutState(), []);
+  const { toast } = useToast();
+  const [starting, setStarting] = useState(false);
+
+  async function startSetup() {
+    setStarting(true);
+    const result = await hostApi.startPayoutSetup();
+    setStarting(false);
+
+    if (result.ok) {
+      window.location.href = result.data.url;
+      return;
+    }
+
+    toast({
+      tone: result.error.code === "payment_unavailable" ? "info" : "error",
+      title:
+        result.error.code === "payment_unavailable" ? "Payouts are not connected yet" : "Could not start setup",
+      description: result.error.message,
+    });
+  }
 
   return (
     <div>
@@ -62,7 +84,7 @@ export default function HostPayoutsPage() {
                     add a bank account. This takes a few minutes and is handled by
                     our payment provider.
                   </p>
-                  <Button size="lg" className="mt-5">
+                  <Button size="lg" className="mt-5" onClick={startSetup} loading={starting} loadingText="Redirecting…">
                     Start payout setup
                   </Button>
                 </>
@@ -78,7 +100,7 @@ export default function HostPayoutsPage() {
                       <li key={item}>· {item}</li>
                     ))}
                   </ul>
-                  <Button size="lg" className="mt-5">
+                  <Button size="lg" className="mt-5" onClick={startSetup} loading={starting} loadingText="Redirecting…">
                     Continue payout setup
                   </Button>
                 </>
@@ -96,7 +118,7 @@ export default function HostPayoutsPage() {
                   <Alert tone="danger" title="Payouts are on hold">
                     {state.data.reason}
                   </Alert>
-                  <Button size="lg" className="mt-5">
+                  <Button size="lg" className="mt-5" onClick={startSetup} loading={starting} loadingText="Redirecting…">
                     Resolve now
                   </Button>
                 </>

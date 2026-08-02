@@ -290,9 +290,9 @@ export function ParkingMap({
       leaflet
         .circle([privacyCircle.center.lat, privacyCircle.center.lng], {
           radius: privacyCircle.radiusMeters,
-          color: "#12816f",
+          color: "#184878",
           weight: 2,
-          fillColor: "#1fa189",
+          fillColor: "#2f6ba4",
           fillOpacity: 0.16,
           interactive: false,
         })

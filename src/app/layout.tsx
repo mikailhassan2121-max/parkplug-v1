@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#12816f",
+  themeColor: "#184878",
   width: "device-width",
   initialScale: 1,
   // Users must be able to zoom; never lock the scale.

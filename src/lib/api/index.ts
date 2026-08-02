@@ -15,6 +15,7 @@ import { minutesBetween } from "@/lib/format";
 import type {
   AppNotification,
   Conversation,
+  DriverReviewScores,
   EarningsTransaction,
   ExactAddress,
   FreeParkingReport,
@@ -28,7 +29,7 @@ import type {
   SearchResults,
   Vehicle,
 } from "@/lib/types";
-import { fail, ok, type ApiResult } from "./result";
+import { fail, ok, type ApiErrorCode, type ApiResult } from "./result";
 import { quote } from "./pricing";
 import {
   COLLECTIONS,
@@ -75,15 +76,25 @@ async function request<T>(
       const body = await response.json().catch(() => ({}) as Record<string, unknown>);
       const message = typeof body.message === "string" ? body.message : response.statusText;
       const fieldErrors = body.fieldErrors as Record<string, string> | undefined;
+
+      // A few error codes (payment_failed, payment_unavailable, upload_failed)
+      // have no HTTP status of their own — the server sets an explicit `code`
+      // in the body for those, which wins over the status-derived guess.
+      const explicitCodes: ApiErrorCode[] = ["payment_failed", "payment_unavailable", "upload_failed"];
+      const bodyCode = typeof body.code === "string" ? (body.code as ApiErrorCode) : undefined;
+
       const codeByStatus = {
         400: "validation",
         401: "unauthorized",
+        402: "payment_unavailable",
         403: "forbidden",
         404: "not_found",
         409: "conflict",
+        422: "upload_failed",
         429: "rate_limited",
       } as const;
       const code =
+        (bodyCode && explicitCodes.includes(bodyCode) ? bodyCode : undefined) ??
         codeByStatus[response.status as keyof typeof codeByStatus] ??
         (response.status >= 500 ? "server" : "unknown");
       return fail(code, message, {
@@ -834,7 +845,10 @@ export const reviews = {
     reservationId: string;
     listingId: string;
     rating: number;
+    /** Set when a driver reviews a listing. */
     categories?: Review["categories"];
+    /** Set when a host reviews a driver — a distinct scale from `categories`. */
+    driverScores?: DriverReviewScores;
     body: string;
     privateFeedback?: string;
   }): Promise<ApiResult<Review>> {
@@ -877,6 +891,12 @@ export const saved = {
   },
 
   async ids(): Promise<string[]> {
+    if (API_BASE) {
+      // No dedicated endpoint for this — the saved list is small per user,
+      // so deriving ids from the full list is simpler than adding one.
+      const result = await saved.list();
+      return result.ok ? result.data.map((l) => l.id) : [];
+    }
     const userId = currentUserId();
     if (!userId) return [];
     return readCollection<{ userId: string; listingId: string }>(COLLECTIONS.saved)
@@ -1024,5 +1044,17 @@ export const host = {
     if (API_BASE) return request<PayoutSetupState>("/host/payouts");
     // Payout onboarding is owned entirely by the payment provider.
     return settle(ok({ state: "not_started" }));
+  },
+
+  /** Starts (or resumes) Stripe Connect onboarding. Returns a URL to redirect to. */
+  async startPayoutSetup(): Promise<ApiResult<{ url: string }>> {
+    if (API_BASE) return request<{ url: string }>("/host/payouts/start", { method: "POST" });
+    return settle(
+      fail<{ url: string }>(
+        "payment_unavailable",
+        "Payouts require a payment provider, which is not connected in this environment.",
+        { retryable: false },
+      ),
+    );
   },
 };

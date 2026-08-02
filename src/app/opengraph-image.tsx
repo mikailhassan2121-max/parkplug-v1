@@ -16,7 +16,7 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "linear-gradient(135deg, #032723 0%, #12816f 100%)",
+          background: "linear-gradient(135deg, #0c1b2c 0%, #184878 100%)",
           padding: "72px",
           color: "#ffffff",
           fontFamily: "sans-serif",
@@ -34,7 +34,7 @@ export default function OpengraphImage() {
               justifyContent: "center",
               fontSize: 38,
               fontWeight: 800,
-              color: "#12816f",
+              color: "#184878",
             }}
           >
             P
@@ -54,7 +54,7 @@ export default function OpengraphImage() {
           >
             Parking made easier, one space at a time.
           </div>
-          <div style={{ fontSize: 30, color: "#aeead9", maxWidth: 860, lineHeight: 1.35 }}>
+          <div style={{ fontSize: 30, color: "#c6dbef", maxWidth: 860, lineHeight: 1.35 }}>
             Find reservable private parking and recently reported free spaces
             near your destination.
           </div>

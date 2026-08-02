@@ -188,6 +188,13 @@ export function ReviewForm() {
             safety: scores.safety,
             value: scores.value,
           },
+      driverScores: asHost
+        ? {
+            communication: scores.communication,
+            timeliness: scores.timeliness,
+            ruleCompliance: scores.ruleCompliance,
+          }
+        : undefined,
       body: body.trim(),
       privateFeedback: privateFeedback.trim() || undefined,
     });

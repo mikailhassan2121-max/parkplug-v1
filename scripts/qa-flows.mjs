@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const BASE = process.env.QA_BASE_URL ?? "http://127.0.0.1:3000";
+const BASE = process.env.QA_BASE_URL ?? "http://localhost:3000";
 const browser = await chromium.launch({
   // Falls back to Playwright's own download when CHROMIUM_PATH is unset.
   ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
