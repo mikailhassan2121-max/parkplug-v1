@@ -5,7 +5,7 @@ import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { attachSession, requireAuth } from "../middleware/session.js";
 import { toListingHostDto, toListingPublicDto, toReviewDto, obfuscate } from "../lib/dto.js";
-import { badRequest, conflict, forbidden, notFound } from "../lib/errors.js";
+import { badRequest, forbidden, notFound } from "../lib/errors.js";
 import { slugify } from "../lib/tokens.js";
 import { env } from "../env.js";
 
@@ -36,7 +36,12 @@ const AMENITIES = [
 const SURFACES = ["asphalt", "concrete", "gravel", "grass", "paver"] as const;
 
 const photoSchema = z.object({
-  url: z.string().min(1),
+  // Must be one of our own uploaded files (from POST /media/listing-photo) —
+  // never an arbitrary external URL or an inline data: URI. Otherwise a
+  // client could point a "photo" at unmoderated external content, or embed
+  // a multi-MB base64 image directly in this JSON body with none of the
+  // EXIF-stripping/format validation the real upload path enforces.
+  url: z.string().trim().startsWith(env.PUBLIC_UPLOAD_BASE_URL, "Photos must be uploaded through ParkPlug."),
   alt: z.string().default(""),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
@@ -302,11 +307,17 @@ hostListingsRouter.delete(
   asyncRoute(async (req, res) => {
     await ownedListing(req.user!.id, req.params.id!);
     const reservationCount = await prisma.reservation.count({ where: { listingId: req.params.id } });
+    // A listing with reservation history can't be hard-deleted (Reservation
+    // -> Listing is onDelete: Restrict on purpose, the same reason DELETE
+    // /auth/account archives rather than deletes) — archive it instead of
+    // making the caller retry as a separate step.
     if (reservationCount > 0) {
-      throw conflict("This listing has reservations and cannot be deleted. Archive it instead.");
+      await prisma.listing.update({ where: { id: req.params.id }, data: { status: "archived" } });
+      res.json({ archived: true });
+      return;
     }
     await prisma.listing.delete({ where: { id: req.params.id } });
-    res.json(null);
+    res.json({ archived: false });
   }),
 );
 

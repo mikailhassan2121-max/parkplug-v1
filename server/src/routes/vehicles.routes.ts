@@ -4,7 +4,7 @@ import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { requireAuth } from "../middleware/session.js";
 import { toVehicleDto } from "../lib/dto.js";
-import { badRequest, forbidden, notFound } from "../lib/errors.js";
+import { badRequest, conflict, forbidden, notFound } from "../lib/errors.js";
 
 export const vehiclesRouter = Router();
 vehiclesRouter.use(requireAuth);
@@ -76,6 +76,13 @@ vehiclesRouter.delete(
   "/:id",
   asyncRoute(async (req, res) => {
     await ownedVehicle(req.user!.id, req.params.id!);
+    // Reservation.vehicleId is onDelete: Restrict on purpose — a booking's
+    // vehicle record has to survive the vehicle being removed later. Check
+    // first rather than letting the delete hit that constraint unhandled.
+    const reservationCount = await prisma.reservation.count({ where: { vehicleId: req.params.id } });
+    if (reservationCount > 0) {
+      throw conflict("This vehicle has reservation history and cannot be removed.");
+    }
     await prisma.vehicle.delete({ where: { id: req.params.id } });
     res.json(null);
   }),

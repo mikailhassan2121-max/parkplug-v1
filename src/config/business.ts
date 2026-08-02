@@ -19,17 +19,26 @@ function envString(value: string | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-/** Placeholder token rendered wherever a legal or business value is unknown. */
+/**
+ * Fallback text rendered wherever a legal or business value is unknown.
+ * Plain sentences, not bracketed template tokens — a policy page or fee
+ * table that visibly says "[LEGAL BUSINESS NAME]" reads as an unfinished
+ * template to a real visitor (and to Google/Meta ad review); "the operator
+ * of ParkPlug" reads as a true, if incomplete, sentence. The production
+ * build fails outright before any of these can actually ship — see
+ * scripts/check-required-env.mjs — so this is the defense-in-depth fallback
+ * for any other build path, not the primary safeguard.
+ */
 export const PLACEHOLDER = {
-  legalName: "[LEGAL BUSINESS NAME]",
-  mailingAddress: "[MAILING ADDRESS]",
-  supportEmail: "[SUPPORT EMAIL]",
-  privacyEmail: "[PRIVACY EMAIL]",
-  governingState: "[GOVERNING STATE]",
-  serviceFee: "[SERVICE FEE RATE]",
-  hostFee: "[HOST FEE RATE]",
-  effectiveDate: "[EFFECTIVE DATE]",
-  responseTime: "[RESPONSE TIME]",
+  legalName: "an entity to be named",
+  mailingAddress: "an address not yet published",
+  supportEmail: "not yet published",
+  privacyEmail: "not yet published",
+  governingState: "a jurisdiction to be confirmed",
+  serviceFee: "not yet set",
+  hostFee: "not yet set",
+  effectiveDate: "not yet published",
+  responseTime: "not yet published",
 } as const;
 
 export const business = {

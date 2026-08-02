@@ -28,6 +28,10 @@ export function errorHandler(
       res.status(404).json({ message: "We could not find that." });
       return;
     }
+    if (err.code === "P2003") {
+      res.status(409).json({ message: "This has related records and cannot be deleted." });
+      return;
+    }
   }
 
   console.error(`[${res.locals.requestId ?? "-"}]`, err);

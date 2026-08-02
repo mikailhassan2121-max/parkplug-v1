@@ -23,6 +23,7 @@ import {
   IconList,
   IconPause,
   IconPlus,
+  IconTrash,
 } from "@/components/ui/icons";
 
 type TabId = "active" | "draft" | "in_review" | "paused" | "archived";
@@ -49,6 +50,7 @@ function HostListingsView() {
   const { toast } = useToast();
   const [active, setActive] = useState<TabId>("active");
   const [archiveTarget, setArchiveTarget] = useState<StoredListing | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<StoredListing | null>(null);
   const [busy, setBusy] = useState(false);
 
   const all = state.status === "ready" ? state.data : [];
@@ -64,6 +66,27 @@ function HostListingsView() {
       state.reload();
     } else {
       toast({ tone: "error", title: "Could not update the listing", description: result.error.message });
+    }
+  }
+
+  async function deleteListing(listing: StoredListing) {
+    setBusy(true);
+    const result = await listingsApi.remove(listing.id);
+    setBusy(false);
+    setDeleteTarget(null);
+    if (result.ok) {
+      // A listing with reservation history can't be hard-deleted — the
+      // server archives it instead so bookings already made stay honoured.
+      toast({
+        tone: "success",
+        title: result.data.archived ? "Listing archived" : "Listing deleted",
+        description: result.data.archived
+          ? "It has reservation history, so it was archived rather than deleted."
+          : undefined,
+      });
+      state.reload();
+    } else {
+      toast({ tone: "error", title: "Could not delete the listing", description: result.error.message });
     }
   }
 
@@ -247,6 +270,15 @@ function HostListingsView() {
                                   Archive
                                 </Button>
                               ) : null}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                leadingIcon={<IconTrash />}
+                                className="text-danger-700 hover:bg-danger-50"
+                                onClick={() => setDeleteTarget(listing)}
+                              >
+                                Delete
+                              </Button>
                             </div>
                           </div>
                         </article>
@@ -270,6 +302,17 @@ function HostListingsView() {
         title="Archive this listing?"
         description="It will stop appearing in search and cannot be booked. Existing confirmed reservations are not canceled — you still need to honour them."
         confirmLabel="Archive listing"
+        destructive
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && void deleteListing(deleteTarget)}
+        loading={busy}
+        title="Delete this listing?"
+        description="This permanently removes the listing and cannot be undone. If it has any reservation history, it will be archived instead so those bookings stay honoured."
+        confirmLabel="Delete listing"
         destructive
       />
     </div>

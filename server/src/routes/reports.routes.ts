@@ -3,8 +3,9 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { requireAuth } from "../middleware/session.js";
+import { userLimiter } from "../middleware/rate-limit.js";
 import { toReportDto } from "../lib/dto.js";
-import { badRequest, notFound } from "../lib/errors.js";
+import { badRequest, forbidden, notFound } from "../lib/errors.js";
 import { newTicketReference } from "../lib/tokens.js";
 
 export const reportsRouter = Router();
@@ -66,6 +67,7 @@ const createSchema = z.object({
 reportsRouter.post(
   "/",
   requireAuth,
+  userLimiter({ windowMs: 60 * 60_000, limit: 20, message: "Too many reports submitted. Try again later." }),
   asyncRoute(async (req, res) => {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) throw badRequest("Check your report and try again.");
@@ -163,6 +165,41 @@ reportsRouter.post(
     }
 
     const updated = await prisma.freeParkingReport.findUniqueOrThrow({ where: { id: report.id } });
+    res.json(toReportDto(updated));
+  }),
+);
+
+async function ownedReport(userId: string, id: string) {
+  const report = await prisma.freeParkingReport.findUnique({ where: { id } });
+  if (!report) throw notFound("This report is no longer available.");
+  if (report.userId !== userId) throw forbidden();
+  return report;
+}
+
+reportsRouter.delete(
+  "/:id",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const report = await ownedReport(req.user!.id, req.params.id!);
+    // Soft delete — withdrawn reports keep their row (audit trail) but drop
+    // out of search/map/homepage the same as any other non-active status.
+    const updated = await prisma.freeParkingReport.update({
+      where: { id: report.id },
+      data: { status: "withdrawn" },
+    });
+    res.json(toReportDto(updated));
+  }),
+);
+
+reportsRouter.post(
+  "/:id/expire",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const report = await ownedReport(req.user!.id, req.params.id!);
+    const updated = await prisma.freeParkingReport.update({
+      where: { id: report.id },
+      data: { expiresAt: new Date() },
+    });
     res.json(toReportDto(updated));
   }),
 );

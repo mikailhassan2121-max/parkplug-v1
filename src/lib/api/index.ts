@@ -559,10 +559,16 @@ export const listings = {
     return settle(ok(updated));
   },
 
-  async remove(id: string): Promise<ApiResult<null>> {
-    if (API_BASE) return request<null>(`/host/listings/${id}`, { method: "DELETE" });
+  /**
+   * Deletes the listing outright, unless it has reservation history — in
+   * that case the server archives it instead (Reservation -> Listing can't
+   * be hard-deleted through) and reports that back via `archived: true` so
+   * the caller can show the right outcome.
+   */
+  async remove(id: string): Promise<ApiResult<{ archived: boolean }>> {
+    if (API_BASE) return request<{ archived: boolean }>(`/host/listings/${id}`, { method: "DELETE" });
     mutateCollection<StoredListing>(COLLECTIONS.listings, (all) => all.filter((l) => l.id !== id));
-    return settle(ok(null));
+    return settle(ok({ archived: false }));
   },
 };
 
@@ -866,6 +872,12 @@ export const reports = {
     if (API_BASE) return request<null>(`/reports/${id}/flag`, { method: "POST", body: JSON.stringify({ reason }) });
     return settle(ok(null), 600);
   },
+
+  /** Withdraws a report you filed — a soft delete; it drops out of search immediately. */
+  async remove(id: string): Promise<ApiResult<FreeParkingReport>> {
+    if (API_BASE) return request<FreeParkingReport>(`/reports/${id}`, { method: "DELETE" });
+    return settle(updateReport(id, (r) => ({ ...r, status: "expired" })));
+  },
 };
 
 function updateReport(
@@ -1054,6 +1066,61 @@ export const support = {
       { ...input, ticketReference, createdAt: new Date().toISOString() },
     ]);
     return settle(ok({ ticketReference }), 900);
+  },
+};
+
+export const uploads = {
+  /**
+   * Uploads a listing photo through the real API, which strips EXIF/GPS and
+   * verifies it is a genuine raster image server-side (see
+   * server/src/lib/uploads.ts) — never embeds the file inline. Without a
+   * backend, falls back to reading it as a data URL so the browser-local
+   * demo build still works; that path has no server to strip metadata, so
+   * it stays demo-only.
+   */
+  async uploadListingPhoto(file: File): Promise<ApiResult<{ url: string; width: number; height: number }>> {
+    if (!API_BASE) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const url = String(reader.result);
+          const img = new Image();
+          img.onload = () =>
+            resolve(ok({ url, width: img.naturalWidth, height: img.naturalHeight }));
+          img.onerror = () => resolve(fail("upload_failed", "That image could not be read."));
+          img.src = url;
+        };
+        reader.onerror = () => resolve(fail("upload_failed", "That image could not be read."));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 30000);
+    try {
+      const token = getStoredToken();
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch(`${API_BASE}/media/listing-photo`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+        // No Content-Type here — the browser sets the multipart boundary
+        // itself; setting it manually breaks the upload.
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body,
+      });
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}) as Record<string, unknown>);
+        const message = typeof errBody.message === "string" ? errBody.message : "That image could not be uploaded.";
+        return fail("upload_failed", message);
+      }
+      return ok((await response.json()) as { url: string; width: number; height: number });
+    } catch {
+      return fail("network", "We could not reach ParkPlug.");
+    } finally {
+      clearTimeout(timer);
+    }
   },
 };
 

@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import type { ListingPhoto } from "@/lib/types";
 import { newId } from "@/lib/api/store";
+import { uploads } from "@/lib/api";
 import { Button, IconButton } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +28,12 @@ type Pending = { id: string; name: string; progress: number };
 /**
  * Photo upload with drag-and-drop, reordering, and a main-photo selection.
  *
- * Files are read locally and handed back as `ListingPhoto` records. Swap
- * `readFile` for a call to the media upload endpoint to store them remotely —
- * the rest of this component does not change.
+ * Uploads go through the real media endpoint, which strips EXIF/GPS data and
+ * verifies the file is a genuine image server-side — a phone photo's GPS
+ * coordinates must never reach a public listing page, since that would
+ * undermine the whole approximate-location privacy system. (Falls back to
+ * reading the file locally only in the browser-local demo build, which has
+ * no backend to upload to.)
  */
 export function PhotoUploader({
   photos,
@@ -46,29 +50,11 @@ export function PhotoUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
-  const readFile = useCallback(
-    (file: File): Promise<ListingPhoto | null> =>
-      new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const url = String(reader.result);
-          const img = new window.Image();
-          img.onload = () =>
-            resolve({
-              id: newId("pho"),
-              url,
-              alt: "",
-              width: img.naturalWidth,
-              height: img.naturalHeight,
-            });
-          img.onerror = () => resolve(null);
-          img.src = url;
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(file);
-      }),
-    [],
-  );
+  const readFile = useCallback(async (file: File): Promise<ListingPhoto | null> => {
+    const result = await uploads.uploadListingPhoto(file);
+    if (!result.ok) return null;
+    return { id: newId("pho"), url: result.data.url, alt: "", width: result.data.width, height: result.data.height };
+  }, []);
 
   const addFiles = useCallback(
     async (files: FileList | File[]) => {

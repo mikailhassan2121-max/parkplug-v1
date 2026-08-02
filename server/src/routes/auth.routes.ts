@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { requireAuth } from "../middleware/session.js";
+import { userLimiter } from "../middleware/rate-limit.js";
 import { setSessionCookie, clearSessionCookie, SESSION_TTL_MS } from "../lib/cookies.js";
 import { hashPassword, verifyPassword } from "../lib/password.js";
 import { generateToken, hashToken } from "../lib/tokens.js";
@@ -270,6 +271,7 @@ authRouter.post(
 authRouter.post(
   "/verify/resend",
   requireAuth,
+  userLimiter({ windowMs: 60 * 60_000, limit: 5, message: "Too many verification emails requested. Try again later." }),
   asyncRoute(async (req, res) => {
     const token = generateToken();
     await prisma.emailVerificationToken.create({

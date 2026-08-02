@@ -252,7 +252,7 @@ export type FreeParkingReport = {
   confidence: ReportConfidence;
   confirmations: number;
   markedTakenCount: number;
-  status: "active" | "expired" | "taken";
+  status: "active" | "expired" | "taken" | "withdrawn";
   photoUrl?: string;
   notes?: string;
 };
