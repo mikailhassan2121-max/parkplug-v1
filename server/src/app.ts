@@ -65,6 +65,14 @@ export function createApp() {
     "/auth/sign-in",
     rateLimit({ windowMs: 15 * 60_000, limit: 20, standardHeaders: true, legacyHeaders: false }),
   );
+  // Per-IP alone only stops one attacker machine — a credential-stuffing run
+  // spread across many IPs against a single victim email sails through it.
+  // emailLimiter is keyed on the email in the body instead, so it catches
+  // exactly that distributed case the IP limiter above cannot see.
+  app.use(
+    "/auth/sign-in",
+    emailLimiter({ windowMs: 15 * 60_000, limit: 10, message: "Too many sign-in attempts for this account. Try again later." }),
+  );
   app.use(
     "/auth/sign-up",
     rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }),
@@ -72,6 +80,13 @@ export function createApp() {
   app.use(
     "/auth/password-reset",
     rateLimit({ windowMs: 60 * 60_000, limit: 10, standardHeaders: true, legacyHeaders: false }),
+  );
+  // Same distributed gap as sign-in — without this, an attacker spread across
+  // many IPs could still email-bomb one address with reset links well past
+  // what the per-IP limiter above catches.
+  app.use(
+    "/auth/password-reset",
+    emailLimiter({ windowMs: 60 * 60_000, limit: 5, message: "Too many password reset requests for this account. Try again later." }),
   );
   // Sends a real email on every call; only the 300/min global limit covered
   // it before, cheap enough for one signed-in account to burn through the

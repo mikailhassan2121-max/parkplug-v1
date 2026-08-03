@@ -395,10 +395,11 @@ export const vehicles = {
 
   async update(id: string, patch: Partial<Vehicle>): Promise<ApiResult<Vehicle>> {
     if (API_BASE) return request<Vehicle>(`/vehicles/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
+    const userId = currentUserId();
     let updated: StoredVehicle | undefined;
     mutateCollection<StoredVehicle>(COLLECTIONS.vehicles, (all) =>
       all.map((v) => {
-        if (v.id !== id) return v;
+        if (v.id !== id || v.userId !== userId) return v;
         updated = { ...v, ...patch };
         return updated;
       }),
@@ -409,7 +410,10 @@ export const vehicles = {
 
   async remove(id: string): Promise<ApiResult<null>> {
     if (API_BASE) return request<null>(`/vehicles/${id}`, { method: "DELETE" });
-    mutateCollection<StoredVehicle>(COLLECTIONS.vehicles, (all) => all.filter((v) => v.id !== id));
+    const userId = currentUserId();
+    mutateCollection<StoredVehicle>(COLLECTIONS.vehicles, (all) =>
+      all.filter((v) => !(v.id === id && v.userId === userId)),
+    );
     return settle(ok(null));
   },
 
@@ -547,10 +551,11 @@ export const listings = {
 
   async update(id: string, patch: Partial<StoredListing>): Promise<ApiResult<StoredListing>> {
     if (API_BASE) return request<StoredListing>(`/host/listings/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
+    const userId = currentUserId();
     let updated: StoredListing | undefined;
     mutateCollection<StoredListing>(COLLECTIONS.listings, (all) =>
       all.map((l) => {
-        if (l.id !== id) return l;
+        if (l.id !== id || l.hostUserId !== userId) return l;
         updated = { ...l, ...patch, updatedAt: new Date().toISOString() };
         return updated;
       }),
@@ -567,7 +572,10 @@ export const listings = {
    */
   async remove(id: string): Promise<ApiResult<{ archived: boolean }>> {
     if (API_BASE) return request<{ archived: boolean }>(`/host/listings/${id}`, { method: "DELETE" });
-    mutateCollection<StoredListing>(COLLECTIONS.listings, (all) => all.filter((l) => l.id !== id));
+    const userId = currentUserId();
+    mutateCollection<StoredListing>(COLLECTIONS.listings, (all) =>
+      all.filter((l) => !(l.id === id && l.hostUserId === userId)),
+    );
     return settle(ok({ archived: false }));
   },
 };
@@ -674,8 +682,9 @@ export const reservations = {
 
   async get(reference: string): Promise<ApiResult<Reservation>> {
     if (API_BASE) return request<Reservation>(`/reservations/${encodeURIComponent(reference)}`);
+    const userId = currentUserId();
     const found = readCollection<StoredReservation>(COLLECTIONS.reservations).find(
-      (r) => r.reference === reference || r.id === reference,
+      (r) => (r.reference === reference || r.id === reference) && r.userId === userId,
     );
     if (!found) return settle(fail<Reservation>("not_found", "We could not find that reservation.", { retryable: false }));
     return settle(ok(found));
@@ -1015,8 +1024,9 @@ export const notifications = {
 
   async markRead(id: string): Promise<ApiResult<null>> {
     if (API_BASE) return request<null>(`/notifications/${id}/read`, { method: "POST" });
+    const userId = currentUserId();
     mutateCollection<AppNotification & { userId: string }>(COLLECTIONS.notifications, (all) =>
-      all.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)),
+      all.map((n) => (n.id === id && n.userId === userId ? { ...n, readAt: new Date().toISOString() } : n)),
     );
     return ok(null);
   },
@@ -1033,8 +1043,9 @@ export const notifications = {
 
   async remove(id: string): Promise<ApiResult<null>> {
     if (API_BASE) return request<null>(`/notifications/${id}`, { method: "DELETE" });
+    const userId = currentUserId();
     mutateCollection<AppNotification & { userId: string }>(COLLECTIONS.notifications, (all) =>
-      all.filter((n) => n.id !== id),
+      all.filter((n) => !(n.id === id && n.userId === userId)),
     );
     return ok(null);
   },
