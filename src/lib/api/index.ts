@@ -9,7 +9,7 @@
  * invents a record — an unconnected ParkPlugs shows genuine empty states.
  */
 
-import { paymentsConfigured } from "@/config/business";
+import { business, paymentsConfigured } from "@/config/business";
 import { distanceMeters, toApproximateLocation, walkingMinutes } from "@/lib/geo";
 import { minutesBetween } from "@/lib/format";
 import type {
@@ -534,8 +534,7 @@ export const listings = {
         displayName: user.fullName.split(" ")[0] ?? user.fullName,
         joinedAt: user.createdAt,
       },
-      // Listings enter review rather than going live silently.
-      status: "in_review",
+      status: business.listingsAutoPublish ? "active" : "in_review",
       createdAt: now,
       updatedAt: now,
       viewCount: 0,

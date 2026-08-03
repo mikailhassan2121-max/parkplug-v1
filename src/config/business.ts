@@ -90,10 +90,13 @@ export const business = {
   supportResponseTime: envString(process.env.NEXT_PUBLIC_SUPPORT_RESPONSE_TIME),
 
   /**
-   * Whether listings go live automatically or after a review. Defaults to
-   * review, which matches the wording used across the host flow.
+   * Whether listings go live automatically or after a review. Defaults on —
+   * set NEXT_PUBLIC_LISTINGS_AUTO_PUBLISH=false to hold new listings at
+   * "in_review" instead. Must match server/src/env.ts's LISTINGS_AUTO_PUBLISH
+   * so the "what happens after you submit" copy in the listing wizard stays
+   * accurate.
    */
-  listingsAutoPublish: process.env.NEXT_PUBLIC_LISTINGS_AUTO_PUBLISH === "true",
+  listingsAutoPublish: process.env.NEXT_PUBLIC_LISTINGS_AUTO_PUBLISH !== "false",
 } as const;
 
 export const siteUrl =

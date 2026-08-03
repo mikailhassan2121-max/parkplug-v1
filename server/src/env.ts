@@ -37,10 +37,12 @@ const schema = z.object({
   HOST_FEE_BPS: z.coerce.number().optional(),
   TAX_BPS: z.coerce.number().optional(),
 
+  // Defaults on — listings go live immediately with no review step. Set to
+  // "false" to hold new listings at "in_review" instead.
   LISTINGS_AUTO_PUBLISH: z
     .string()
     .optional()
-    .transform((v) => v === "true"),
+    .transform((v) => v !== "false"),
 });
 
 const parsed = schema.safeParse(process.env);

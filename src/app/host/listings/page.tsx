@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { listings as listingsApi, type StoredListing } from "@/lib/api";
+import { business } from "@/config/business";
 import { formatMoney } from "@/lib/format";
 import { useAsync } from "@/lib/use-async";
 import type { ListingStatus } from "@/lib/types";
@@ -105,9 +106,14 @@ function HostListingsView() {
       </div>
 
       {justSubmitted ? (
-        <Alert tone="success" className="mt-6" title="Listing submitted for review">
-          We will confirm that it meets marketplace requirements and let you know
-          when it is published.
+        <Alert
+          tone="success"
+          className="mt-6"
+          title={business.listingsAutoPublish ? "Listing published" : "Listing submitted for review"}
+        >
+          {business.listingsAutoPublish
+            ? "Your listing is live and visible in search now. You can pause or edit it at any time."
+            : "We will confirm that it meets marketplace requirements and let you know when it is published."}
         </Alert>
       ) : null}
 
