@@ -4,9 +4,10 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { cn } from "@/lib/cn";
+import { getCurrentPosition, LOCATION_ERROR_COPY, type LocationError } from "@/lib/geo";
 import type { Coordinates, FreeParkingReport, ListingSummary } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { IconCrosshair, IconRefresh } from "@/components/ui/icons";
+import { IconCrosshair, IconNavigation, IconRefresh } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/feedback";
 import {
   clusterIcon,
@@ -101,6 +102,8 @@ export type ParkingMapProps = {
   className?: string;
   interactive?: boolean;
   showRecenter?: boolean;
+  /** Adds a "Share my location" control that renders a "you are here" marker. */
+  showLocateMe?: boolean;
   /** Accessible description; the list view is the non-visual equivalent. */
   ariaLabel?: string;
 };
@@ -119,6 +122,7 @@ export function ParkingMap({
   className,
   interactive = true,
   showRecenter = true,
+  showLocateMe = false,
   ariaLabel = "Map of parking near your destination",
 }: ParkingMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -128,7 +132,14 @@ export function ParkingMap({
   const overlayRef = useRef<L.LayerGroup | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [currentZoom, setCurrentZoom] = useState(zoom);
+  const [locatedPosition, setLocatedPosition] = useState<Coordinates | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<LocationError | null>(null);
   const uid = useId();
+
+  // A caller-supplied `userLocation` always wins; otherwise fall back to a
+  // position this control itself fetched via "Share my location".
+  const resolvedUserLocation = userLocation ?? locatedPosition ?? undefined;
 
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
@@ -307,20 +318,39 @@ export function ParkingMap({
         })
         .addTo(overlay);
     }
-    if (userLocation) {
+    if (resolvedUserLocation) {
       leaflet
-        .marker([userLocation.lat, userLocation.lng], {
+        .marker([resolvedUserLocation.lat, resolvedUserLocation.lng], {
           icon: userLocationIcon(leaflet),
           interactive: false,
           alt: "Your current location",
+          zIndexOffset: 900,
         })
         .addTo(overlay);
     }
-  }, [destination, userLocation, privacyCircle]);
+  }, [destination, resolvedUserLocation, privacyCircle]);
 
   const recenter = useCallback(() => {
     mapRef.current?.setView([center.lat, center.lng], zoom, { animate: true });
   }, [center.lat, center.lng, zoom]);
+
+  const locateMe = useCallback(async () => {
+    setLocating(true);
+    setLocateError(null);
+    const result = await getCurrentPosition();
+    setLocating(false);
+    if (!result.ok) {
+      setLocateError(result.reason);
+      return;
+    }
+    setLocatedPosition(result.center);
+    const map = mapRef.current;
+    if (map) {
+      map.setView([result.center.lat, result.center.lng], Math.max(map.getZoom(), 15), {
+        animate: true,
+      });
+    }
+  }, []);
 
   return (
     <div className={cn("relative isolate overflow-hidden bg-ink-100", className)}>
@@ -359,16 +389,45 @@ export function ParkingMap({
         </div>
       ) : null}
 
-      {showRecenter && status === "ready" && interactive ? (
-        <button
-          type="button"
-          onClick={recenter}
-          className="absolute right-3 top-3 z-20 grid h-10 w-10 place-items-center rounded-xl border border-ink-200
-                     bg-white text-ink-700 shadow-e2 transition-colors hover:bg-ink-50"
-          aria-label="Recenter map on your search area"
-        >
-          <IconCrosshair className="text-lg" />
-        </button>
+      {status === "ready" && interactive && (showRecenter || showLocateMe) ? (
+        <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
+          {showRecenter ? (
+            <button
+              type="button"
+              onClick={recenter}
+              className="grid h-10 w-10 place-items-center rounded-xl border border-ink-200
+                         bg-white text-ink-700 shadow-e2 transition-colors hover:bg-ink-50"
+              aria-label="Recenter map on your search area"
+            >
+              <IconCrosshair className="text-lg" />
+            </button>
+          ) : null}
+          {showLocateMe ? (
+            <button
+              type="button"
+              onClick={() => void locateMe()}
+              disabled={locating}
+              className="grid h-10 w-10 place-items-center rounded-xl border border-ink-200
+                         bg-white text-info-600 shadow-e2 transition-colors hover:bg-ink-50 disabled:opacity-60"
+              aria-label="Share my current location"
+            >
+              {locating ? (
+                <Spinner size="sm" label="Finding your location" />
+              ) : (
+                <IconNavigation className="text-lg" />
+              )}
+            </button>
+          ) : null}
+          {locateError ? (
+            <div
+              role="status"
+              className="max-w-[13rem] rounded-lg border border-warning-200 bg-warning-50 px-3 py-2
+                         text-xs font-medium leading-snug text-warning-800 shadow-e2"
+            >
+              {LOCATION_ERROR_COPY[locateError].description}
+            </div>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

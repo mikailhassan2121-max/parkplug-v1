@@ -365,6 +365,7 @@ export function ReportFlow() {
                     destination={draft.center}
                     className="h-56"
                     showRecenter={false}
+                    showLocateMe
                     onBoundsChange={(center) => patch({ center })}
                     ariaLabel="Drag the map to fine-tune where the parking is"
                   />

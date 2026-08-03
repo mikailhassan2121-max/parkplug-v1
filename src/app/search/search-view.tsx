@@ -431,6 +431,7 @@ export function SearchView() {
                     setPendingCenter(moved ? center : null);
                   }}
                   destination={query.center}
+                  showLocateMe
                   className="h-full min-h-[60dvh] lg:min-h-full lg:sticky lg:top-[8.5rem] lg:h-[calc(100dvh-8.5rem)]"
                   ariaLabel="Map of parking results. The results list contains the same places in text form."
                 />
