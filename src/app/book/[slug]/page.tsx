@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { RequireAuth } from "@/components/dashboard/require-auth";
 import { Container } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/feedback";
 import { BookingFlow } from "./booking-flow";
@@ -14,17 +15,22 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
+// Booking is tied to an account (POST /reservations requires auth) — gate it
+// here so an anonymous visitor finds that out before filling in four steps,
+// not at the final confirm click. Mirrors ReportParkingPage.
 export default async function BookPage({ params }: Props) {
   const { slug } = await params;
   return (
-    <Suspense
-      fallback={
-        <Container size="default" className="py-10">
-          <Skeleton className="h-96 w-full" rounded="rounded-card" />
-        </Container>
-      }
-    >
-      <BookingFlow slug={slug} />
-    </Suspense>
+    <RequireAuth>
+      <Suspense
+        fallback={
+          <Container size="default" className="py-10">
+            <Skeleton className="h-96 w-full" rounded="rounded-card" />
+          </Container>
+        }
+      >
+        <BookingFlow slug={slug} />
+      </Suspense>
+    </RequireAuth>
   );
 }
