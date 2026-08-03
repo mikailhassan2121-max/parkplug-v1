@@ -185,9 +185,10 @@ export function ListingWizard() {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<{ message: string; fieldErrors?: Record<string, string> } | null>(null);
   const [exitOpen, setExitOpen] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [photosDropped, setPhotosDropped] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
 
@@ -201,9 +202,24 @@ export function ListingWizard() {
   useEffect(() => {
     const stored = readRecord<{ draft: Draft; step: number }>(DRAFT_KEY);
     if (stored?.draft) {
-      setDraft({ ...EMPTY_DRAFT, ...stored.draft });
+      // Older drafts (saved before uploads went through the real media
+      // endpoint) can have photos stored as inline base64 data: URLs. They
+      // still render fine locally — a browser displays a data: URL like any
+      // other image — but the server now rejects them outright (a photo's
+      // URL must come from our own upload endpoint), which used to surface
+      // as a generic "check the highlighted fields" error with nothing
+      // actually highlighted. Strip them here instead, so the photos step's
+      // existing "add at least one photo" validation catches it honestly.
+      const hasStalePhotos = stored.draft.photos?.some((p) => p.url.startsWith("data:"));
+      const restoredDraft: Draft = {
+        ...EMPTY_DRAFT,
+        ...stored.draft,
+        photos: hasStalePhotos ? stored.draft.photos.filter((p) => !p.url.startsWith("data:")) : stored.draft.photos,
+      };
+      setDraft(restoredDraft);
       setStep(Math.min(stored.step ?? 0, STEPS.length - 1));
       setRestored(true);
+      setPhotosDropped(Boolean(hasStalePhotos));
     }
   }, []);
 
@@ -318,6 +334,19 @@ export function ListingWizard() {
     return found;
   }
 
+  // Errors are set once, on a failed "Continue" or submit — without this,
+  // fixing a field (e.g. entering a ZIP code, attaching a photo) left its
+  // error message and the summary banner on screen until the next click,
+  // even though the field was already valid again. Re-checks only the
+  // fields already flagged, so it can't surface a *new* error before the
+  // user has tried to move on.
+  useEffect(() => {
+    if (errors.length === 0) return;
+    const stillInvalid = new Set(validate(step).map((e) => e.field));
+    setErrors((prev) => prev.filter((e) => stillInvalid.has(e.field)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
   function next() {
     const found = validate(step);
     setErrors(found);
@@ -418,7 +447,7 @@ export function ListingWizard() {
       });
       router.push("/host/listings?submitted=1");
     } else {
-      setSubmitError(result.error.message);
+      setSubmitError({ message: result.error.message, fieldErrors: result.error.fieldErrors });
     }
   }
 
@@ -478,6 +507,13 @@ export function ListingWizard() {
           </Alert>
         ) : null}
 
+        {photosDropped ? (
+          <Alert tone="warning" className="mb-6" title="Please re-add your photos">
+            The photos in your saved draft could not be restored. Add them
+            again on the Photos step before you submit.
+          </Alert>
+        ) : null}
+
         {errors.length > 0 ? (
           <div ref={summaryRef} tabIndex={-1} className="mb-6 focus:outline-none">
             <FormErrorSummary errors={errors} />
@@ -486,7 +522,14 @@ export function ListingWizard() {
 
         {submitError ? (
           <Alert tone="danger" live title="Your listing could not be submitted" className="mb-6">
-            <p>{submitError}</p>
+            <p>{submitError.message}</p>
+            {submitError.fieldErrors && Object.keys(submitError.fieldErrors).length > 0 ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {Object.entries(submitError.fieldErrors).map(([field, message]) => (
+                  <li key={field}>{message}</li>
+                ))}
+              </ul>
+            ) : null}
             <p className="mt-2 font-medium">Your draft has been saved — nothing was lost.</p>
           </Alert>
         ) : null}

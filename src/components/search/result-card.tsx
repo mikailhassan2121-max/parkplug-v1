@@ -258,7 +258,7 @@ export function ReportResultCard({
         </div>
 
         <h3 className="mt-2.5 text-[0.9375rem] font-bold leading-snug text-ink-900">
-          {countLabel(report.spacesObserved, "space")} near {report.location.label}
+          {countLabel(report.spacesObserved, "space")} · {report.location.label}
         </h3>
 
         <dl className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">

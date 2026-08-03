@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { reports as reportsApi } from "@/lib/api";
 import { getCurrentPosition, LOCATION_ERROR_COPY, toApproximateLocation } from "@/lib/geo";
 import { formatTimeRemaining, toIso, toDateInput, toTimeInput } from "@/lib/format";
@@ -138,6 +138,16 @@ export function ReportFlow() {
     }
     return found;
   }
+
+  // Without this, fixing a flagged field (e.g. choosing a location) left its
+  // error message on screen until the next "Continue" click, even though it
+  // was already valid again.
+  useEffect(() => {
+    if (errors.length === 0) return;
+    const stillInvalid = new Set(validate(step).map((e) => e.field));
+    setErrors((prev) => prev.filter((e) => stillInvalid.has(e.field)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
 
   function next() {
     const found = validate(step);
