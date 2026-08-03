@@ -22,6 +22,7 @@ import type {
   HostEarnings,
   Listing,
   ListingSummary,
+  Message,
   PayoutSetupState,
   Reservation,
   Review,
@@ -1046,6 +1047,21 @@ export const messaging = {
     // Messaging requires a server to relay between two accounts; there is
     // nothing to show until the API is connected.
     return settle(ok([]));
+  },
+
+  async getMessages(conversationId: string): Promise<ApiResult<Message[]>> {
+    if (API_BASE) return request<Message[]>(`/conversations/${conversationId}/messages`);
+    return settle(ok([]));
+  },
+
+  async sendMessage(conversationId: string, body: string): Promise<ApiResult<Message>> {
+    if (API_BASE) {
+      return request<Message>(`/conversations/${conversationId}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ body }),
+      });
+    }
+    return fail("network", "Messaging requires a connected backend.");
   },
 };
 

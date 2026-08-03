@@ -61,7 +61,7 @@ conversationsRouter.post(
       type: "new_message",
       title: "New message",
       body: conversation.listing.title,
-      href: req.user!.id === conversation.driverId ? "/host/messages" : "/messages",
+      href: req.user!.id === conversation.driverId ? `/host/messages/${conversation.id}` : `/messages/${conversation.id}`,
     });
 
     res.status(201).json(toMessageDto(message, req.user!.id));
