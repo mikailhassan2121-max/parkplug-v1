@@ -59,10 +59,10 @@ export function SignInForm() {
   return (
     <AuthShell
       title="Sign in"
-      description="Welcome back to ParkPlug."
+      description="Welcome back to ParkPlugs."
       footer={
         <>
-          New to ParkPlug?{" "}
+          New to ParkPlugs?{" "}
           <Link
             href={`/signup?next=${encodeURIComponent(next)}`}
             className="font-bold text-brand-700 underline underline-offset-2"

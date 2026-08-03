@@ -391,7 +391,7 @@ export function BookingFlow({ slug }: { slug: string }) {
 
           {step === STEPS.length - 1 && !paymentsConfigured ? (
             <Alert tone="warning" className="mt-4" title="Payment processing is not connected">
-              This ParkPlug environment has no payment provider configured, so a
+              This ParkPlugs environment has no payment provider configured, so a
               reservation cannot be completed. Everything you have entered is
               kept — set a payment provider key to enable checkout.
             </Alert>
@@ -788,7 +788,7 @@ function StepRules({
             </ul>
           ) : (
             <p className="mt-2 text-sm text-ink-600">
-              This host has not added specific rules. ParkPlug&rsquo;s standard
+              This host has not added specific rules. ParkPlugs&rsquo;s standard
               expectations still apply.
             </p>
           )}
@@ -900,7 +900,7 @@ function StepReview({
           Secure checkout
         </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-600">
-          Payments are securely processed by Stripe. ParkPlug never stores your
+          Payments are securely processed by Stripe. ParkPlugs never stores your
           full card details.
         </p>
 
@@ -924,7 +924,7 @@ function StepReview({
         <Checkbox
           label={
             <>
-              I agree to ParkPlug&rsquo;s{" "}
+              I agree to ParkPlugs&rsquo;s{" "}
               <Link href="/legal/terms" className="font-bold text-brand-700 underline underline-offset-2">
                 Terms of Service
               </Link>{" "}

@@ -10,7 +10,7 @@ import { IconAlert, IconCamera, IconCheckCircle, IconLock, IconWallet } from "@/
 export const metadata: Metadata = buildMetadata({
   title: "Hosting Guide",
   description:
-    "A practical guide to listing parking on ParkPlug: what to check first, how to price it, what makes a good listing, and what to expect.",
+    "A practical guide to listing parking on ParkPlugs: what to check first, how to price it, what makes a good listing, and what to expect.",
   path: "/hosting-guide",
 });
 
@@ -35,7 +35,7 @@ export default function HostingGuidePage() {
               Before you list
             </h2>
             <Alert tone="warning" className="mt-4" icon={<IconAlert />} title="Check that you are allowed">
-              ParkPlug does not check this for you. Read your lease, HOA rules, condo
+              ParkPlugs does not check this for you. Read your lease, HOA rules, condo
               bylaws, or business permit conditions, and look up whether your local
               authority restricts commercial parking on residential property.
             </Alert>
@@ -111,7 +111,7 @@ export default function HostingGuidePage() {
             </div>
             <Alert tone="neutral" className="mt-5">
               Actual earnings depend on demand, availability, pricing, and completed
-              reservations. ParkPlug does not promise an amount.
+              reservations. ParkPlugs does not promise an amount.
             </Alert>
           </section>
 
@@ -163,10 +163,10 @@ export default function HostingGuidePage() {
                 },
                 {
                   id: "insurance",
-                  question: "Does ParkPlug insure my property?",
+                  question: "Does ParkPlugs insure my property?",
                   answer: (
                     <p>
-                      No. ParkPlug does not provide insurance for vehicles, property, or
+                      No. ParkPlugs does not provide insurance for vehicles, property, or
                       people. Check whether your existing home or business policy covers
                       letting someone park on your property, and speak to your insurer if
                       you are unsure.
@@ -178,7 +178,7 @@ export default function HostingGuidePage() {
                   question: "What if a driver overstays or causes a problem?",
                   answer: (
                     <p>
-                      Message them through ParkPlug first, then{" "}
+                      Message them through ParkPlugs first, then{" "}
                       <Link href="/support">contact support</Link> with the reservation
                       reference. You can also review the driver after the reservation
                       ends, which other hosts will see.
@@ -203,7 +203,7 @@ export default function HostingGuidePage() {
                     <p>
                       Possibly — that depends on where you are and your circumstances.
                       You can export your earnings and fees from your earnings page.
-                      ParkPlug does not give tax advice.
+                      ParkPlugs does not give tax advice.
                     </p>
                   ),
                 },

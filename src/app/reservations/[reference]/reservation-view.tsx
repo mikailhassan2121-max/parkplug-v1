@@ -127,8 +127,8 @@ function ReservationDetail({
 
   async function shareArrival() {
     const text = addressReleased && address
-      ? `I'm parking at ${formatAddress(address)} on ${formatRange(reservation.startAt, reservation.endAt)}. ParkPlug reference ${reservation.reference}.`
-      : `I have a ParkPlug reservation (${reservation.reference}) on ${formatRange(reservation.startAt, reservation.endAt)}.`;
+      ? `I'm parking at ${formatAddress(address)} on ${formatRange(reservation.startAt, reservation.endAt)}. ParkPlugs reference ${reservation.reference}.`
+      : `I have a ParkPlugs reservation (${reservation.reference}) on ${formatRange(reservation.startAt, reservation.endAt)}.`;
     if (navigator.share) {
       try {
         await navigator.share({ title: "My parking details", text });

@@ -1,6 +1,6 @@
 {
-  "name": "ParkPlug",
-  "short_name": "ParkPlug",
+  "name": "ParkPlugs",
+  "short_name": "ParkPlugs",
   "description": "Find reservable private parking and recently reported free spaces near your destination.",
   "start_url": "/",
   "display": "standalone",

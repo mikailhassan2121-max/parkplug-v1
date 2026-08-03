@@ -229,7 +229,7 @@ export default function AccountSettingsPage() {
           />
           <Switch
             label="Product news"
-            description="Occasional updates about new ParkPlug features."
+            description="Occasional updates about new ParkPlugs features."
             checked={prefs.productNews}
             onChange={(v) => void savePrefs({ ...prefs, productNews: v })}
           />
@@ -258,7 +258,7 @@ export default function AccountSettingsPage() {
       </Section>
 
       {/* --------------------------------------------------------- Privacy */}
-      <Section title="Privacy" description="What ParkPlug shares and with whom.">
+      <Section title="Privacy" description="What ParkPlugs shares and with whom.">
         <ul className="space-y-3 text-sm leading-relaxed text-ink-700">
           <li>
             Your full name and email are never shown to hosts. They see your first
@@ -291,11 +291,11 @@ export default function AccountSettingsPage() {
       {/* --------------------------------------------------- Payment methods */}
       <Section
         title="Saved payment methods"
-        description="Cards are stored by our payment provider, never by ParkPlug."
+        description="Cards are stored by our payment provider, never by ParkPlugs."
       >
         <Alert tone="neutral">
           Your saved cards appear here once a payment provider is connected to
-          this environment. ParkPlug never sees or stores full card numbers.
+          this environment. ParkPlugs never sees or stores full card numbers.
         </Alert>
       </Section>
 
@@ -330,7 +330,7 @@ export default function AccountSettingsPage() {
         onClose={() => setDeleteOpen(false)}
         onConfirm={() => void deleteAccount()}
         loading={deleting}
-        title="Delete your ParkPlug account?"
+        title="Delete your ParkPlugs account?"
         description="Your profile, saved spaces, vehicles, and listings will be permanently removed. This cannot be undone."
         confirmLabel="Delete my account"
         destructive

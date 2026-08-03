@@ -304,7 +304,7 @@ function ListingDetail({
                 </ul>
               ) : (
                 <p className="mt-3 text-sm text-ink-600">
-                  This host has not added specific rules beyond ParkPlug&rsquo;s
+                  This host has not added specific rules beyond ParkPlugs&rsquo;s
                   standard expectations.
                 </p>
               )}

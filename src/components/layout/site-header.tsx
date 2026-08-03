@@ -92,7 +92,7 @@ export function SiteHeader() {
         <Link
           href="/"
           className="shrink-0 rounded-lg"
-          aria-label="ParkPlug home"
+          aria-label="ParkPlugs home"
         >
           <Logo />
         </Link>

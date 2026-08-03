@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/card";
 
 export const metadata: Metadata = buildMetadata({
   title: "Dashboard",
-  description: "Your ParkPlug reservations, saved spaces, vehicles, and account settings.",
+  description: "Your ParkPlugs reservations, saved spaces, vehicles, and account settings.",
   noIndex: true,
 });
 

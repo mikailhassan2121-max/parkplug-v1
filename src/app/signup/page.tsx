@@ -7,7 +7,7 @@ import { SignUpForm } from "./signup-form";
 export const metadata: Metadata = buildMetadata({
   title: "Create your account",
   description:
-    "Create a ParkPlug account to reserve parking, list a space, and report free public parking.",
+    "Create a ParkPlugs account to reserve parking, list a space, and report free public parking.",
   path: "/signup",
 });
 

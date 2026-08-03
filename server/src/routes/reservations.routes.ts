@@ -103,7 +103,7 @@ reservationsRouter.post(
     // real charge (or reporting that no payment provider is connected).
     if (!paymentsConfigured) {
       throw paymentUnavailable(
-        "ParkPlug is not connected to a payment provider yet, so this reservation cannot be completed.",
+        "ParkPlugs is not connected to a payment provider yet, so this reservation cannot be completed.",
       );
     }
 

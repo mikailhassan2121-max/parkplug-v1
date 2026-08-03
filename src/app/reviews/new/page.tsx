@@ -8,7 +8,7 @@ import { ReviewForm } from "./review-form";
 
 export const metadata: Metadata = buildMetadata({
   title: "Leave a review",
-  description: "Share how your ParkPlug reservation went.",
+  description: "Share how your ParkPlugs reservation went.",
   noIndex: true,
 });
 

@@ -6,7 +6,7 @@ import { SignInForm } from "./signin-form";
 
 export const metadata: Metadata = buildMetadata({
   title: "Sign in",
-  description: "Sign in to ParkPlug to manage reservations, saved spaces, and your listings.",
+  description: "Sign in to ParkPlugs to manage reservations, saved spaces, and your listings.",
   path: "/signin",
   noIndex: true,
 });

@@ -463,7 +463,7 @@ export function ListingWizard() {
       <div className="sticky top-16 z-50 border-b border-ink-200 bg-white lg:top-18">
         <Container size="default" className="py-3">
           <div className="flex items-center justify-between gap-4">
-            <Link href="/host" aria-label="ParkPlug hosting" className="hidden rounded-lg sm:block">
+            <Link href="/host" aria-label="ParkPlugs hosting" className="hidden rounded-lg sm:block">
               <Logo showWordmark={false} />
             </Link>
             <div className="min-w-0 flex-1 sm:px-4">
@@ -962,7 +962,7 @@ export function ListingWizard() {
                         <dd className="font-semibold">{formatMoney(earnings.grossCents)}</dd>
                       </div>
                       <div className="flex justify-between gap-4">
-                        <dt className="text-ink-600">ParkPlug host fee</dt>
+                        <dt className="text-ink-600">ParkPlugs host fee</dt>
                         <dd className="font-semibold">
                           {earnings.feeCents === null ? "Not yet set" : `−${formatMoney(earnings.feeCents)}`}
                         </dd>
@@ -980,7 +980,7 @@ export function ListingWizard() {
 
                   {business.hostFeeBps === null ? (
                     <Alert tone="warning" className="mt-4">
-                      ParkPlug&rsquo;s host fee has not been configured yet, so we
+                      ParkPlugs&rsquo;s host fee has not been configured yet, so we
                       cannot show what you would take home. It will be shown here
                       and on your earnings page once it is set.
                     </Alert>
@@ -1076,8 +1076,8 @@ export function ListingWizard() {
                         value={draft.contactPreference}
                         onChange={(e) => patch({ contactPreference: e.target.value })}
                       >
-                        <option value="message">ParkPlug messages only</option>
-                        <option value="message_urgent">ParkPlug messages, and call only if urgent</option>
+                        <option value="message">ParkPlugs messages only</option>
+                        <option value="message_urgent">ParkPlugs messages, and call only if urgent</option>
                       </Select>
                     </Field>
                   </div>
@@ -1116,7 +1116,7 @@ export function ListingWizard() {
               </fieldset>
 
               <Alert tone="neutral" className="mt-6" icon={<IconAlert />}>
-                ParkPlug does not inspect spaces or verify property ownership.
+                ParkPlugs does not inspect spaces or verify property ownership.
                 Read the{" "}
                 <Link href="/legal/host-standards" className="font-bold underline underline-offset-2">
                   Host Standards
@@ -1217,7 +1217,7 @@ export function ListingWizard() {
               <Alert tone="info" className="mt-6" title="What happens after you submit">
                 {business.listingsAutoPublish
                   ? "Your listing goes live right away. You can pause or edit it at any time."
-                  : "ParkPlug will confirm that the listing meets marketplace requirements. You will be notified when it is published."}
+                  : "ParkPlugs will confirm that the listing meets marketplace requirements. You will be notified when it is published."}
               </Alert>
             </StepBlock>
           ) : null}

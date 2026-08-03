@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/card";
 
 const COLUMNS: Array<{ heading: string; links: Array<{ href: string; label: string }> }> = [
   {
-    heading: "ParkPlug",
+    heading: "ParkPlugs",
     links: [
       { href: "/about", label: "About" },
       { href: "/how-it-works", label: "How It Works" },
@@ -53,11 +53,11 @@ export function SiteFooter() {
       <Container size="wide" className="py-12 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2.5fr)]">
           <div className="max-w-sm">
-            <Link href="/" aria-label="ParkPlug home" className="inline-flex rounded-lg">
+            <Link href="/" aria-label="ParkPlugs home" className="inline-flex rounded-lg">
               <Logo />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-ink-600">
-              ParkPlug helps drivers find parking near where they are going, and
+              ParkPlugs helps drivers find parking near where they are going, and
               helps neighbours put unused spaces to work.
             </p>
             {socialLinks.length > 0 ? (

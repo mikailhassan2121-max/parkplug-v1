@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Cookie Policy",
-  description: "The cookies ParkPlug uses, what they do, and how to control them.",
+  description: "The cookies ParkPlugs uses, what they do, and how to control them.",
   path: "/legal/cookies",
 });
 
@@ -25,7 +25,7 @@ export default function CookiePolicyPage() {
           body: (
             <>
               <p>
-                These are required for ParkPlug to work at all, so they cannot be
+                These are required for ParkPlugs to work at all, so they cannot be
                 turned off:
               </p>
               <ul>
@@ -43,7 +43,7 @@ export default function CookiePolicyPage() {
           body: (
             <>
               <p>
-                ParkPlug does not currently set analytics or advertising cookies. If
+                ParkPlugs does not currently set analytics or advertising cookies. If
                 that changes, you will be asked for permission first, and you will be
                 able to decline without losing access to any feature.
               </p>
@@ -73,7 +73,7 @@ export default function CookiePolicyPage() {
             <>
               <p>
                 Every browser lets you view and delete cookies, and block them by site.
-                Blocking essential cookies for ParkPlug will sign you out and prevent
+                Blocking essential cookies for ParkPlugs will sign you out and prevent
                 booking.
               </p>
               <p>

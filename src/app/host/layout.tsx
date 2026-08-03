@@ -5,7 +5,7 @@ import { HostShell } from "@/components/host/host-shell";
 
 export const metadata: Metadata = buildMetadata({
   title: "Host dashboard",
-  description: "Manage your ParkPlug listings, calendar, reservations, and earnings.",
+  description: "Manage your ParkPlugs listings, calendar, reservations, and earnings.",
   noIndex: true,
 });
 

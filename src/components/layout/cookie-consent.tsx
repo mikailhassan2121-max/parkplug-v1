@@ -10,7 +10,7 @@ import { COLLECTIONS, readRecord, writeRecord } from "@/lib/api/store";
 type Preferences = { analytics: boolean; decidedAt: string };
 
 /**
- * Only rendered when optional tracking actually exists. ParkPlug ships with no
+ * Only rendered when optional tracking actually exists. ParkPlugs ships with no
  * analytics by default, so no banner is shown — a consent prompt for cookies
  * that are not set would be theatre.
  */
@@ -48,7 +48,7 @@ export function CookieConsent() {
         className="fixed inset-x-0 bottom-0 z-90 border-t border-ink-200 bg-white p-4 shadow-e3 safe-bottom
                    lg:inset-x-auto lg:bottom-6 lg:left-6 lg:max-w-md lg:rounded-2xl lg:border"
       >
-        <h2 className="text-sm font-bold text-ink-900">Cookies on ParkPlug</h2>
+        <h2 className="text-sm font-bold text-ink-900">Cookies on ParkPlugs</h2>
         <p className="mt-1.5 text-xs leading-relaxed text-ink-600">
           We use essential cookies to keep you signed in and to remember your
           preferences. With your permission we also use analytics cookies to

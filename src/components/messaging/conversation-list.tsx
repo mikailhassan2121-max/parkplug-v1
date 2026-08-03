@@ -25,7 +25,7 @@ export function ConversationList({ audience }: { audience: "driver" | "host" }) 
       </p>
 
       <Alert tone="neutral" className="mt-6">
-        For everyone&rsquo;s safety, keep messages on ParkPlug. Phone numbers and
+        For everyone&rsquo;s safety, keep messages on ParkPlugs. Phone numbers and
         email addresses are not shared by default.
       </Alert>
 

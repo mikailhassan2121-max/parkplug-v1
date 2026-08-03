@@ -132,7 +132,7 @@ export function SupportForm() {
 
       <Alert tone="warning" className="mt-6" icon={<IconAlert />} title="In an emergency">
         For immediate danger or emergencies, contact local emergency services.
-        ParkPlug support cannot respond to emergencies.
+        ParkPlugs support cannot respond to emergencies.
       </Alert>
 
       <form onSubmit={submit} noValidate className="mt-8 space-y-5">
@@ -241,7 +241,7 @@ export function SupportForm() {
             onChange={(e) => setPreferredResponse(e.target.value)}
           >
             <option value="email">Email</option>
-            <option value="in_app">ParkPlug notification</option>
+            <option value="in_app">ParkPlugs notification</option>
           </Select>
         </Field>
 

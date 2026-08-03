@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Driver Standards",
-  description: "What ParkPlug expects from drivers who reserve a parking space.",
+  description: "What ParkPlugs expects from drivers who reserve a parking space.",
   path: "/legal/driver-standards",
 });
 
@@ -79,7 +79,7 @@ export default function DriverStandardsPage() {
               Reported spaces are public street parking someone saw recently. They are
               not reserved for you and are not guaranteed. Read the signs on the block
               before you leave your car — a report does not override a posted
-              restriction, and ParkPlug cannot help with a citation.
+              restriction, and ParkPlugs cannot help with a citation.
             </p>
           ),
         },
@@ -88,7 +88,7 @@ export default function DriverStandardsPage() {
           heading: "Communication and reviews",
           body: (
             <p>
-              Keep messages on ParkPlug and keep them civil. Reviews should describe
+              Keep messages on ParkPlugs and keep them civil. Reviews should describe
               your actual experience of the space. Do not use a review to pressure a
               host over a refund — <Link href="/support">contact support</Link> for
               that instead.

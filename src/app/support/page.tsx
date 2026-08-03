@@ -7,7 +7,7 @@ import { SupportForm } from "./support-form";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact Support",
-  description: "Get help with a booking, a payment, a listing, or a safety concern on ParkPlug.",
+  description: "Get help with a booking, a payment, a listing, or a safety concern on ParkPlugs.",
   path: "/support",
 });
 

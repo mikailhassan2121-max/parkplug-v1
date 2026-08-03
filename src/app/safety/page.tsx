@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = buildMetadata({
   title: "Safety & Trust",
   description:
-    "What ParkPlug does to keep the marketplace safe, what drivers and hosts are each responsible for, and what we do not claim to do.",
+    "What ParkPlugs does to keep the marketplace safe, what drivers and hosts are each responsible for, and what we do not claim to do.",
   path: "/safety",
 });
 
@@ -30,7 +30,7 @@ export default function SafetyPage() {
             as="h1"
             eyebrow="Safety & Trust Center"
             title="Parking involves someone's property and someone's vehicle."
-            description="That deserves straight answers. Here is what ParkPlug does, what each side is responsible for, and — just as importantly — what we do not do."
+            description="That deserves straight answers. Here is what ParkPlugs does, what each side is responsible for, and — just as importantly — what we do not do."
           />
         </Container>
       </section>
@@ -40,7 +40,7 @@ export default function SafetyPage() {
           {/* ------------------------------------------------ What we do */}
           <section aria-labelledby="what-we-do">
             <h2 id="what-we-do" className="text-2xl font-extrabold tracking-tight">
-              What ParkPlug does
+              What ParkPlugs does
             </h2>
             <ul className="mt-6 grid gap-5 sm:grid-cols-2">
               {[
@@ -52,7 +52,7 @@ export default function SafetyPage() {
                 {
                   icon: <IconShield />,
                   title: "Keeps payments off-platform-free",
-                  body: "Card details go straight to our payment provider. ParkPlug never stores your full card number, and asking anyone to pay outside ParkPlug is a violation of our rules.",
+                  body: "Card details go straight to our payment provider. ParkPlugs never stores your full card number, and asking anyone to pay outside ParkPlugs is a violation of our rules.",
                 },
                 {
                   icon: <IconCheckCircle />,
@@ -79,7 +79,7 @@ export default function SafetyPage() {
           {/* -------------------------------------------- What we don't do */}
           <section aria-labelledby="what-we-dont">
             <h2 id="what-we-dont" className="text-2xl font-extrabold tracking-tight">
-              What ParkPlug does not do
+              What ParkPlugs does not do
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600">
               We would rather be clear about this now than have you find out at the
@@ -162,7 +162,7 @@ export default function SafetyPage() {
               you.
             </p>
             <Alert tone="warning" className="mt-5" title="Always follow posted signs">
-              A ParkPlug report does not override a restriction on the street. Time
+              A ParkPlugs report does not override a restriction on the street. Time
               limits, permit zones, street cleaning, and loading restrictions all still
               apply, and we cannot help with a citation or a tow.
             </Alert>
@@ -176,7 +176,7 @@ export default function SafetyPage() {
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-800">
               If anyone is in immediate danger, or a vehicle is blocking emergency
-              access, contact local emergency services first. ParkPlug support is not
+              access, contact local emergency services first. ParkPlugs support is not
               an emergency service and cannot dispatch help.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-ink-800">

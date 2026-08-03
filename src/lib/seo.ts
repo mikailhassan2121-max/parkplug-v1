@@ -25,7 +25,7 @@ export function buildMetadata({
   type?: "website" | "article";
 }): Metadata {
   const url = new URL(path, siteUrl).toString();
-  const fullTitle = title === "ParkPlug" ? title : `${title} · ParkPlug`;
+  const fullTitle = title === "ParkPlugs" ? title : `${title} · ParkPlugs`;
   // When no override is given, Next's generated `opengraph-image` is used.
   const images = image
     ? [{ url: new URL(image, siteUrl).toString(), width: 1200, height: 630, alt: fullTitle }]
@@ -39,7 +39,7 @@ export function buildMetadata({
       title: fullTitle,
       description,
       url,
-      siteName: "ParkPlug",
+      siteName: "ParkPlugs",
       type,
       ...(images ? { images } : {}),
     },

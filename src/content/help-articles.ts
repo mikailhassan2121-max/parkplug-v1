@@ -14,7 +14,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: [
       {
         paragraphs: [
-          "Enter where you are going and when you need to park. ParkPlug shows two kinds of result side by side: private spaces you can reserve, and free public parking that other users have recently reported.",
+          "Enter where you are going and when you need to park. ParkPlugs shows two kinds of result side by side: private spaces you can reserve, and free public parking that other users have recently reported.",
         ],
         bullets: [
           "Teal price markers are reservable spaces. The price shown is the hourly rate.",
@@ -60,8 +60,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: [
       {
         paragraphs: [
-          "You pay when you confirm your reservation. The total covers the host's parking price, ParkPlug's service fee, and any tax that applies. Every line is shown before you pay.",
-          "Card details are handled by our payment provider. ParkPlug does not store your full card number.",
+          "You pay when you confirm your reservation. The total covers the host's parking price, ParkPlugs's service fee, and any tax that applies. Every line is shown before you pay.",
+          "Card details are handled by our payment provider. ParkPlugs does not store your full card number.",
         ],
       },
     ],
@@ -104,7 +104,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "The basics that apply at every space.",
     body: [
       {
-        paragraphs: ["Beyond a host's own rules, these apply everywhere on ParkPlug:"],
+        paragraphs: ["Beyond a host's own rules, these apply everywhere on ParkPlugs:"],
         bullets: [
           "Park only in the space described, not anywhere else on the property.",
           "Never block a driveway, garage door, gate, hydrant, or emergency access.",
@@ -144,7 +144,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         bullets: [
           "Always read the signs on the block before you leave your car.",
           "A report does not override a posted restriction.",
-          "ParkPlug cannot help with a parking citation.",
+          "ParkPlugs cannot help with a parking citation.",
         ],
       },
     ],
@@ -158,7 +158,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: [
       {
         paragraphs: [
-          "Pull over and stop before you open ParkPlug — never report while driving. Then set the location, say how many spaces you saw and when, and record what the signs say.",
+          "Pull over and stop before you open ParkPlugs — never report while driving. Then set the location, say how many spaces you saw and when, and record what the signs say.",
           "Restrictions are the most useful part of a report. If you are unsure what a sign means, choose “Restrictions unknown” rather than guessing.",
         ],
       },
@@ -176,13 +176,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         paragraphs: [
           "Listing takes about ten minutes. You will need your address, a few photos, the hours the space is free, and a price.",
-          "Before you start, check that you are allowed to list the space — your lease, HOA rules, or local ordinances may restrict it. ParkPlug does not check this for you.",
+          "Before you start, check that you are allowed to list the space — your lease, HOA rules, or local ordinances may restrict it. ParkPlugs does not check this for you.",
         ],
       },
       {
         heading: "After you submit",
         paragraphs: [
-          "ParkPlug confirms that the listing meets marketplace requirements. You will be notified when it is published.",
+          "ParkPlugs confirms that the listing meets marketplace requirements. You will be notified when it is published.",
         ],
       },
     ],
@@ -197,7 +197,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         paragraphs: [
           "You set your own hourly rate, and can add a daily maximum so a long stay does not become unreasonable. You can change your price at any time — existing reservations keep the price they were booked at.",
-          "What you receive is your parking price minus ParkPlug's host fee. The service fee a driver pays is separate and does not come out of your earnings.",
+          "What you receive is your parking price minus ParkPlugs's host fee. The service fee a driver pays is separate and does not come out of your earnings.",
           "Actual earnings depend on demand, availability, pricing, and completed reservations.",
         ],
       },
@@ -254,7 +254,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         paragraphs: [
           "You receive the driver's vehicle make, model, colour, and plate so you can identify the car on arrival, along with their arrival and departure times.",
-          "You do not receive their email or phone number. Message them through ParkPlug so there is a record if something goes wrong.",
+          "You do not receive their email or phone number. Message them through ParkPlugs so there is a record if something goes wrong.",
         ],
       },
     ],
@@ -283,7 +283,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: [
       {
         paragraphs: [
-          "Before your first payout you need to complete setup with our payment provider. You enter your bank and identity details directly with them — ParkPlug never sees or stores them.",
+          "Before your first payout you need to complete setup with our payment provider. You enter your bank and identity details directly with them — ParkPlugs never sees or stores them.",
           "Earnings from a reservation move from pending to available once the reservation completes.",
         ],
       },
@@ -298,8 +298,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: [
       {
         paragraphs: [
-          "Describe your space honestly, keep it clear of hazards, and never let it block emergency access. Share access codes only through ParkPlug, and only for the reservation they apply to.",
-          "ParkPlug does not run background checks on drivers, inspect spaces, or provide insurance. Check whether your own home or business insurance covers letting someone park on your property.",
+          "Describe your space honestly, keep it clear of hazards, and never let it block emergency access. Share access codes only through ParkPlugs, and only for the reservation they apply to.",
+          "ParkPlugs does not run background checks on drivers, inspect spaces, or provide insurance. Check whether your own home or business insurance covers letting someone park on your property.",
         ],
       },
     ],
@@ -309,12 +309,12 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "taxes",
     title: "Taxes on hosting income",
     audience: "hosts",
-    summary: "What ParkPlug does and does not do about tax.",
+    summary: "What ParkPlugs does and does not do about tax.",
     body: [
       {
         paragraphs: [
-          "Money you earn from hosting may be taxable. ParkPlug provides a record of your earnings and fees, which you can export from your earnings page.",
-          "ParkPlug does not give tax advice and cannot tell you what you owe. Speak to a qualified tax professional about your situation.",
+          "Money you earn from hosting may be taxable. ParkPlugs provides a record of your earnings and fees, which you can export from your earnings page.",
+          "ParkPlugs does not give tax advice and cannot tell you what you owe. Speak to a qualified tax professional about your situation.",
         ],
       },
     ],

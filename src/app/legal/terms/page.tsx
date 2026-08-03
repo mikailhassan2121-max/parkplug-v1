@@ -6,7 +6,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Terms of Service",
-  description: "The terms that apply when you use ParkPlug as a driver, a host, or a community reporter.",
+  description: "The terms that apply when you use ParkPlugs as a driver, a host, or a community reporter.",
   path: "/legal/terms",
 });
 
@@ -16,7 +16,7 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Terms of Service"
-      summary={`These terms apply whenever you use ParkPlug. ParkPlug is operated by ${entity}.`}
+      summary={`These terms apply whenever you use ParkPlugs. ParkPlugs is operated by ${entity}.`}
       relatedLinks={[
         { href: "/legal/privacy", label: "Privacy Policy" },
         { href: "/legal/cancellation", label: "Cancellation & Refunds" },
@@ -26,16 +26,16 @@ export default function TermsPage() {
       sections={[
         {
           id: "about",
-          heading: "What ParkPlug is",
+          heading: "What ParkPlugs is",
           body: (
             <>
               <p>
-                ParkPlug is a marketplace. We connect drivers who need parking with
+                ParkPlugs is a marketplace. We connect drivers who need parking with
                 hosts who have parking to share, and we publish parking that members
                 of the community report seeing on public streets.
               </p>
               <p>
-                ParkPlug is not a parking operator. We do not own, control, inspect,
+                ParkPlugs is not a parking operator. We do not own, control, inspect,
                 or manage the spaces listed on the platform. The agreement to use a
                 space is between the driver and the host.
               </p>
@@ -111,7 +111,7 @@ export default function TermsPage() {
             <>
               <p>
                 Community reports describe parking that another user says they saw on
-                a public street. They are observations, not offers, and ParkPlug does
+                a public street. They are observations, not offers, and ParkPlugs does
                 not verify them.
               </p>
               <p>
@@ -133,9 +133,9 @@ export default function TermsPage() {
           body: (
             <>
               <p>
-                Drivers pay the parking price set by the host plus ParkPlug&rsquo;s
+                Drivers pay the parking price set by the host plus ParkPlugs&rsquo;s
                 service fee, and any tax that applies. Hosts receive the parking price
-                minus ParkPlug&rsquo;s host fee.
+                minus ParkPlugs&rsquo;s host fee.
               </p>
               <p>
                 Current rates are shown on the{" "}
@@ -143,7 +143,7 @@ export default function TermsPage() {
                 breakdown, including every fee, is shown before you pay.
               </p>
               <p>
-                Payments are processed by our payment provider. ParkPlug does not
+                Payments are processed by our payment provider. ParkPlugs does not
                 store your full card details.
               </p>
             </>
@@ -166,7 +166,7 @@ export default function TermsPage() {
           heading: "What is not allowed",
           body: (
             <p>
-              Certain conduct is prohibited on ParkPlug, including misrepresenting a
+              Certain conduct is prohibited on ParkPlugs, including misrepresenting a
               space, harassing another user, and using the platform for anything
               illegal. See{" "}
               <Link href="/legal/prohibited-conduct">Prohibited Conduct</Link> for the
@@ -179,7 +179,7 @@ export default function TermsPage() {
           heading: "What we do not promise",
           body: (
             <>
-              <p>ParkPlug does not:</p>
+              <p>ParkPlugs does not:</p>
               <ul>
                 <li>Inspect, certify, or supervise any parking space.</li>
                 <li>Run background checks or criminal screening on any user.</li>
@@ -218,9 +218,9 @@ export default function TermsPage() {
           heading: "Changes to these terms",
           body: (
             <p>
-              We may update these terms as ParkPlug changes. If a change is
+              We may update these terms as ParkPlugs changes. If a change is
               significant we will notify you before it takes effect. Continuing to use
-              ParkPlug after a change means you accept the updated terms.
+              ParkPlugs after a change means you accept the updated terms.
             </p>
           ),
         },

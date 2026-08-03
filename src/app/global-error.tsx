@@ -54,7 +54,7 @@ export default function GlobalError({
               color: "#20242e",
             }}
           >
-            ParkPlug could not load
+            ParkPlugs could not load
           </h1>
           <p style={{ marginTop: "0.75rem", lineHeight: 1.6, color: "#4e5a76" }}>
             Something went wrong before the page could start. Reloading usually

@@ -183,7 +183,7 @@ export function ParkingPreview() {
           ) : (
             <div className="rounded-xl bg-ink-50 px-4 py-5 text-center">
               <p className="text-sm font-bold text-ink-900">
-                ParkPlug is growing in this area
+                ParkPlugs is growing in this area
               </p>
               <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-ink-600">
                 Report free parking you spot, or become one of the first local hosts.

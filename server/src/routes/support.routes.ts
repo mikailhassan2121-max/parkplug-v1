@@ -48,7 +48,7 @@ supportRouter.post(
     void sendMail({
       to: d.email,
       subject: `We received your message — ${reference}`,
-      text: `Thanks for contacting ParkPlug support.\n\nReference: ${reference}\nCategory: ${d.category}\n\n${d.description}\n\nWe will follow up at this address.`,
+      text: `Thanks for contacting ParkPlugs support.\n\nReference: ${reference}\nCategory: ${d.category}\n\n${d.description}\n\nWe will follow up at this address.`,
     });
     if (env.SUPPORT_NOTIFY_EMAIL) {
       // Best-effort internal notice; failure here must never fail the ticket.

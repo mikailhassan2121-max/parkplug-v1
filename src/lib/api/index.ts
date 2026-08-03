@@ -6,7 +6,7 @@
  * Two adapters sit behind it. When `NEXT_PUBLIC_API_BASE_URL` is set every call
  * is proxied to that server; otherwise the browser-local adapter handles it so
  * the product is fully operable before the backend lands. Neither adapter ever
- * invents a record — an unconnected ParkPlug shows genuine empty states.
+ * invents a record — an unconnected ParkPlugs shows genuine empty states.
  */
 
 import { paymentsConfigured } from "@/config/business";
@@ -136,7 +136,7 @@ async function request<T>(
     if (error instanceof DOMException && error.name === "AbortError") {
       return fail("timeout", "The request timed out.");
     }
-    return fail("network", "We could not reach ParkPlug.");
+    return fail("network", "We could not reach ParkPlugs.");
   } finally {
     clearTimeout(timer);
   }
@@ -701,7 +701,7 @@ export const reservations = {
       return settle(
         fail<Reservation>(
           "payment_unavailable",
-          "ParkPlug is not connected to a payment provider yet, so this reservation cannot be completed.",
+          "ParkPlugs is not connected to a payment provider yet, so this reservation cannot be completed.",
           { retryable: false },
         ),
         700,
@@ -1133,7 +1133,7 @@ export const uploads = {
       }
       return ok((await response.json()) as { url: string; width: number; height: number });
     } catch {
-      return fail("network", "We could not reach ParkPlug.");
+      return fail("network", "We could not reach ParkPlugs.");
     } finally {
       clearTimeout(timer);
     }

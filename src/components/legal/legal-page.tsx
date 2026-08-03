@@ -12,7 +12,7 @@ export type LegalSection = {
 
 /**
  * Shared frame for policy pages: table of contents, readable measure, and a
- * visible effective date. Values ParkPlug has not confirmed render as explicit
+ * visible effective date. Values ParkPlugs has not confirmed render as explicit
  * placeholders rather than plausible-looking inventions.
  */
 export function LegalPage({
@@ -83,7 +83,7 @@ export function LegalPage({
           {!business.legalName ? (
             <Alert tone="neutral" className="mt-6">
               Where this page refers to {PLACEHOLDER.legalName}, that is the
-              operator of ParkPlug. Contact details are on the{" "}
+              operator of ParkPlugs. Contact details are on the{" "}
               <Link href="/support" className="font-semibold underline underline-offset-2">
                 support page
               </Link>

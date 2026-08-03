@@ -77,7 +77,7 @@ const AUDIENCES = [
     steps: [
       {
         title: "Check you are allowed to list it",
-        body: "Look at your lease, HOA rules, or any permit conditions first. ParkPlug does not check these for you.",
+        body: "Look at your lease, HOA rules, or any permit conditions first. ParkPlugs does not check these for you.",
       },
       {
         title: "Add your space",
@@ -93,7 +93,7 @@ const AUDIENCES = [
       },
       {
         title: "Submit and get paid",
-        body: "ParkPlug confirms the listing meets marketplace requirements, then it goes live. Complete payout setup with our payment provider before your first reservation.",
+        body: "ParkPlugs confirms the listing meets marketplace requirements, then it goes live. Complete payout setup with our payment provider before your first reservation.",
       },
     ],
     safety: "Your exact address is never published. Public maps show an approximate area with the point deliberately offset from your property.",
@@ -112,7 +112,7 @@ const AUDIENCES = [
       },
       {
         q: "Am I insured?",
-        a: "ParkPlug does not provide insurance. Check whether your existing home or business policy covers letting someone park on your property.",
+        a: "ParkPlugs does not provide insurance. Check whether your existing home or business policy covers letting someone park on your property.",
       },
     ],
     cta: { href: "/host/listings/new", label: "List Your Space" },
@@ -125,7 +125,7 @@ const AUDIENCES = [
     steps: [
       {
         title: "Stop before you report",
-        body: "Never use ParkPlug while driving. Pull over first, or ask a passenger to report for you.",
+        body: "Never use ParkPlugs while driving. Pull over first, or ask a passenger to report for you.",
       },
       {
         title: "Set the location",
@@ -171,7 +171,7 @@ export default function HowItWorksPage() {
           <SectionHeading
             as="h1"
             eyebrow="How it works"
-            title="Three ways to use ParkPlug"
+            title="Three ways to use ParkPlugs"
             description="Whether you need somewhere to park, have a space to share, or just noticed an open street, here is exactly what happens."
             align="center"
           />

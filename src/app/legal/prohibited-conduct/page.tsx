@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Prohibited Conduct",
-  description: "Behaviour that is not allowed on ParkPlug, and what happens if it occurs.",
+  description: "Behaviour that is not allowed on ParkPlugs, and what happens if it occurs.",
   path: "/legal/prohibited-conduct",
 });
 
@@ -13,7 +13,7 @@ export default function ProhibitedConductPage() {
   return (
     <LegalPage
       title="Prohibited Conduct"
-      summary="ParkPlug only works if people can trust it. This is what is not allowed."
+      summary="ParkPlugs only works if people can trust it. This is what is not allowed."
       relatedLinks={[
         { href: "/legal/terms", label: "Terms of Service" },
         { href: "/legal/host-standards", label: "Host Standards" },
@@ -37,7 +37,7 @@ export default function ProhibitedConductPage() {
           heading: "Taking payment off the platform",
           body: (
             <p>
-              Asking a driver to pay in cash or by transfer outside ParkPlug removes
+              Asking a driver to pay in cash or by transfer outside ParkPlugs removes
               every protection either side has — no record, no receipt, no refund, no
               support. It is not allowed in either direction.
             </p>
@@ -50,7 +50,7 @@ export default function ProhibitedConductPage() {
             <ul>
               <li>Threatening, intimidating, or abusing another user.</li>
               <li>Discriminatory language or refusing someone on a protected characteristic.</li>
-              <li>Contacting someone outside ParkPlug after being asked not to.</li>
+              <li>Contacting someone outside ParkPlugs after being asked not to.</li>
               <li>Using another person&rsquo;s vehicle or contact details for anything beyond a reservation.</li>
             </ul>
           ),
@@ -75,7 +75,7 @@ export default function ProhibitedConductPage() {
               <li>Blocking hydrants, emergency routes, or public rights of way.</li>
               <li>Using a space for anything other than parking a vehicle.</li>
               <li>Storing hazardous materials, or abandoning a vehicle.</li>
-              <li>Any use of ParkPlug in connection with unlawful activity.</li>
+              <li>Any use of ParkPlugs in connection with unlawful activity.</li>
             </ul>
           ),
         },

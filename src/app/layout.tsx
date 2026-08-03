@@ -21,12 +21,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "ParkPlug · Parking made easier, one space at a time",
-    template: "%s · ParkPlug",
+    default: "ParkPlugs · Parking made easier, one space at a time",
+    template: "%s · ParkPlugs",
   },
   description:
     "Find reservable private parking and recently reported free spaces near your destination.",
-  applicationName: "ParkPlug",
+  applicationName: "ParkPlugs",
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],

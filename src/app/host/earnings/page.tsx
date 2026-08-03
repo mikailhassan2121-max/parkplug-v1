@@ -40,7 +40,7 @@ export default function HostEarningsPage() {
 
       {!feesConfigured ? (
         <Alert tone="warning" className="mt-6" title="Platform fees are not configured yet">
-          Until ParkPlug&rsquo;s host fee ({PLACEHOLDER.hostFee}) is set, we cannot
+          Until ParkPlugs&rsquo;s host fee ({PLACEHOLDER.hostFee}) is set, we cannot
           calculate what you take home from a reservation. Amounts below show as
           a dash rather than an estimate we cannot stand behind.
         </Alert>
@@ -88,7 +88,7 @@ export default function HostEarningsPage() {
             <dd className="font-semibold">Parking subtotal + service fee + tax</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-ink-600">ParkPlug host fee</dt>
+            <dt className="text-ink-600">ParkPlugs host fee</dt>
             <dd className="font-semibold">{formatBps(business.hostFeeBps, PLACEHOLDER.hostFee)}</dd>
           </div>
           <div className="flex justify-between gap-4 border-t border-ink-200 pt-2">
@@ -97,7 +97,7 @@ export default function HostEarningsPage() {
           </div>
         </dl>
         <p className="mt-3 text-xs text-ink-500">
-          The service fee a driver pays is ParkPlug&rsquo;s, and is separate from
+          The service fee a driver pays is ParkPlugs&rsquo;s, and is separate from
           what you receive. Refunds reverse the matching earnings.
         </p>
       </section>
@@ -140,7 +140,7 @@ export default function HostEarningsPage() {
           ) : (
             <div className="overflow-x-auto rounded-card border border-ink-200">
               <table className="w-full min-w-[36rem] border-collapse bg-white text-sm">
-                <caption className="sr-only">Your recent ParkPlug transactions</caption>
+                <caption className="sr-only">Your recent ParkPlugs transactions</caption>
                 <thead>
                   <tr className="border-b border-ink-200 bg-ink-50 text-left">
                     <th scope="col" className="px-4 py-2.5 text-xs font-bold text-ink-700">Date</th>

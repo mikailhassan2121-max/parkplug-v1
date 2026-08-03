@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/icons";
 
 export const metadata: Metadata = buildMetadata({
-  title: "ParkPlug · Parking made easier, one space at a time",
+  title: "ParkPlugs · Parking made easier, one space at a time",
   description:
     "Find reservable private parking and recently reported free spaces near your destination. List your unused driveway or lot and earn when drivers reserve.",
   path: "/",
@@ -86,8 +86,8 @@ export default function HomePage() {
       <section className="py-14 lg:py-20">
         <Container size="wide">
           <SectionHeading
-            eyebrow="How ParkPlug works"
-            title="Three ways people use ParkPlug"
+            eyebrow="How ParkPlugs works"
+            title="Three ways people use ParkPlugs"
             description="Whether you are looking for a space, have one to share, or spotted one on the street, it takes three steps."
             align="center"
           />
@@ -136,7 +136,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="Know what you are getting"
             title="Two kinds of parking, clearly labelled"
-            description="ParkPlug never blurs the line between a space you have reserved and a space someone happened to see."
+            description="ParkPlugs never blurs the line between a space you have reserved and a space someone happened to see."
           />
 
           <div className="mt-9 grid gap-5 lg:grid-cols-2">
@@ -163,7 +163,7 @@ export default function HomePage() {
               <h3 className="mt-4 text-xl font-bold tracking-tight">A recent sighting, not a guarantee</h3>
               <ul className="mt-4 space-y-3">
                 {[
-                  { icon: <IconClock />, text: "Recently observed by another ParkPlug user." },
+                  { icon: <IconClock />, text: "Recently observed by another ParkPlugs user." },
                   { icon: <IconFlag />, text: "Not reserved and not guaranteed to still be there." },
                   { icon: <IconClock />, text: "Reports expire quickly, because street parking changes fast." },
                   { icon: <IconAccessible />, text: "You must check posted signs and follow local parking rules." },
@@ -239,13 +239,13 @@ export default function HomePage() {
         <Container size="wide">
           <SectionHeading
             eyebrow="Trust and safety"
-            title="How ParkPlug looks after both sides"
+            title="How ParkPlugs looks after both sides"
             description="Parking involves someone's property and someone's vehicle. Here is what we actually do about that."
             align="center"
           />
           <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: <IconLock />, title: "Secure payments", body: "Card details are handled by our payment provider and never stored on ParkPlug." },
+              { icon: <IconLock />, title: "Secure payments", body: "Card details are handled by our payment provider and never stored on ParkPlugs." },
               { icon: <IconShield />, title: "Address privacy", body: "A listing's exact address stays hidden until a reservation is confirmed." },
               { icon: <IconCheckCircle />, title: "Verified reservations", body: "Every booking has a reference, a confirmed time window, and a record both sides can see." },
               { icon: <IconClock />, title: "Timestamped reports", body: "Community reports always show when they were observed and when they expire." },
@@ -262,7 +262,7 @@ export default function HomePage() {
             ))}
           </ul>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm leading-relaxed text-ink-600">
-            ParkPlug does not run background checks, inspect spaces, or provide
+            ParkPlugs does not run background checks, inspect spaces, or provide
             insurance. Read the{" "}
             <Link href="/safety" className="font-semibold text-brand-700 underline underline-offset-2">
               Safety &amp; Trust Center
@@ -280,7 +280,7 @@ export default function HomePage() {
               <IconStar />
             </span>
             <h2 className="mt-5 text-2xl font-extrabold tracking-tight">
-              Be among the first drivers and hosts shaping ParkPlug in your community.
+              Be among the first drivers and hosts shaping ParkPlugs in your community.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-600">
               Reviews appear here once drivers and hosts have completed
@@ -306,7 +306,7 @@ export default function HomePage() {
                 Ready to park, or ready to share a space?
               </h2>
               <p className="mt-3 text-base leading-relaxed text-brand-100">
-                Join the ParkPlug community and help make local parking easier.
+                Join the ParkPlugs community and help make local parking easier.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

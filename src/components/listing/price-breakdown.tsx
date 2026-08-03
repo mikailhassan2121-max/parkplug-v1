@@ -57,7 +57,7 @@ export function PriceBreakdown({
 
       {!feesConfigured ? (
         <Alert tone="warning" className="mt-3.5">
-          ParkPlug&rsquo;s service fee has not been configured yet, so this total
+          ParkPlugs&rsquo;s service fee has not been configured yet, so this total
           covers the parking cost only. The full amount will be shown before any
           payment is taken.
         </Alert>

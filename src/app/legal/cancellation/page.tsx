@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Cancellation & Refund Policy",
-  description: "When you can cancel a ParkPlug reservation, what you get back, and how refunds are issued.",
+  description: "When you can cancel a ParkPlugs reservation, what you get back, and how refunds are issued.",
   path: "/legal/cancellation",
 });
 
@@ -73,7 +73,7 @@ export default function CancellationPage() {
               </p>
               <p>
                 Hosts should only cancel when they genuinely cannot honour a booking.
-                Repeated cancellations affect a listing&rsquo;s standing on ParkPlug
+                Repeated cancellations affect a listing&rsquo;s standing on ParkPlugs
                 and may lead to it being paused or removed.
               </p>
             </>
@@ -84,7 +84,7 @@ export default function CancellationPage() {
           heading: "What happens to fees",
           body: (
             <p>
-              On a full refund, ParkPlug&rsquo;s service fee is returned as well. On a
+              On a full refund, ParkPlugs&rsquo;s service fee is returned as well. On a
               partial refund, the service fee is refunded in proportion to the parking
               cost returned. Taxes are refunded with the amount they were charged on.
               Exact rates are on the <Link href="/pricing">Pricing &amp; Fees</Link>{" "}

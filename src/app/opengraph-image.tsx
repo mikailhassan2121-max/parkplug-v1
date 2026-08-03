@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "ParkPlug — Parking made easier, one space at a time";
+export const alt = "ParkPlugs — Parking made easier, one space at a time";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -39,7 +39,7 @@ export default function OpengraphImage() {
           >
             P
           </div>
-          <div style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-0.02em" }}>ParkPlug</div>
+          <div style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-0.02em" }}>ParkPlugs</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

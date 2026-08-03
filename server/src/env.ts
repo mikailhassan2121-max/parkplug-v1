@@ -21,7 +21,7 @@ const schema = z.object({
   // isn't verified yet, since Resend refuses to deliver to anyone but the
   // account owner until one is.
   BREVO_API_KEY: z.string().optional().default(""),
-  MAIL_FROM: z.string().optional().default("ParkPlug <no-reply@parkplug.example>"),
+  MAIL_FROM: z.string().optional().default("ParkPlugs <no-reply@parkplug.example>"),
   // Internal address that gets a copy of each support ticket. Optional —
   // leave unset to skip the internal notice (the reporter's own confirmation
   // email still sends).

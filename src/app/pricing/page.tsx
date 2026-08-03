@@ -11,7 +11,7 @@ import { IconCheckCircle, IconWallet } from "@/components/ui/icons";
 export const metadata: Metadata = buildMetadata({
   title: "Pricing & Fees",
   description:
-    "Exactly what a driver pays, what a host receives, and how ParkPlug's fees work. No fee is introduced at the last step.",
+    "Exactly what a driver pays, what a host receives, and how ParkPlugs's fees work. No fee is introduced at the last step.",
   path: "/pricing",
 });
 
@@ -27,7 +27,7 @@ export default function PricingPage() {
             as="h1"
             eyebrow="Pricing & fees"
             title="You see the whole price before you pay."
-            description="ParkPlug shows the full breakdown from the first step of booking — never a low number up front and a surprise at checkout."
+            description="ParkPlugs shows the full breakdown from the first step of booking — never a low number up front and a surprise at checkout."
           />
         </Container>
       </section>
@@ -36,7 +36,7 @@ export default function PricingPage() {
         <div className="max-w-3xl space-y-14">
           {!feesConfigured ? (
             <Alert tone="warning" title="Fee rates are not yet published">
-              ParkPlug&rsquo;s service and host fee rates have not been confirmed for
+              ParkPlugs&rsquo;s service and host fee rates have not been confirmed for
               this environment, so they appear below as placeholders rather than as
               numbers we cannot stand behind. The real rate is always shown in your
               price breakdown before you pay.
@@ -57,7 +57,7 @@ export default function PricingPage() {
                     hint: "The hourly rate multiplied by how long you book, with any daily cap applied.",
                   },
                   {
-                    label: "ParkPlug service fee",
+                    label: "ParkPlugs service fee",
                     value: serviceFee,
                     hint: "Covers running the marketplace, payment processing, and support.",
                   },
@@ -99,7 +99,7 @@ export default function PricingPage() {
                     hint: "You set the hourly price and any daily maximum.",
                   },
                   {
-                    label: "ParkPlug host fee",
+                    label: "ParkPlugs host fee",
                     value: `−${hostFee}`,
                     hint: "Deducted from the parking subtotal before payout.",
                   },
@@ -121,7 +121,7 @@ export default function PricingPage() {
               </div>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-ink-600">
-              The service fee a driver pays is ParkPlug&rsquo;s and does not come out of
+              The service fee a driver pays is ParkPlugs&rsquo;s and does not come out of
               your earnings. Actual earnings depend on demand, availability, pricing,
               and completed reservations.
             </p>
@@ -201,7 +201,7 @@ export default function PricingPage() {
                   question: "Is there a deposit or hold on my card?",
                   answer: (
                     <p>
-                      ParkPlug does not take a separate security deposit. You are charged
+                      ParkPlugs does not take a separate security deposit. You are charged
                       the total shown when you confirm your reservation.
                     </p>
                   ),

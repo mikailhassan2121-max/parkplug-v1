@@ -37,7 +37,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
           </span>
           <h1 className="mt-5 text-2xl font-extrabold tracking-tight">Sign in to continue</h1>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-600">
-            This page is part of your ParkPlug account. Sign in to see your
+            This page is part of your ParkPlugs account. Sign in to see your
             reservations, saved spaces, vehicles, and listings.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">

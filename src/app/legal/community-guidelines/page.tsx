@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Community Reporting Guidelines",
-  description: "How to report free public parking on ParkPlug accurately and safely.",
+  description: "How to report free public parking on ParkPlugs accurately and safely.",
   path: "/legal/community-guidelines",
 });
 
@@ -64,7 +64,7 @@ export default function CommunityGuidelinesPage() {
           heading: "Never report while driving",
           body: (
             <p>
-              Pull over and stop before you open ParkPlug. No parking report is worth a
+              Pull over and stop before you open ParkPlugs. No parking report is worth a
               collision. If you are a passenger, report on behalf of the driver
               instead.
             </p>

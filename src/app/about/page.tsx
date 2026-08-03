@@ -5,9 +5,9 @@ import { ButtonLink } from "@/components/ui/button";
 import { IconBuilding, IconCar, IconHome, IconMapPin } from "@/components/ui/icons";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About ParkPlug",
+  title: "About ParkPlugs",
   description:
-    "Why parking is hard, how unused private spaces and community reports help, and what ParkPlug is trying to do about it.",
+    "Why parking is hard, how unused private spaces and community reports help, and what ParkPlugs is trying to do about it.",
   path: "/about",
 });
 
@@ -140,7 +140,7 @@ export default function AboutPage() {
               We are early
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-700">
-              ParkPlug grows one neighbourhood at a time, and it only works where enough
+              ParkPlugs grows one neighbourhood at a time, and it only works where enough
               people take part. If your area is quiet right now, the most useful things
               you can do are list a space or report the free parking you already know
               about.

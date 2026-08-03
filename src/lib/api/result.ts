@@ -49,7 +49,7 @@ export const ERROR_COPY: Record<ApiErrorCode, { title: string; description: stri
   network: {
     title: "You appear to be offline",
     description:
-      "We could not reach ParkPlug. Check your connection and try again — nothing you entered has been lost.",
+      "We could not reach ParkPlugs. Check your connection and try again — nothing you entered has been lost.",
   },
   timeout: {
     title: "That took too long",

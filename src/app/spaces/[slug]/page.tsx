@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     title: "Reservable parking space",
     description:
-      "View photos, parking rules, availability, and pricing for this space on ParkPlug. The exact address is shared only after a reservation is confirmed.",
+      "View photos, parking rules, availability, and pricing for this space on ParkPlugs. The exact address is shared only after a reservation is confirmed.",
     path: `/spaces/${slug}`,
   });
 }

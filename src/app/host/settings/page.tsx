@@ -73,8 +73,8 @@ export default function HostSettingsPage() {
       <section className="rounded-card border border-ink-200 bg-white p-5 sm:p-6">
         <h2 className="text-lg font-bold tracking-tight">Standards and responsibilities</h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
-          Hosting on ParkPlug means keeping your availability accurate, describing
-          your space honestly, and making sure it is safe to use. ParkPlug does not
+          Hosting on ParkPlugs means keeping your availability accurate, describing
+          your space honestly, and making sure it is safe to use. ParkPlugs does not
           inspect spaces or verify property ownership.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">

@@ -1,11 +1,13 @@
 /**
  * Business configuration.
  *
- * Anything ParkPlug has not confirmed is `null` here rather than guessed. The
- * UI renders an explicit placeholder wherever a value is missing, so no
- * invented company name, fee, email address, or policy term can ever reach a
- * public page. Fill these in (or set the matching environment variables) as
- * the real details are confirmed.
+ * Anything ParkPlugs has not confirmed is `null` here rather than guessed
+ * (the registered legal entity, ParkPlugs LLC, is the one exception — that
+ * name is confirmed, not a placeholder). The UI renders an explicit
+ * placeholder wherever a value is genuinely missing, so no invented fee,
+ * email address, or policy term can ever reach a public page. Fill the rest
+ * in (or set the matching environment variables) as the real details are
+ * confirmed.
  */
 
 function envInt(value: string | undefined): number | null {
@@ -24,7 +26,7 @@ function envString(value: string | undefined): string | null {
  * Plain sentences, not bracketed template tokens — a policy page or fee
  * table that visibly says "[LEGAL BUSINESS NAME]" reads as an unfinished
  * template to a real visitor (and to Google/Meta ad review); "the operator
- * of ParkPlug" reads as a true, if incomplete, sentence. The production
+ * of ParkPlugs" reads as a true, if incomplete, sentence. The production
  * build fails outright before any of these can actually ship — see
  * scripts/check-required-env.mjs — so this is the defense-in-depth fallback
  * for any other build path, not the primary safeguard.
@@ -43,13 +45,15 @@ export const PLACEHOLDER = {
 
 export const business = {
   /** Consumer-facing brand. This one is known. */
-  brandName: "ParkPlug",
+  brandName: "ParkPlugs",
 
   /**
-   * Registered legal entity. Left null until confirmed — the footer and legal
-   * pages fall back to brand-only wording rather than asserting an entity.
+   * Registered legal entity: ParkPlugs LLC. NEXT_PUBLIC_LEGAL_NAME can still
+   * override this (e.g. if the entity structure changes later), but the
+   * name itself is confirmed, not a guess — everything else in this file
+   * that's still unconfirmed stays null rather than being given a default.
    */
-  legalName: envString(process.env.NEXT_PUBLIC_LEGAL_NAME),
+  legalName: envString(process.env.NEXT_PUBLIC_LEGAL_NAME) ?? "ParkPlugs LLC",
   mailingAddress: envString(process.env.NEXT_PUBLIC_MAILING_ADDRESS),
   supportEmail: envString(process.env.NEXT_PUBLIC_SUPPORT_EMAIL),
   privacyEmail: envString(process.env.NEXT_PUBLIC_PRIVACY_EMAIL),

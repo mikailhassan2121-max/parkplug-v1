@@ -205,7 +205,7 @@ export const LOCATION_ERROR_COPY: Record<LocationError, { title: string; descrip
   denied: {
     title: "Location access is turned off",
     description:
-      "ParkPlug cannot see where you are. Search for an address instead, or enable location access for this site in your browser settings.",
+      "ParkPlugs cannot see where you are. Search for an address instead, or enable location access for this site in your browser settings.",
   },
   unavailable: {
     title: "We could not determine your location",

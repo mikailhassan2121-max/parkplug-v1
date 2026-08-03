@@ -6,7 +6,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
-  description: "What ParkPlug collects, why, who it is shared with, and the choices you have.",
+  description: "What ParkPlugs collects, why, who it is shared with, and the choices you have.",
   path: "/legal/privacy",
 });
 
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      summary={`How ${legalEntity()} collects, uses, and protects your information when you use ParkPlug.`}
+      summary={`How ${legalEntity()} collects, uses, and protects your information when you use ParkPlugs.`}
       relatedLinks={[
         { href: "/legal/cookies", label: "Cookie Policy" },
         { href: "/legal/data-deletion", label: "Data & Account Deletion" },
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
               </p>
               <p>
                 <strong>Payment information.</strong> Card details go directly to our
-                payment provider. ParkPlug receives a token and the last four digits —
+                payment provider. ParkPlugs receives a token and the last four digits —
                 never your full card number.
               </p>
               <p>
@@ -142,7 +142,7 @@ export default function PrivacyPage() {
           heading: "How we protect it",
           body: (
             <p>
-              Traffic to ParkPlug is encrypted in transit. Passwords are stored hashed,
+              Traffic to ParkPlugs is encrypted in transit. Passwords are stored hashed,
               never in plain text. Payment details are held by our payment provider
               rather than by us. No system is perfectly secure, so please use a unique
               password and tell us straight away if you think your account has been
@@ -155,7 +155,7 @@ export default function PrivacyPage() {
           heading: "Children",
           body: (
             <p>
-              ParkPlug is not intended for anyone under 18, and we do not knowingly
+              ParkPlugs is not intended for anyone under 18, and we do not knowingly
               collect information from children. If you believe a child has given us
               information, contact us and we will delete it.
             </p>

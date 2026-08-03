@@ -40,7 +40,7 @@ export default function HostOverviewPage() {
     return (
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Hosting on ParkPlug
+          Hosting on ParkPlugs
         </h1>
         <EmptyState
           className="mt-6"

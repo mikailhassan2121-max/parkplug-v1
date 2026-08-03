@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 
 /**
- * ParkPlug mark: a navy rounded square, a bold white "P", and a plug glyph
+ * ParkPlugs mark: a navy rounded square, a bold white "P", and a plug glyph
  * badge notched into the bottom-right corner. Matches the supplied brand
  * artwork — `brand-600` (#184878) is sampled directly from it.
  */
@@ -45,7 +45,7 @@ export function Logo({
       <LogoMark />
       {showWordmark ? (
         <span className="text-xl font-extrabold tracking-tight text-ink-950">
-          Park<span className="text-brand-600">Plug</span>
+          Park<span className="text-brand-600">Plugs</span>
         </span>
       ) : null}
     </span>

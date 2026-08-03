@@ -1,5 +1,5 @@
 /**
- * ParkPlug domain model.
+ * ParkPlugs domain model.
  *
  * These types are the contract between the frontend and the API. Field names
  * mirror what the UI renders, so a backend can be mapped onto them directly.

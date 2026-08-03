@@ -18,7 +18,7 @@ export default function ErrorBoundary({
 }) {
   useEffect(() => {
     // Surfaced for the browser console and any error reporter that is wired up.
-    console.error("ParkPlug route error:", error);
+    console.error("ParkPlugs route error:", error);
   }, [error]);
 
   return (

@@ -37,7 +37,7 @@ export default function HostPayoutsPage() {
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Payout settings</h1>
       <p className="mt-1.5 text-sm text-ink-600">
-        Where ParkPlug sends the money you earn from reservations.
+        Where ParkPlugs sends the money you earn from reservations.
       </p>
 
       <div className="mt-6">
@@ -140,7 +140,7 @@ export default function HostPayoutsPage() {
           How your banking details are handled
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
-          Payout information is handled securely by our payment provider. ParkPlug
+          Payout information is handled securely by our payment provider. ParkPlugs
           does not collect, see, or store your bank account or tax identification
           numbers — you enter them directly with the provider, on their own secure
           form.

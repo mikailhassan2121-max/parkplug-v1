@@ -41,7 +41,7 @@ const photoSchema = z.object({
   // client could point a "photo" at unmoderated external content, or embed
   // a multi-MB base64 image directly in this JSON body with none of the
   // EXIF-stripping/format validation the real upload path enforces.
-  url: z.string().trim().startsWith(env.PUBLIC_UPLOAD_BASE_URL, "Photos must be uploaded through ParkPlug."),
+  url: z.string().trim().startsWith(env.PUBLIC_UPLOAD_BASE_URL, "Photos must be uploaded through ParkPlugs."),
   alt: z.string().default(""),
   width: z.number().int().positive(),
   height: z.number().int().positive(),

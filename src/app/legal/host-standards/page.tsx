@@ -5,7 +5,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Host Standards",
-  description: "What ParkPlug expects from hosts who list a parking space.",
+  description: "What ParkPlugs expects from hosts who list a parking space.",
   path: "/legal/host-standards",
 });
 
@@ -13,7 +13,7 @@ export default function HostStandardsPage() {
   return (
     <LegalPage
       title="Host Standards"
-      summary="What drivers can expect from a ParkPlug host, and what you are agreeing to when you list a space."
+      summary="What drivers can expect from a ParkPlugs host, and what you are agreeing to when you list a space."
       relatedLinks={[
         { href: "/legal/driver-standards", label: "Driver Standards" },
         { href: "/safety", label: "Safety & Trust" },
@@ -32,7 +32,7 @@ export default function HostStandardsPage() {
                 residential property.
               </p>
               <p>
-                ParkPlug does not verify ownership or check local rules on your behalf.
+                ParkPlugs does not verify ownership or check local rules on your behalf.
                 Confirming that you may list a space is your responsibility.
               </p>
             </>
@@ -88,11 +88,11 @@ export default function HostStandardsPage() {
         },
         {
           id: "communication",
-          heading: "Communicate through ParkPlug",
+          heading: "Communicate through ParkPlugs",
           body: (
             <p>
               Keep conversations on the platform so there is a record if something goes
-              wrong. Do not ask a driver to pay outside ParkPlug — off-platform
+              wrong. Do not ask a driver to pay outside ParkPlugs — off-platform
               payments have no protection, no receipt, and no refund path.
             </p>
           ),

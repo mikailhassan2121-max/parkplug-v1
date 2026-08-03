@@ -104,15 +104,15 @@ export async function sendMail(input: { to: string; subject: string; text: strin
 export function verificationEmail(token: string): { subject: string; text: string } {
   const link = `${env.FRONTEND_URL}/verify-email?token=${token}`;
   return {
-    subject: "Verify your ParkPlug email address",
-    text: `Confirm your email address to finish setting up your ParkPlug account:\n\n${link}\n\nThis link expires in 24 hours. If you did not create a ParkPlug account, you can ignore this email.`,
+    subject: "Verify your ParkPlugs email address",
+    text: `Confirm your email address to finish setting up your ParkPlugs account:\n\n${link}\n\nThis link expires in 24 hours. If you did not create a ParkPlugs account, you can ignore this email.`,
   };
 }
 
 export function passwordResetEmail(token: string): { subject: string; text: string } {
   const link = `${env.FRONTEND_URL}/reset-password?token=${token}`;
   return {
-    subject: "Reset your ParkPlug password",
-    text: `We received a request to reset your ParkPlug password:\n\n${link}\n\nThis link expires in 60 minutes. If you did not request this, you can ignore this email — your password has not been changed.`,
+    subject: "Reset your ParkPlugs password",
+    text: `We received a request to reset your ParkPlugs password:\n\n${link}\n\nThis link expires in 60 minutes. If you did not request this, you can ignore this email — your password has not been changed.`,
   };
 }

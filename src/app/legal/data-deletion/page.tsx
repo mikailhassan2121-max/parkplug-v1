@@ -6,7 +6,7 @@ import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = buildMetadata({
   title: "Data & Account Deletion",
-  description: "How to get a copy of your ParkPlug data, and how to delete your account.",
+  description: "How to get a copy of your ParkPlugs data, and how to delete your account.",
   path: "/legal/data-deletion",
 });
 
@@ -125,7 +125,7 @@ export default function DataDeletionPage() {
               Your account is closed and access ends immediately. Backups are cycled out
               on a rolling basis, so residual copies are removed within a further 30
               days. Deletion cannot be undone — you would need to create a new account
-              to use ParkPlug again.
+              to use ParkPlugs again.
             </p>
           ),
         },

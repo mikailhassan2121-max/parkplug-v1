@@ -176,7 +176,7 @@ export default function HostReservationsPage() {
 
             <Alert tone="neutral">
               Plate and vehicle details are shared so you can identify the car on
-              arrival. Please do not share them outside ParkPlug.
+              arrival. Please do not share them outside ParkPlugs.
             </Alert>
 
             {detail.status === "completed" ? (
