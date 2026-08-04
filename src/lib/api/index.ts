@@ -108,7 +108,7 @@ async function request<T>(
       // A few error codes (payment_failed, payment_unavailable, upload_failed)
       // have no HTTP status of their own — the server sets an explicit `code`
       // in the body for those, which wins over the status-derived guess.
-      const explicitCodes: ApiErrorCode[] = ["payment_failed", "payment_unavailable", "upload_failed"];
+      const explicitCodes: ApiErrorCode[] = ["payment_failed", "payment_unavailable", "host_not_ready", "upload_failed"];
       const bodyCode = typeof body.code === "string" ? (body.code as ApiErrorCode) : undefined;
 
       const codeByStatus = {
@@ -691,23 +691,29 @@ export const reservations = {
   },
 
   /**
-   * Creates the reservation. Refuses rather than reporting a false success when
-   * no payment provider is connected.
+   * Creates the reservation and, over the HTTP adapter, starts a Stripe
+   * PaymentIntent alongside it — `clientSecret` is what the booking flow
+   * hands to Stripe Elements to actually collect and confirm payment. The
+   * reservation stays "pending" until that succeeds; nothing here waits for
+   * it. Refuses rather than reporting a false success when no payment
+   * provider is connected.
    */
   async create(input: {
     listingSlug: string;
     startAt: string;
     endAt: string;
     vehicleId: string;
-    paymentMethodToken?: string;
-  }): Promise<ApiResult<Reservation>> {
+  }): Promise<ApiResult<Reservation & { clientSecret: string | null }>> {
     if (API_BASE) {
-      return request<Reservation>("/reservations", { method: "POST", body: JSON.stringify(input) });
+      return request<Reservation & { clientSecret: string | null }>("/reservations", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
     }
 
     if (!paymentsConfigured) {
       return settle(
-        fail<Reservation>(
+        fail(
           "payment_unavailable",
           "ParkPlugs is not connected to a payment provider yet, so this reservation cannot be completed.",
           { retryable: false },
@@ -738,7 +744,7 @@ export const reservations = {
         new Date(r.startAt) < new Date(input.endAt),
     );
     if (clash) {
-      return settle(fail<Reservation>("conflict", "That time was just reserved by someone else.", { retryable: false }));
+      return settle(fail("conflict", "That time was just reserved by someone else.", { retryable: false }));
     }
 
     const minutes = minutesBetween(input.startAt, input.endAt);
@@ -778,7 +784,11 @@ export const reservations = {
       body: `${listing.title} · ${reservation.reference}`,
       href: `/reservations/${reservation.reference}`,
     });
-    return settle(ok(reservation), 1200);
+    // No real Stripe integration in local-storage mode — the reservation
+    // above is already synthetically "confirmed", so there is no payment
+    // step for the booking flow to run; it treats a null clientSecret as
+    // "nothing left to collect" the same way it always has.
+    return settle(ok({ ...reservation, clientSecret: null }), 1200);
   },
 
   async cancel(reference: string): Promise<ApiResult<Reservation>> {

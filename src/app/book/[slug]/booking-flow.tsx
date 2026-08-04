@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { paymentsConfigured } from "@/config/business";
+import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { paymentsConfigured, stripePublishableKey } from "@/config/business";
 import { listings as listingsApi, reservations as reservationsApi, vehicles as vehiclesApi } from "@/lib/api";
 import { quote } from "@/lib/api/pricing";
 import { ERROR_COPY } from "@/lib/api/result";
@@ -21,7 +23,13 @@ import { validateDateRange } from "@/lib/search-params";
 import { isWithinAvailability } from "@/lib/availability";
 import { useAsync, useUnsavedChangesWarning } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
-import { VEHICLE_SIZES, type Listing, type Vehicle, type VehicleSize } from "@/lib/types";
+import {
+  VEHICLE_SIZES,
+  type Listing,
+  type PriceBreakdown as PriceBreakdownData,
+  type Vehicle,
+  type VehicleSize,
+} from "@/lib/types";
 import { Container } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
@@ -43,6 +51,16 @@ import { PriceBreakdown } from "@/components/listing/price-breakdown";
 
 const STEPS = ["Reservation details", "Vehicle", "Rules", "Review and pay"];
 const SIZE_ORDER: VehicleSize[] = ["compact", "standard", "large", "oversized"];
+
+// Stripe's own docs call for loading this once and reusing the promise,
+// rather than re-loading Stripe.js on every render.
+let stripePromise: Promise<StripeJs | null> | null = null;
+function getStripe(): Promise<StripeJs | null> {
+  if (!stripePromise) {
+    stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : Promise.resolve(null);
+  }
+  return stripePromise;
+}
 
 type NewVehicle = {
   make: string;
@@ -84,6 +102,12 @@ export function BookingFlow({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<{ title: string; description: string } | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  // Set once the reservation exists and a real payment needs to be collected
+  // — while these are set, the component renders the Stripe Elements form
+  // instead of the stepper. Reservation creation and payment confirmation
+  // are two separate steps now, not one.
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [pendingReference, setPendingReference] = useState<string | null>(null);
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -268,16 +292,26 @@ export function BookingFlow({ slug }: { slug: string }) {
 
     setSubmitting(false);
 
-    if (result.ok) {
-      router.push(`/reservations/${result.data.reference}?new=1`);
+    if (!result.ok) {
+      const copy = ERROR_COPY[result.error.code];
+      setSubmitError({
+        title: copy.title,
+        description: result.error.message || copy.description,
+      });
       return;
     }
 
-    const copy = ERROR_COPY[result.error.code];
-    setSubmitError({
-      title: copy.title,
-      description: result.error.message || copy.description,
-    });
+    if (result.data.clientSecret) {
+      // Real payment still needs to happen — hand off to Stripe Elements.
+      // The redirect to the confirmation page only happens once
+      // confirmPayment actually succeeds, not here.
+      setClientSecret(result.data.clientSecret);
+      setPendingReference(result.data.reference);
+      return;
+    }
+
+    // No payment step required (local-storage demo mode) — already "confirmed".
+    router.push(`/reservations/${result.data.reference}?new=1`);
   }
 
   /* -------------------------------- Render ------------------------------- */
@@ -286,14 +320,26 @@ export function BookingFlow({ slug }: { slug: string }) {
     return (
       <div className="grid min-h-[70dvh] place-items-center px-4">
         <div className="max-w-sm text-center">
-          <Spinner size="lg" label="Confirming your reservation" />
-          <h1 className="mt-5 text-xl font-bold tracking-tight">Confirming your reservation…</h1>
+          <Spinner size="lg" label="Starting your reservation" />
+          <h1 className="mt-5 text-xl font-bold tracking-tight">Starting your reservation…</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-600">
             This usually takes a few seconds. Please do not close or refresh this
             page — doing so could leave your reservation in an unclear state.
           </p>
         </div>
       </div>
+    );
+  }
+
+  if (clientSecret && pendingReference && price) {
+    return (
+      <CheckoutStep
+        listing={listing}
+        price={price}
+        clientSecret={clientSecret}
+        reference={pendingReference}
+        onSuccess={() => router.push(`/reservations/${pendingReference}?new=1`)}
+      />
     );
   }
 
@@ -391,7 +437,7 @@ export function BookingFlow({ slug }: { slug: string }) {
               onClick={goNext}
               disabled={step === STEPS.length - 1 && !paymentsConfigured}
             >
-              {step === STEPS.length - 1 ? "Confirm and Pay" : "Continue"}
+              {step === STEPS.length - 1 ? "Continue to payment" : "Continue"}
             </Button>
           </div>
 
@@ -911,13 +957,10 @@ function StepReview({
         </p>
 
         {paymentsConfigured ? (
-          // Stripe Elements mounts here once the provider is connected.
-          <div
-            id="payment-element"
-            className="mt-4 min-h-32 rounded-xl border border-dashed border-ink-300 bg-ink-50 p-4"
-          >
-            <p className="text-sm text-ink-500">Loading secure payment form…</p>
-          </div>
+          <p className="mt-4 text-sm text-ink-600">
+            You will enter your card details on the next screen, once your
+            reservation is started.
+          </p>
         ) : (
           <Alert tone="neutral" className="mt-4">
             The payment form appears here once a payment provider is connected to
@@ -955,6 +998,143 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
     <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-4 py-3.5">
       <dt className="text-sm text-ink-600">{label}</dt>
       <dd className="text-sm font-semibold text-ink-900">{value}</dd>
+    </div>
+  );
+}
+
+/* ------------------------------- Checkout --------------------------------- */
+
+/**
+ * Renders once the reservation exists ("pending") and a real payment needs
+ * collecting — a distinct screen from the stepper above, not another step in
+ * it, since it needs its own Stripe Elements provider and its own
+ * loading/error handling around confirmPayment.
+ */
+function CheckoutStep({
+  listing,
+  price,
+  clientSecret,
+  reference,
+  onSuccess,
+}: {
+  listing: Listing;
+  price: PriceBreakdownData;
+  clientSecret: string;
+  reference: string;
+  onSuccess: () => void;
+}) {
+  const hostPayoutCents = price.hostEarningsCents ?? price.totalCents;
+  const platformCutCents = price.totalCents - hostPayoutCents;
+
+  return (
+    <Container size="narrow" className="py-10">
+      <h1 className="text-2xl font-extrabold tracking-tight">Complete your payment</h1>
+      <p className="mt-1.5 text-sm text-ink-600">{listing.title}</p>
+
+      <div className="mt-6 rounded-card border border-ink-200 p-5">
+        <h2 className="text-sm font-bold text-ink-900">Where your payment goes</h2>
+        <dl className="mt-3 space-y-2 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-ink-600">Host payout</dt>
+            <dd className="font-semibold text-ink-900">{formatMoney(hostPayoutCents, price.currency)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-ink-600">ParkPlugs fee (15%)</dt>
+            <dd className="font-semibold text-ink-900">{formatMoney(platformCutCents, price.currency)}</dd>
+          </div>
+          <div className="flex justify-between gap-4 border-t border-ink-200 pt-2.5">
+            <dt className="font-bold text-ink-900">You pay</dt>
+            <dd className="text-base font-extrabold tabular-nums text-ink-950">
+              {formatMoney(price.totalCents, price.currency)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="mt-6 rounded-card border border-ink-200 p-5">
+        {stripePublishableKey ? (
+          <Elements stripe={getStripe()} options={{ clientSecret, appearance: { theme: "stripe" } }}>
+            <CheckoutForm
+              amountLabel={formatMoney(price.totalCents, price.currency)}
+              reference={reference}
+              onSuccess={onSuccess}
+            />
+          </Elements>
+        ) : (
+          <Alert tone="warning" title="Payment processing is not connected">
+            This ParkPlugs environment has a payment provider connected on the
+            server but not in this frontend build, so checkout cannot be
+            completed here. Your reservation reference is {reference} — contact
+            support with it if this persists.
+          </Alert>
+        )}
+      </div>
+    </Container>
+  );
+}
+
+function CheckoutForm({
+  amountLabel,
+  reference,
+  onSuccess,
+}: {
+  amountLabel: string;
+  reference: string;
+  onSuccess: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  async function handlePay() {
+    if (!stripe || !elements || paying) return;
+    setPaying(true);
+    setPayError(null);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      // Most cards resolve without ever navigating here — this only matters
+      // for a payment method that genuinely requires a redirect (e.g. some
+      // bank-based methods), as a fallback landing spot.
+      confirmParams: { return_url: `${window.location.origin}/reservations/${reference}?new=1` },
+      redirect: "if_required",
+    });
+
+    if (error) {
+      setPaying(false);
+      setPayError(error.message ?? "Your payment could not be completed. Check your details and try again.");
+      return;
+    }
+    onSuccess();
+  }
+
+  return (
+    <div>
+      <PaymentElement />
+
+      {payError ? (
+        <Alert tone="danger" live className="mt-4">
+          {payError}
+        </Alert>
+      ) : null}
+
+      <Button
+        fullWidth
+        size="lg"
+        className="mt-5"
+        onClick={handlePay}
+        loading={paying}
+        loadingText="Processing payment…"
+        disabled={!stripe || !elements}
+      >
+        Pay {amountLabel}
+      </Button>
+
+      <p className="mt-2.5 text-center text-xs text-ink-500">
+        Payments are securely processed by Stripe. ParkPlugs never stores your
+        full card details.
+      </p>
     </div>
   );
 }

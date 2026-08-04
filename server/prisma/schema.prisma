@@ -70,6 +70,20 @@ enum ReservationStatus {
   refunded
 }
 
+/**
+ * Stripe's own payment lifecycle, tracked separately from ReservationStatus
+ * (the booking lifecycle) — a booking can sit in one status for days while
+ * its payment moves through several of these, and a refund can land well
+ * after the booking itself is already "completed".
+ */
+enum PaymentStatus {
+  requires_payment
+  processing
+  succeeded
+  failed
+  refunded
+}
+
 enum ReportRestriction {
   time_limited
   metered
@@ -321,7 +335,8 @@ model ListingAvailability {
 model Reservation {
   id        String             @id @default(cuid())
   reference String             @unique
-  status    ReservationStatus  @default(confirmed)
+  status    ReservationStatus  @default(pending)
+  paymentStatus PaymentStatus  @default(requires_payment)
 
   listingId String
   listing   Listing @relation(fields: [listingId], references: [id], onDelete: Restrict)

@@ -8,6 +8,17 @@ const schema = z.object({
   CORS_ORIGIN: z.string().min(1),
   SESSION_SECRET: z.string().min(16, "SESSION_SECRET must be at least 16 characters"),
   STRIPE_SECRET_KEY: z.string().optional().default(""),
+  // Signs webhook payloads from the Stripe dashboard's endpoint config — see
+  // routes/webhooks.routes.ts. Left unset, incoming webhooks are rejected
+  // rather than trusted unverified.
+  STRIPE_WEBHOOK_SECRET: z.string().optional().default(""),
+  // account.updated for a host's Express account is a Connect event — Stripe
+  // only delivers it to a destination whose "Events from" is "Connected
+  // accounts", which is a separate destination (and separate signing secret)
+  // from the "Your account" one STRIPE_WEBHOOK_SECRET verifies. Optional:
+  // without it, Connect events silently fail signature verification and
+  // webhooks.routes.ts falls back to STRIPE_WEBHOOK_SECRET alone.
+  STRIPE_CONNECT_WEBHOOK_SECRET: z.string().optional().default(""),
 
   // Email goes through a provider's HTTP API (not SMTP) — some hosts,
   // including Railway's trial tier, block outbound SMTP ports 465/587
@@ -30,11 +41,15 @@ const schema = z.object({
   PUBLIC_UPLOAD_BASE_URL: z.string().optional().default("http://localhost:4000/uploads"),
   FRONTEND_URL: z.string().optional().default("http://localhost:3000"),
 
-  // Fees in basis points (1000 = 10%). Left unset means "not yet confirmed" —
-  // mirrors src/config/business.ts on the frontend exactly: quotes compute
-  // with a $0 fee and `feesKnown: false` rather than guessing a rate.
-  SERVICE_FEE_BPS: z.coerce.number().optional(),
-  HOST_FEE_BPS: z.coerce.number().optional(),
+  // Fees in basis points (1000 = 10%). The commission split is confirmed —
+  // ParkPlugs keeps 15% of the driver's subtotal (HOST_FEE_BPS, deducted
+  // from the host's payout) and charges no separate markup on top
+  // (SERVICE_FEE_BPS = 0) — so these default rather than reading as
+  // unconfirmed. Still overridable via env if the split ever changes.
+  // Mirrors src/config/business.ts on the frontend exactly.
+  SERVICE_FEE_BPS: z.coerce.number().optional().default(0),
+  HOST_FEE_BPS: z.coerce.number().optional().default(1500),
+  // Sales tax has no confirmed rate yet, so this one stays genuinely unset.
   TAX_BPS: z.coerce.number().optional(),
 
   // Defaults on — listings go live immediately with no review step. Set to

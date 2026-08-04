@@ -116,3 +116,20 @@ export function passwordResetEmail(token: string): { subject: string; text: stri
     text: `We received a request to reset your ParkPlugs password:\n\n${link}\n\nThis link expires in 60 minutes. If you did not request this, you can ignore this email — your password has not been changed.`,
   };
 }
+
+/** Sent once Stripe confirms payment actually captured — see webhooks.routes.ts. */
+export function reservationConfirmedEmail(input: {
+  reference: string;
+  listingTitle: string;
+  startAt: Date;
+  endAt: Date;
+  totalCents: number;
+  currency: string;
+}): { subject: string; text: string } {
+  const link = `${env.FRONTEND_URL}/reservations/${input.reference}`;
+  const total = `${(input.totalCents / 100).toFixed(2)} ${input.currency.toUpperCase()}`;
+  return {
+    subject: `Reservation confirmed — ${input.reference}`,
+    text: `Your payment went through and your reservation is confirmed.\n\nSpace: ${input.listingTitle}\nReference: ${input.reference}\nWhen: ${input.startAt.toLocaleString()} – ${input.endAt.toLocaleString()}\nTotal charged: ${total}\n\nFull details, the exact address, and host instructions: ${link}`,
+  };
+}

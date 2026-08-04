@@ -63,13 +63,15 @@ export const business = {
   policyEffectiveDate: envString(process.env.NEXT_PUBLIC_POLICY_EFFECTIVE_DATE),
 
   /**
-   * Fees in basis points (1000 = 10%). Null means "not yet confirmed"; the
-   * pricing page shows a placeholder and checkout explains that the total
-   * cannot be finalised until fees are configured.
+   * Fees in basis points (1000 = 10%). The commission split is confirmed —
+   * ParkPlugs keeps 15% of the driver's subtotal (hostFeeBps, deducted from
+   * the host's payout) with no separate markup on top (serviceFeeBps = 0) —
+   * so these default rather than reading as unconfirmed. Still overridable
+   * via env if the split ever changes. Must match server/src/env.ts.
    */
-  serviceFeeBps: envInt(process.env.NEXT_PUBLIC_SERVICE_FEE_BPS),
-  hostFeeBps: envInt(process.env.NEXT_PUBLIC_HOST_FEE_BPS),
-  /** Sales tax in basis points, where applicable. */
+  serviceFeeBps: envInt(process.env.NEXT_PUBLIC_SERVICE_FEE_BPS) ?? 0,
+  hostFeeBps: envInt(process.env.NEXT_PUBLIC_HOST_FEE_BPS) ?? 1500,
+  /** Sales tax has no confirmed rate yet, so this one stays genuinely unset. */
   taxBps: envInt(process.env.NEXT_PUBLIC_TAX_BPS),
 
   /**
@@ -102,10 +104,11 @@ export const business = {
 export const siteUrl =
   envString(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://parkplug.example";
 
+/** Real key value, for actually loading Stripe.js — null until one is set. */
+export const stripePublishableKey = envString(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
 /** True once a payment provider publishable key is present. */
-export const paymentsConfigured = Boolean(
-  envString(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY),
-);
+export const paymentsConfigured = Boolean(stripePublishableKey);
 
 /** True once fees are known well enough to quote a final total. */
 export const feesConfigured = business.serviceFeeBps !== null;

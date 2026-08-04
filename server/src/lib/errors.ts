@@ -15,7 +15,7 @@
  * the frontend's request() helper prefers over its status-based mapping.
  * Everything else is inferred from the HTTP status as before.
  */
-export type ExplicitErrorCode = "payment_failed" | "payment_unavailable" | "upload_failed";
+export type ExplicitErrorCode = "payment_failed" | "payment_unavailable" | "host_not_ready" | "upload_failed";
 
 export class ApiError extends Error {
   status: number;
@@ -49,4 +49,5 @@ export const rateLimited = (message = "Too many attempts. Try again shortly.") =
   new ApiError(429, message);
 export const paymentUnavailable = (message: string) => new ApiError(402, message, undefined, "payment_unavailable");
 export const paymentFailed = (message: string) => new ApiError(402, message, undefined, "payment_failed");
+export const hostNotReady = (message: string) => new ApiError(409, message, undefined, "host_not_ready");
 export const uploadFailed = (message: string) => new ApiError(422, message, undefined, "upload_failed");

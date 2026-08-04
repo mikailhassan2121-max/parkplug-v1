@@ -15,6 +15,7 @@ export type ApiErrorCode =
   | "rate_limited"
   | "payment_failed"
   | "payment_unavailable"
+  | "host_not_ready"
   | "upload_failed"
   | "server"
   | "unknown";
@@ -88,6 +89,10 @@ export const ERROR_COPY: Record<ApiErrorCode, { title: string; description: stri
   payment_unavailable: {
     title: "Payments are temporarily unavailable",
     description: "We could not reach the payment processor. Your details have been kept.",
+  },
+  host_not_ready: {
+    title: "This space cannot accept bookings yet",
+    description: "The host has not finished setting up payouts. Try another space, or check back later.",
   },
   upload_failed: {
     title: "That upload did not finish",

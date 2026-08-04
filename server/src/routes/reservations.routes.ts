@@ -5,7 +5,7 @@ import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { requireAuth } from "../middleware/session.js";
 import { toReservationDto } from "../lib/dto.js";
-import { badRequest, conflict, notFound, paymentFailed, paymentUnavailable } from "../lib/errors.js";
+import { badRequest, conflict, hostNotReady, notFound, paymentFailed, paymentUnavailable } from "../lib/errors.js";
 import { quote } from "../lib/pricing.js";
 import { isWithinAvailability } from "../lib/availability.js";
 import { newReservationReference } from "../lib/tokens.js";
@@ -59,7 +59,6 @@ const createSchema = z.object({
   startAt: z.string().min(1),
   endAt: z.string().min(1),
   vehicleId: z.string().min(1),
-  paymentMethodId: z.string().optional(),
 });
 
 reservationsRouter.post(
@@ -95,11 +94,14 @@ reservationsRouter.post(
       throw badRequest("This time falls outside the space's posted availability.");
     }
 
-    // Reject a double booking rather than silently overlapping it.
+    // Reject a double booking rather than silently overlapping it. A pending
+    // reservation (payment not yet confirmed) still holds the slot, the same
+    // as a confirmed one — otherwise two people could pay for the same
+    // window while both checkouts are in flight.
     const clash = await prisma.reservation.findFirst({
       where: {
         listingId: listing.id,
-        status: { in: ["confirmed", "in_progress"] },
+        status: { in: ["pending", "confirmed", "in_progress"] },
         startAt: { lt: endAt },
         endAt: { gt: startAt },
       },
@@ -114,41 +116,55 @@ reservationsRouter.post(
       );
     }
 
+    // A destination charge needs a Stripe Connect account on the other end —
+    // without one, the platform would be left holding the full payment with
+    // no way to pay the host, so this fails the booking outright rather than
+    // quietly keeping money that was never ParkPlugs's to keep.
+    const payoutAccount = await prisma.payoutAccount.findUnique({ where: { userId: listing.hostId } });
+    if (!payoutAccount || payoutAccount.state !== "complete" || !payoutAccount.stripeAccountId) {
+      throw hostNotReady("This host has not finished setting up payouts yet, so this space cannot accept bookings right now.");
+    }
+
     const price = quote({
       pricePerHourCents: listing.pricePerHourCents,
       dailyMaxCents: listing.dailyMaxCents,
       minutes,
       currency: listing.currency,
     });
-
-    let paymentIntentId: string | undefined;
-    try {
-      const intent = await stripe!.paymentIntents.create({
-        amount: price.totalCents,
-        currency: listing.currency.toLowerCase(),
-        payment_method: d.paymentMethodId,
-        confirm: Boolean(d.paymentMethodId),
-        automatic_payment_methods: d.paymentMethodId ? undefined : { enabled: true },
-        metadata: { listingId: listing.id, userId: req.user!.id },
-      });
-      paymentIntentId = intent.id;
-      if (d.paymentMethodId && intent.status !== "succeeded" && intent.status !== "processing") {
-        throw new Error(`Payment intent status: ${intent.status}`);
-      }
-    } catch (error) {
-      console.error("[stripe] payment intent failed:", error);
-      throw paymentFailed(
-        "Your payment could not be completed. No charge was made and your reservation was not created.",
-      );
+    if (price.hostEarningsCents === undefined) {
+      throw paymentUnavailable("Fees are not configured, so this reservation cannot be priced.");
     }
+    // Everything that isn't the host's share — the platform's cut, in cents.
+    const applicationFeeAmount = price.totalCents - price.hostEarningsCents;
 
     const reference = newReservationReference();
+
+    let intent: Stripe.PaymentIntent;
+    try {
+      // Not confirmed here — the frontend confirms client-side against the
+      // returned client_secret with Stripe Elements (see booking-flow.tsx).
+      // Stripe's own webhook (payment_intent.succeeded) is what actually
+      // confirms the reservation, not this synchronous response.
+      intent = await stripe!.paymentIntents.create({
+        amount: price.totalCents,
+        currency: listing.currency.toLowerCase(),
+        automatic_payment_methods: { enabled: true },
+        transfer_data: { destination: payoutAccount.stripeAccountId },
+        application_fee_amount: applicationFeeAmount,
+        metadata: { listingId: listing.id, userId: req.user!.id, reservationReference: reference },
+      });
+    } catch (error) {
+      console.error("[stripe] payment intent failed:", error);
+      throw paymentFailed("Your payment could not be started. Your reservation was not created.");
+    }
+
     const now = new Date();
 
     const reservation = await prisma.reservation.create({
       data: {
         reference,
-        status: "confirmed",
+        status: "pending",
+        paymentStatus: "requires_payment",
         listingId: listing.id,
         userId: req.user!.id,
         vehicleId: vehicle.id,
@@ -171,14 +187,16 @@ reservationsRouter.post(
         hostInstructions: listing.privateInstructions,
         cancellationSummary: listing.cancellationSummary,
         cancellationFullRefundHoursBefore: listing.cancellationFullRefundHoursBefore,
-        stripePaymentIntentId: paymentIntentId,
-        timeline: { create: [{ at: now, label: "Reservation confirmed", description: "Payment authorised." }] },
+        stripePaymentIntentId: intent.id,
+        timeline: { create: [{ at: now, label: "Reservation started", description: "Awaiting payment confirmation." }] },
       },
       include,
     });
 
     // Every reservation gets exactly one conversation, scoped to it, so a
     // driver and host can only reach each other about a booking they share.
+    // Created immediately (not gated on payment) so it exists the moment a
+    // reservation reference does.
     await prisma.conversation.create({
       data: {
         reservationId: reservation.id,
@@ -188,20 +206,10 @@ reservationsRouter.post(
       },
     });
 
-    await createNotification(req.user!.id, {
-      type: "reservation_confirmed",
-      title: "Reservation confirmed",
-      body: `${listing.title} · ${reservation.reference}`,
-      href: `/reservations/${reservation.reference}`,
-    });
-    await createNotification(listing.hostId, {
-      type: "host_new_booking",
-      title: "New booking",
-      body: `${listing.title} was just reserved for ${startAt.toLocaleDateString()}`,
-      href: `/host/reservations`,
-    });
-
-    res.status(201).json(toReservationDto(reservation));
+    // No "confirmed" notification yet — that fires from the
+    // payment_intent.succeeded webhook once payment actually captures, not
+    // from this synchronous response.
+    res.status(201).json({ ...toReservationDto(reservation), clientSecret: intent.client_secret });
   }),
 );
 

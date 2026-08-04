@@ -23,6 +23,7 @@ export default function HostOverviewPage() {
   const listingsState = useAsync(() => listingsApi.listForHost(), []);
   const reservationsState = useAsync(() => reservationsApi.listForHost(), []);
   const earningsState = useAsync(() => hostApi.earnings(), []);
+  const payoutState = useAsync(() => hostApi.payoutState(), []);
 
   const allListings = listingsState.status === "ready" ? listingsState.data : [];
   const activeListings = allListings.filter((l) => l.status === "active");
@@ -111,18 +112,21 @@ export default function HostOverviewPage() {
       </section>
 
       {/* ------------------------------------------------- Payout reminder */}
-      <Alert
-        tone="info"
-        title="Set up payouts before your first reservation"
-        action={
-          <ButtonLink href="/host/payouts" size="sm" variant="secondary">
-            Continue payout setup
-          </ButtonLink>
-        }
-      >
-        Payout information is handled securely by our payment provider. You will
-        not be paid out until setup is complete.
-      </Alert>
+      {payoutState.status === "ready" && payoutState.data.state !== "complete" ? (
+        <Alert
+          tone={payoutState.data.state === "action_required" ? "danger" : "warning"}
+          title="Payouts not enabled yet — finish Stripe onboarding"
+          action={
+            <ButtonLink href="/host/payouts" size="sm" variant="secondary">
+              {payoutState.data.state === "not_started" ? "Start payout setup" : "Continue payout setup"}
+            </ButtonLink>
+          }
+        >
+          A driver cannot book any of your spaces until this is done — reservation
+          attempts will be turned away rather than paid to ParkPlugs with nowhere
+          to send your share.
+        </Alert>
+      ) : null}
 
       {/* ---------------------------------------------------- Reservations */}
       <section aria-labelledby="upcoming-heading">

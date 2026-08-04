@@ -23,6 +23,7 @@ import { hostRouter } from "./routes/host.routes.js";
 import { conversationsRouter } from "./routes/conversations.routes.js";
 import { uploadsRouter } from "./routes/uploads.routes.js";
 import { geocodeRouter } from "./routes/geocode.routes.js";
+import { webhooksRouter } from "./routes/webhooks.routes.js";
 
 export function createApp() {
   const app = express();
@@ -48,6 +49,14 @@ export function createApp() {
     }),
   );
   app.use(requestId);
+
+  // Stripe signs the exact raw bytes of the request body — this has to see
+  // them before express.json() below parses (and thereby alters) the body,
+  // or signature verification in webhooks.routes.ts will always fail. Its
+  // handler responds directly without calling next(), so a webhook request
+  // never reaches express.json() at all.
+  app.use("/webhooks", webhooksRouter);
+
   app.use(express.json({ limit: "2mb" }));
 
   // The global fallback is mounted FIRST and the per-route limiters below it,
