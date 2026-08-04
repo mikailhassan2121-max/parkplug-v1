@@ -18,6 +18,7 @@ import {
   toTimeInput,
 } from "@/lib/format";
 import { validateDateRange } from "@/lib/search-params";
+import { isWithinAvailability } from "@/lib/availability";
 import { useAsync, useUnsavedChangesWarning } from "@/lib/use-async";
 import { useSession } from "@/lib/session";
 import { VEHICLE_SIZES, type Listing, type Vehicle, type VehicleSize } from "@/lib/types";
@@ -175,6 +176,11 @@ export function BookingFlow({ slug }: { slug: string }) {
         found.push({
           field: "times",
           message: `This space allows at most ${formatDuration(listing.maximumMinutes)}.`,
+        });
+      } else if (startAt && endAt && !isWithinAvailability(startAt, endAt, listing.availability)) {
+        found.push({
+          field: "times",
+          message: "This time falls outside the space's posted availability. Choose a time within its listed hours.",
         });
       }
     }

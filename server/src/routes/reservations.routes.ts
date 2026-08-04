@@ -7,6 +7,7 @@ import { requireAuth } from "../middleware/session.js";
 import { toReservationDto } from "../lib/dto.js";
 import { badRequest, conflict, notFound, paymentFailed, paymentUnavailable } from "../lib/errors.js";
 import { quote } from "../lib/pricing.js";
+import { isWithinAvailability } from "../lib/availability.js";
 import { newReservationReference } from "../lib/tokens.js";
 import { env, paymentsConfigured } from "../env.js";
 import { createNotification } from "../lib/notifications.js";
@@ -68,7 +69,10 @@ reservationsRouter.post(
     if (!parsed.success) throw badRequest("Check your reservation details and try again.");
     const d = parsed.data;
 
-    const listing = await prisma.listing.findUnique({ where: { slug: d.listingSlug } });
+    const listing = await prisma.listing.findUnique({
+      where: { slug: d.listingSlug },
+      include: { availability: true },
+    });
     if (!listing || listing.status !== "active") throw notFound("This space is no longer listed.");
 
     const vehicle = await prisma.vehicle.findUnique({ where: { id: d.vehicleId } });
@@ -86,6 +90,9 @@ reservationsRouter.post(
     }
     if (minutes > listing.maximumMinutes) {
       throw badRequest(`This space allows at most ${listing.maximumMinutes} minutes.`);
+    }
+    if (!isWithinAvailability(startAt, endAt, listing.availability)) {
+      throw badRequest("This time falls outside the space's posted availability.");
     }
 
     // Reject a double booking rather than silently overlapping it.

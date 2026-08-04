@@ -5,6 +5,7 @@ import { useState } from "react";
 import { quote } from "@/lib/api/pricing";
 import { formatDuration, formatMoney, minutesBetween, toDateInput, toIso, toTimeInput } from "@/lib/format";
 import { validateDateRange } from "@/lib/search-params";
+import { isWithinAvailability, nextAvailableWindow } from "@/lib/availability";
 import type { Listing } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
@@ -14,11 +15,18 @@ import { IconBolt, IconCheckCircle, IconClock } from "@/components/ui/icons";
 import { PriceBreakdown } from "./price-breakdown";
 
 function defaultWindow(listing: Listing) {
-  const start = new Date();
-  start.setMinutes(0, 0, 0);
-  start.setHours(start.getHours() + Math.max(1, Math.ceil(listing.advanceNoticeMinutes / 60)));
-  const end = new Date(start.getTime() + Math.max(listing.minimumMinutes, 120) * 60_000);
-  return { start, end };
+  const earliest = new Date();
+  earliest.setMinutes(0, 0, 0);
+  earliest.setHours(earliest.getHours() + Math.max(1, Math.ceil(listing.advanceNoticeMinutes / 60)));
+  const duration = Math.max(listing.minimumMinutes, 120);
+
+  // Prefer the next slot that actually falls within the listing's posted
+  // hours; only fall back to the naive "earliest + duration" guess when
+  // nothing fits in the next week (an unusually restrictive schedule) —
+  // validation below still catches that case rather than silently booking it.
+  const found = nextAvailableWindow(earliest, duration, listing.availability);
+  if (found) return found;
+  return { start: earliest, end: new Date(earliest.getTime() + duration * 60_000) };
 }
 
 export function BookingCard({
@@ -52,6 +60,11 @@ export function BookingCard({
       ? `This space allows at most ${formatDuration(listing.maximumMinutes)}.`
       : null;
 
+  const availabilityError =
+    minutes > 0 && !durationError && startAt && endAt && !isWithinAvailability(startAt, endAt, listing.availability)
+      ? "This time falls outside the space's posted availability. Check the hours below and choose a time within them."
+      : null;
+
   const price =
     minutes > 0
       ? quote({
@@ -62,7 +75,7 @@ export function BookingCard({
         })
       : null;
 
-  const blocked = Boolean(rangeError || durationError) || minutes === 0;
+  const blocked = Boolean(rangeError || durationError || availabilityError) || minutes === 0;
 
   function reserve() {
     if (blocked || !startAt || !endAt) return;
@@ -130,9 +143,9 @@ export function BookingCard({
         </fieldset>
       </div>
 
-      {rangeError || durationError ? (
+      {rangeError || durationError || availabilityError ? (
         <Alert tone="danger" live className="mt-3">
-          {rangeError ?? durationError}
+          {rangeError ?? durationError ?? availabilityError}
         </Alert>
       ) : null}
 
