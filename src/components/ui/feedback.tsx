@@ -60,7 +60,7 @@ export function LoadingRegion({
 
 export function SkeletonListingCard() {
   return (
-    <div className="overflow-hidden rounded-card border border-ink-200 bg-white">
+    <div className="overflow-hidden rounded-card border border-ink-200 bg-ink-50">
       <Skeleton className="aspect-[16/10] w-full" rounded="rounded-none" />
       <div className="space-y-3 p-4">
         <Skeleton className="h-4 w-3/4" rounded="rounded-md" />
@@ -76,7 +76,7 @@ export function SkeletonListingCard() {
 
 export function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 rounded-card border border-ink-200 bg-white p-4">
+    <div className="flex items-center gap-4 rounded-card border border-ink-200 bg-ink-50 p-4">
       <Skeleton className="h-16 w-16 shrink-0" rounded="rounded-xl" />
       <div className="min-w-0 flex-1 space-y-2">
         <Skeleton className="h-4 w-2/5" rounded="rounded-md" />
@@ -167,7 +167,7 @@ export function EmptyState({
       )}
     >
       {icon ? (
-        <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-white text-2xl text-ink-400 shadow-e1">
+        <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-ink-100 text-2xl text-ink-400 shadow-e1">
           {icon}
         </span>
       ) : null}
@@ -212,13 +212,13 @@ export function ErrorState({
         className,
       )}
     >
-      <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-white text-2xl text-danger-600 shadow-e1">
+      <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-ink-100 text-2xl text-danger-600 shadow-e1">
         <IconAlert />
       </span>
       <h3 className={cn("font-bold text-ink-900", compact ? "text-base" : "text-lg")}>{title}</h3>
       <div className="mt-2 max-w-md text-sm leading-relaxed text-ink-700">{description}</div>
       {progressNote ? (
-        <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-ink-600">
+        <p className="mt-3 rounded-lg bg-ink-100 px-3 py-2 text-xs font-medium text-ink-600">
           {progressNote}
         </p>
       ) : null}

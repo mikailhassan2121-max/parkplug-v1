@@ -3,10 +3,9 @@ export type NavLink = { href: string; label: string };
 /** Primary navigation, shared by the desktop header and the mobile menu. */
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/search", label: "Find Parking" },
-  { href: "/report-parking", label: "Report Free Parking" },
-  { href: "/host/listings/new", label: "List Your Space" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/help", label: "Help" },
+  { href: "/live", label: "Live Map" },
+  { href: "/host/listings/new", label: "List Your Parking" },
+  { href: "/for-property-owners", label: "For Property Owners" },
 ];
 
 export const HOST_NAV: NavLink[] = [

@@ -97,7 +97,7 @@ export function Field({
    ------------------------------------------------------------------------- */
 
 const controlBase =
-  "w-full rounded-xl border bg-white text-ink-900 placeholder:text-ink-400 " +
+  "w-full rounded-xl border bg-ink-100 text-ink-900 placeholder:text-ink-400 " +
   "transition-[border-color,box-shadow] duration-150 " +
   "disabled:bg-ink-50 disabled:text-ink-500 disabled:cursor-not-allowed " +
   "read-only:bg-ink-50";
@@ -380,7 +380,7 @@ export function Switch({
       >
         <span
           className={cn(
-            "absolute top-0.5 left-0.5 grid h-5 w-5 place-items-center rounded-full bg-white shadow-e1",
+            "absolute top-0.5 left-0.5 grid h-5 w-5 place-items-center rounded-full bg-ink-950 shadow-e1",
             "transition-transform duration-200",
             checked && "translate-x-5",
           )}
@@ -434,7 +434,7 @@ export function RadioCard({
           "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
           checked
             ? "border-brand-600 bg-brand-50 shadow-e1"
-            : "border-ink-200 bg-white hover:border-ink-400 hover:bg-ink-50",
+            : "border-ink-200 bg-ink-100 hover:border-ink-400 hover:bg-ink-200",
         )}
       >
         {icon ? (
@@ -476,7 +476,7 @@ export function TogglePill({
         "disabled:cursor-not-allowed disabled:opacity-50",
         pressed
           ? "border-brand-600 bg-brand-600 text-white"
-          : "border-ink-300 bg-white text-ink-700 hover:border-ink-400 hover:bg-ink-50",
+          : "border-ink-300 bg-ink-100 text-ink-700 hover:border-ink-400 hover:bg-ink-200",
       )}
     >
       {pressed ? <IconCheck className="text-[0.85rem]" /> : null}

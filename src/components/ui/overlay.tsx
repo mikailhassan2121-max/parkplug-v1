@@ -86,7 +86,7 @@ export function Overlay({
 
       <div
         className={cn(
-          "relative z-10 m-auto flex w-full flex-col bg-white shadow-e3",
+          "relative z-10 m-auto flex w-full flex-col bg-ink-50 shadow-e3",
           "max-h-[100dvh] sm:max-h-[min(90dvh,52rem)]",
           sizeMap[size],
           variant === "modal" &&
@@ -191,7 +191,7 @@ export function Drawer({
         aria-labelledby={`dw-${uid}-title`}
         tabIndex={-1}
         className={cn(
-          "absolute inset-y-0 flex w-full max-w-sm flex-col bg-white shadow-e3 focus:outline-none",
+          "absolute inset-y-0 flex w-full max-w-sm flex-col bg-ink-50 shadow-e3 focus:outline-none",
           side === "right" ? "right-0" : "left-0",
           "animate-fade-in",
           className,

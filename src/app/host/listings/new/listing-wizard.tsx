@@ -464,7 +464,7 @@ export function ListingWizard() {
         <Container size="default" className="py-3">
           <div className="flex items-center justify-between gap-4">
             <Link href="/host" aria-label="ParkPlugs hosting" className="hidden rounded-lg sm:block">
-              <Logo showWordmark={false} />
+              <Logo variant="mark" />
             </Link>
             <div className="min-w-0 flex-1 sm:px-4">
               <Stepper steps={STEPS} current={step} onStepClick={(i) => setStep(i)} />

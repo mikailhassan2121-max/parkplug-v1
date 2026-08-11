@@ -126,7 +126,7 @@ export function CountBadge({ count, label }: { count: number; label: string }) {
   return (
     <span
       className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-danger-600
-                 text-white text-2xs font-bold grid place-items-center ring-2 ring-white"
+                 text-white text-2xs font-bold grid place-items-center ring-2 ring-ink-50"
     >
       <span aria-hidden="true">{count > 9 ? "9+" : count}</span>
       <span className="sr-only">

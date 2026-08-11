@@ -45,7 +45,7 @@ export function CookieConsent() {
       <div
         role="region"
         aria-label="Cookie preferences"
-        className="fixed inset-x-0 bottom-0 z-90 border-t border-ink-200 bg-white p-4 shadow-e3 safe-bottom
+        className="fixed inset-x-0 bottom-0 z-90 border-t border-ink-200 bg-ink-50 p-4 shadow-e3 safe-bottom
                    lg:inset-x-auto lg:bottom-6 lg:left-6 lg:max-w-md lg:rounded-2xl lg:border"
       >
         <h2 className="text-sm font-bold text-ink-900">Cookies on ParkPlugs</h2>

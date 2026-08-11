@@ -130,7 +130,7 @@ export function DropdownMenu({
           aria-label={triggerLabel}
           className={cn(
             "absolute top-[calc(100%+0.5rem)] z-50 min-w-56 origin-top overflow-hidden rounded-xl",
-            "border border-ink-200 bg-white py-1.5 shadow-e3 animate-scale-in",
+            "border border-ink-200 bg-ink-50 py-1.5 shadow-e3 animate-scale-in",
             align === "end" ? "right-0" : "left-0",
             menuClassName,
           )}
@@ -332,7 +332,7 @@ export function Accordion({
   className?: string;
 }) {
   return (
-    <div className={cn("divide-y divide-ink-200 rounded-card border border-ink-200 bg-white", className)}>
+    <div className={cn("divide-y divide-ink-200 rounded-card border border-ink-200 bg-ink-50", className)}>
       {items.map((item) => (
         <details key={item.id} name="faq" className="group">
           <summary

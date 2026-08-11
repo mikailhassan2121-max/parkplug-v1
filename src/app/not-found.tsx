@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
-import { LogoMark } from "@/components/brand/logo";
+import { Logo } from "@/components/brand/logo";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -12,8 +12,8 @@ export default function NotFound() {
   return (
     <Container size="narrow" className="flex flex-1 items-center py-16 lg:py-24">
       <div className="w-full text-center">
-        <span className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-brand-50">
-          <LogoMark className="h-11 w-11" />
+        <span className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-ink-100">
+          <Logo variant="mark" className="h-11 w-11" />
         </span>
 
         <p className="mt-6 text-sm font-bold uppercase tracking-[0.08em] text-brand-700">

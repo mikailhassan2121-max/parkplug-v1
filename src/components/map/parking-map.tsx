@@ -17,11 +17,21 @@ import {
   userLocationIcon,
 } from "./map-markers";
 
+// Dark basemap by default (CARTO dark_matter), matching the app's dark
+// theme. Override with NEXT_PUBLIC_DARK_TILE_URL for a different provider
+// (e.g. Stadia Alidade Smooth Dark) without a code change.
+const DEFAULT_DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png";
+const DEFAULT_DARK_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
 const TILE_URL =
-  process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-const TILE_ATTRIBUTION =
-  process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ??
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  process.env.NEXT_PUBLIC_DARK_TILE_URL ??
+  process.env.NEXT_PUBLIC_MAP_TILE_URL ??
+  DEFAULT_DARK_TILE_URL;
+const TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? DEFAULT_DARK_ATTRIBUTION;
+// Leaflet only consults this when the tile URL actually contains `{s}` —
+// harmless to pass for single-host providers that don't use it.
+const TILE_SUBDOMAINS = "abcd";
 
 export type MapSelection =
   | { kind: "listing"; id: string }
@@ -176,6 +186,7 @@ export function ParkingMap({
           .tileLayer(TILE_URL, {
             attribution: TILE_ATTRIBUTION,
             maxZoom: 19,
+            subdomains: TILE_SUBDOMAINS,
             // Serve retina tiles where the provider supports them.
             detectRetina: true,
           })
@@ -396,7 +407,7 @@ export function ParkingMap({
               type="button"
               onClick={recenter}
               className="grid h-10 w-10 place-items-center rounded-xl border border-ink-200
-                         bg-white text-ink-700 shadow-e2 transition-colors hover:bg-ink-50"
+                         bg-ink-50 text-ink-700 shadow-e2 transition-colors hover:bg-ink-100"
               aria-label="Recenter map on your search area"
             >
               <IconCrosshair className="text-lg" />
@@ -408,7 +419,7 @@ export function ParkingMap({
               onClick={() => void locateMe()}
               disabled={locating}
               className="grid h-10 w-10 place-items-center rounded-xl border border-ink-200
-                         bg-white text-info-600 shadow-e2 transition-colors hover:bg-ink-50 disabled:opacity-60"
+                         bg-ink-50 text-info-600 shadow-e2 transition-colors hover:bg-ink-100 disabled:opacity-60"
               aria-label="Share my current location"
             >
               {locating ? (

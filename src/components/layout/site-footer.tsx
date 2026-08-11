@@ -16,7 +16,8 @@ const COLUMNS: Array<{ heading: string; links: Array<{ href: string; label: stri
     heading: "Drivers",
     links: [
       { href: "/search", label: "Find Parking" },
-      { href: "/search?free=1", label: "Free Parking Map" },
+      { href: "/live", label: "Live Map" },
+      { href: "/report-parking", label: "Report Free Parking" },
       { href: "/dashboard/reservations", label: "Reservations" },
       { href: "/help?audience=drivers", label: "Help Center" },
     ],
@@ -24,7 +25,8 @@ const COLUMNS: Array<{ heading: string; links: Array<{ href: string; label: stri
   {
     heading: "Hosts",
     links: [
-      { href: "/host/listings/new", label: "List Your Space" },
+      { href: "/host/listings/new", label: "List Your Parking" },
+      { href: "/for-property-owners", label: "For Property Owners" },
       { href: "/hosting-guide", label: "Hosting Guide" },
       { href: "/legal/host-standards", label: "Host Standards" },
       { href: "/host/earnings", label: "Earnings" },

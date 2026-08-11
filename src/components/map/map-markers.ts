@@ -57,7 +57,7 @@ export function clusterIcon(leaflet: typeof L, count: number, hasFree: boolean):
   return leaflet.divIcon({
     className: "",
     html: `<span class="grid place-items-center rounded-full font-bold text-white ring-2 ring-white
-      shadow-[0_2px_8px_rgba(3,39,35,0.35)] ${hasFree ? "bg-ink-700" : "bg-brand-700"}"
+      shadow-[0_2px_8px_rgba(3,39,35,0.35)] ${hasFree ? "bg-ink-200" : "bg-brand-700"}"
       style="width:${size}px;height:${size}px;font-size:${size > 40 ? "0.85rem" : "0.75rem"}">${count}</span>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -67,7 +67,7 @@ export function clusterIcon(leaflet: typeof L, count: number, hasFree: boolean):
 export function destinationIcon(leaflet: typeof L): L.DivIcon {
   return leaflet.divIcon({
     className: "",
-    html: `<span class="grid place-items-center h-9 w-9 rounded-full bg-ink-900 text-white ring-3 ring-white shadow-[0_2px_8px_rgba(3,39,35,0.4)]">
+    html: `<span class="grid place-items-center h-9 w-9 rounded-full bg-ink-200 text-white ring-3 ring-white shadow-[0_2px_8px_rgba(3,39,35,0.4)]">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M20 10c0 4.4-5.4 9.6-7.4 11.3a1 1 0 0 1-1.2 0C9.4 19.6 4 14.4 4 10a8 8 0 1 1 16 0Z" />

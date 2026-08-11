@@ -84,8 +84,8 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-70 bg-white/95 backdrop-blur-md transition-shadow duration-200",
-        scrolled ? "shadow-e1 border-b border-ink-200" : "border-b border-transparent",
+        "sticky top-0 z-70 bg-pp-bg/95 backdrop-blur-md transition-shadow duration-200",
+        scrolled ? "shadow-e1 border-b border-pp-border" : "border-b border-transparent",
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:h-18 lg:gap-6 lg:px-8">
@@ -109,14 +109,14 @@ export function SiteHeader() {
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                      active ? "text-brand-800" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
+                      active ? "text-pp-live" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
                     )}
                   >
                     {link.label}
                     {active ? (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-brand-600"
+                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-pp-live pp-glow-live"
                       />
                     ) : null}
                   </Link>
@@ -144,7 +144,7 @@ export function SiteHeader() {
             <>
               <Link
                 href="/notifications"
-                className="relative hidden h-11 w-11 place-items-center rounded-xl text-ink-700 transition-colors hover:bg-ink-100 sm:grid"
+                className="relative hidden h-11 w-11 place-items-center rounded-xl text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 sm:grid"
                 aria-label={
                   session.unreadNotifications > 0
                     ? `Notifications, ${session.unreadNotifications} unread`
@@ -160,7 +160,7 @@ export function SiteHeader() {
                 align="end"
                 items={accountMenu}
                 trigger={
-                  <span className="flex items-center gap-1.5 rounded-xl border border-ink-300 bg-white py-1.5 pl-1.5 pr-2.5 shadow-e1 transition-colors hover:bg-ink-50">
+                  <span className="flex items-center gap-1.5 rounded-xl border border-ink-300 bg-ink-100 py-1.5 pl-1.5 pr-2.5 shadow-e1 transition-colors hover:bg-ink-200">
                     <Avatar name={user.fullName} url={user.avatarUrl} />
                     <IconChevronDown className="text-ink-500" />
                   </span>
@@ -175,7 +175,7 @@ export function SiteHeader() {
                 Sign In
               </ButtonLink>
               <ButtonLink href="/signup" size="sm">
-                Create Account
+                Get Started
               </ButtonLink>
             </span>
           )}
@@ -208,7 +208,7 @@ export function SiteHeader() {
             aria-modal="true"
             aria-label="Main menu"
             tabIndex={-1}
-            className="relative max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-ink-200 bg-white pb-6 shadow-e3 animate-slide-up focus:outline-none"
+            className="relative max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-ink-200 bg-pp-bg pb-6 shadow-e3 animate-slide-up focus:outline-none"
           >
             <nav aria-label="Mobile" className="px-4 pt-4">
               <ul className="space-y-1">
@@ -222,7 +222,7 @@ export function SiteHeader() {
                         className={cn(
                           "flex min-h-12 items-center rounded-xl px-4 text-[0.9375rem] font-semibold transition-colors",
                           active
-                            ? "bg-brand-50 text-brand-800"
+                            ? "bg-ink-100 text-pp-live"
                             : "text-ink-800 hover:bg-ink-100",
                         )}
                       >
@@ -276,7 +276,7 @@ export function SiteHeader() {
               ) : (
                 <div className="space-y-2.5 px-1">
                   <ButtonLink href="/signup" fullWidth size="lg">
-                    Create Account
+                    Get Started
                   </ButtonLink>
                   <ButtonLink href="/signin" variant="secondary" fullWidth size="lg">
                     Sign In

@@ -15,7 +15,7 @@ export function Card({
   return (
     <Tag
       className={cn(
-        "bg-white border border-ink-200 rounded-card",
+        "bg-ink-50 border border-ink-200 rounded-card",
         interactive &&
           "transition-[box-shadow,border-color,transform] duration-200 hover:shadow-e2 hover:border-ink-300 focus-within:shadow-e2",
         className,

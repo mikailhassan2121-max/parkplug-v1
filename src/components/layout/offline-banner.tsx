@@ -15,7 +15,7 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="sticky top-0 z-80 flex items-center justify-center gap-2.5 bg-ink-900 px-4 py-2.5 text-center text-sm font-medium text-white"
+      className="sticky top-0 z-80 flex items-center justify-center gap-2.5 bg-ink-100 px-4 py-2.5 text-center text-sm font-medium text-ink-900"
     >
       <IconWifiOff className="shrink-0 text-base" aria-hidden="true" />
       <span>

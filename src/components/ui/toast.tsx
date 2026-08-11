@@ -107,7 +107,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               role={t.tone === "error" ? "alert" : "status"}
               aria-live={t.tone === "error" ? "assertive" : "polite"}
               className="pointer-events-auto flex w-full max-w-sm animate-toast-in overflow-hidden
-                         rounded-xl border border-ink-200 bg-white shadow-e3"
+                         rounded-xl border border-ink-200 bg-ink-50 shadow-e3"
             >
               <span className={cn("w-1 shrink-0", style.bar)} aria-hidden="true" />
               <div className="flex flex-1 items-start gap-3 p-3.5">
