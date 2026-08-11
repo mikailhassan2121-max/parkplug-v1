@@ -24,14 +24,16 @@ const DEFAULT_DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_matter/{z}
 const DEFAULT_DARK_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-const TILE_URL =
+// Exported so other map surfaces (the live sensor map) use the exact same
+// basemap instead of duplicating the provider/env-var logic.
+export const TILE_URL =
   process.env.NEXT_PUBLIC_DARK_TILE_URL ??
   process.env.NEXT_PUBLIC_MAP_TILE_URL ??
   DEFAULT_DARK_TILE_URL;
-const TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? DEFAULT_DARK_ATTRIBUTION;
+export const TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? DEFAULT_DARK_ATTRIBUTION;
 // Leaflet only consults this when the tile URL actually contains `{s}` —
 // harmless to pass for single-host providers that don't use it.
-const TILE_SUBDOMAINS = "abcd";
+export const TILE_SUBDOMAINS = "abcd";
 
 export type MapSelection =
   | { kind: "listing"; id: string }

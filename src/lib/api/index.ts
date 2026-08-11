@@ -54,6 +54,8 @@ import {
 function getStoredToken(): string | null {
   return readRecord<string>(COLLECTIONS.sessionToken);
 }
+/** Exposed so callers that build their own fetch (e.g. the sensor simulator's server proxy call) can prove who's signed in. */
+export const getSessionToken = getStoredToken;
 function setStoredToken(token: string): void {
   writeRecord(COLLECTIONS.sessionToken, token);
 }

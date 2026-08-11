@@ -2,8 +2,9 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
+import { requireAuth } from "../middleware/session.js";
 import { badRequest, notFound } from "../lib/errors.js";
-import { toFacilityDto, toFacilitySummaryDto } from "../lib/sensor-dto.js";
+import { toFacilityDto, toFacilitySummaryDto, toOccupancyEventDto } from "../lib/sensor-dto.js";
 import { subscribeFacility } from "../lib/sensor-realtime.js";
 
 export const facilitiesRouter = Router();
@@ -39,6 +40,26 @@ facilitiesRouter.get(
   }),
 );
 
+/**
+ * Owner dashboard listing. A facility with no owner (ownerId null) is
+ * unclaimed/demo data and visible to any signed-in host — there is no
+ * separate admin role in this app yet, and sensor occupancy itself is not
+ * private (the same numbers are already public on /live and the facility
+ * page); this only scopes which facilities show up as "yours to manage."
+ */
+facilitiesRouter.get(
+  "/mine",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const facilities = await prisma.parkingFacility.findMany({
+      where: { OR: [{ ownerId: req.user!.id }, { ownerId: null }] },
+      include: { spaces: { include: { sensor: true } } },
+      orderBy: { createdAt: "asc" },
+    });
+    res.json(facilities.map((f) => toFacilityDto(f, f.spaces)));
+  }),
+);
+
 async function findFacilityOrThrow(facilityId: string) {
   const facility = await prisma.parkingFacility.findUnique({
     where: { facilityId },
@@ -53,6 +74,24 @@ facilitiesRouter.get(
   asyncRoute(async (req, res) => {
     const facility = await findFacilityOrThrow(req.params.facilityId!);
     res.json(toFacilityDto(facility, facility.spaces));
+  }),
+);
+
+/** Recent activity for the owner dashboard — the one place OccupancyEvent history is exposed. */
+facilitiesRouter.get(
+  "/:facilityId/events",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const facility = await prisma.parkingFacility.findUnique({ where: { facilityId: req.params.facilityId! } });
+    if (!facility) throw notFound("We could not find that facility.");
+
+    const events = await prisma.occupancyEvent.findMany({
+      where: { facilityId: facility.id },
+      include: { space: true },
+      orderBy: { occurredAt: "desc" },
+      take: 30,
+    });
+    res.json(events.map(toOccupancyEventDto));
   }),
 );
 

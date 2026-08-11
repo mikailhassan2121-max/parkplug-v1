@@ -119,6 +119,18 @@ export function formatRelative(iso: string, now: Date = new Date()): string {
   return formatDate(iso, true);
 }
 
+/**
+ * "3s ago", "45s ago" — finer-grained than formatRelative's minute rounding,
+ * for a ticking "how fresh is this" display (live sensor status).
+ */
+export function formatSecondsAgo(iso: string, now: Date = new Date()): string {
+  const diffMs = now.getTime() - new Date(iso).getTime();
+  const seconds = Math.max(0, Math.round(diffMs / 1000));
+  if (seconds < 5) return "Just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  return formatRelative(iso, now);
+}
+
 /** Remaining time before a community report expires. */
 export function formatTimeRemaining(iso: string, now: Date = new Date()): string {
   const diffMs = new Date(iso).getTime() - now.getTime();

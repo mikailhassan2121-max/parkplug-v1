@@ -11,6 +11,7 @@ export const PRIMARY_NAV: NavLink[] = [
 export const HOST_NAV: NavLink[] = [
   { href: "/host", label: "Overview" },
   { href: "/host/listings", label: "Listings" },
+  { href: "/host/facilities", label: "Facilities" },
   { href: "/host/calendar", label: "Calendar" },
   { href: "/host/reservations", label: "Reservations" },
   { href: "/host/earnings", label: "Earnings" },

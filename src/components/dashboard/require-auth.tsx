@@ -31,8 +31,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   if (session.status === "anonymous") {
     return (
       <Container size="narrow" className="py-16 lg:py-24">
-        <div className="rounded-card border border-ink-200 bg-white p-8 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-2xl text-brand-700">
+        <div className="rounded-card border border-ink-200 bg-ink-50 p-8 text-center">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-ink-100 text-2xl text-brand-700">
             <IconLock aria-hidden="true" />
           </span>
           <h1 className="mt-5 text-2xl font-extrabold tracking-tight">Sign in to continue</h1>
