@@ -59,9 +59,13 @@ async function main() {
   for (let i = 0; i < SPACES.length; i++) {
     const [spotId, displayName, status] = SPACES[i];
 
+    // Reset to the documented default on every run, not just on first
+    // creation — this is demo data, so "run the seed" should reliably mean
+    // "the demo facility is back in its known state," even after the
+    // simulator or the offline sweeper has moved a space away from it.
     const space = await prisma.parkingSpace.upsert({
       where: { spotId },
-      update: { displayName, sortOrder: i },
+      update: { displayName, sortOrder: i, status, lastUpdated: new Date() },
       create: {
         spotId,
         facilityId: facility.id,
