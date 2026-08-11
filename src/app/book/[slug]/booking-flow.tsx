@@ -9,7 +9,7 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { paymentsConfigured, stripePublishableKey } from "@/config/business";
 import { listings as listingsApi, reservations as reservationsApi, vehicles as vehiclesApi } from "@/lib/api";
 import { quote } from "@/lib/api/pricing";
-import { ERROR_COPY } from "@/lib/api/result";
+import { ERROR_COPY, type ApiErrorCode } from "@/lib/api/result";
 import {
   formatDuration,
   formatMoney,
@@ -100,7 +100,12 @@ export function BookingFlow({ slug }: { slug: string }) {
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Array<{ field: string; message: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<{ title: string; description: string } | null>(null);
+  const [submitError, setSubmitError] = useState<{
+    title: string;
+    description: string;
+    code?: ApiErrorCode;
+    action?: "find-other-parking" | "sign-in";
+  } | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
   // Set once the reservation exists and a real payment needs to be collected
   // — while these are set, the component renders the Stripe Elements form
@@ -110,6 +115,7 @@ export function BookingFlow({ slug }: { slug: string }) {
   const [pendingReference, setPendingReference] = useState<string | null>(null);
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const submitErrorRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // Seed the times from the listing page's query string.
@@ -146,6 +152,16 @@ export function BookingFlow({ slug }: { slug: string }) {
   useEffect(() => {
     headingRef.current?.focus();
   }, [step]);
+
+  // A failure at the final step doesn't change `step`, so nothing else moves
+  // focus or scrolls — without this, a driver who clicked "Continue to
+  // payment" near the bottom of a long step sees no visible change at all
+  // and has no way to know their reservation was not created.
+  useEffect(() => {
+    if (submitError) {
+      requestAnimationFrame(() => submitErrorRef.current?.focus());
+    }
+  }, [submitError]);
 
   if (listingState.status === "loading") return <BookingSkeleton />;
 
@@ -265,53 +281,136 @@ export function BookingFlow({ slug }: { slug: string }) {
     setSubmitting(true);
     setSubmitError(null);
 
-    let resolvedVehicleId = vehicleId;
-    if (addingVehicle) {
-      const created = await vehiclesApi.create({
-        make: newVehicle.make.trim(),
-        model: newVehicle.model.trim(),
-        color: newVehicle.color.trim(),
-        licensePlate: newVehicle.licensePlate.trim().toUpperCase(),
-        plateRegion: newVehicle.plateRegion.trim().toUpperCase(),
-        size: newVehicle.size as VehicleSize,
+    // Wrapped end to end: nothing here may throw past this function. An
+    // uncaught rejection would surface at the nearest error boundary, which
+    // unmounts and remounts this whole component — the driver would see the
+    // wizard "reset" with zero explanation instead of a clear inline error,
+    // even though nothing was actually charged.
+    try {
+      let resolvedVehicleId = vehicleId;
+      if (addingVehicle) {
+        const created = await vehiclesApi.create({
+          make: newVehicle.make.trim(),
+          model: newVehicle.model.trim(),
+          color: newVehicle.color.trim(),
+          licensePlate: newVehicle.licensePlate.trim().toUpperCase(),
+          plateRegion: newVehicle.plateRegion.trim().toUpperCase(),
+          size: newVehicle.size as VehicleSize,
+        });
+        if (!created.ok) {
+          setSubmitting(false);
+          setSubmitError({
+            title: "Your vehicle could not be saved",
+            description: `${created.error.message} Your payment method was not charged.`,
+          });
+          return;
+        }
+        resolvedVehicleId = created.data.id;
+      }
+
+      const result = await reservationsApi.create({
+        listingSlug: slug,
+        startAt,
+        endAt,
+        vehicleId: resolvedVehicleId,
       });
-      if (!created.ok) {
-        setSubmitting(false);
-        setSubmitError({ title: "Your vehicle could not be saved", description: created.error.message });
+
+      setSubmitting(false);
+
+      if (!result.ok) {
+        setSubmitError(describeReservationError(result.error.code, result.error.message));
         return;
       }
-      resolvedVehicleId = created.data.id;
-    }
 
-    const result = await reservationsApi.create({
-      listingSlug: slug,
-      startAt,
-      endAt,
-      vehicleId: resolvedVehicleId,
-    });
+      if (result.data.clientSecret) {
+        // Real payment still needs to happen — hand off to Stripe Elements.
+        // The redirect to the confirmation page only happens once
+        // confirmPayment actually succeeds, not here.
+        setClientSecret(result.data.clientSecret);
+        setPendingReference(result.data.reference);
+        return;
+      }
 
-    setSubmitting(false);
-
-    if (!result.ok) {
-      const copy = ERROR_COPY[result.error.code];
+      // No payment step required (local-storage demo mode) — already "confirmed".
+      router.push(`/reservations/${result.data.reference}?new=1`);
+    } catch (error) {
+      // reservationsApi.create()/vehiclesApi.create() should never throw —
+      // they resolve an ApiResult in every case — but a genuinely unexpected
+      // failure (a bug, a browser extension interfering with fetch, etc.)
+      // must still surface as an inline error, not an unhandled rejection.
+      console.error("[booking] unexpected error creating reservation:", error);
+      setSubmitting(false);
       setSubmitError({
-        title: copy.title,
-        description: result.error.message || copy.description,
+        title: "Something went wrong",
+        description:
+          "We could not start your reservation because of an unexpected error. Your payment method was not charged. Your details on this page have been kept — try again.",
       });
-      return;
     }
+  }
 
-    if (result.data.clientSecret) {
-      // Real payment still needs to happen — hand off to Stripe Elements.
-      // The redirect to the confirmation page only happens once
-      // confirmPayment actually succeeds, not here.
-      setClientSecret(result.data.clientSecret);
-      setPendingReference(result.data.reference);
-      return;
+  /**
+   * Distinct copy per failure reason rather than one generic message — a
+   * driver told "That time is no longer available" when the real problem is
+   * "this host can't accept payments yet" has no useful next step. Every
+   * branch states plainly that nothing was charged, since a create()
+   * rejection always means no PaymentIntent or Reservation exists yet.
+   */
+  function describeReservationError(
+    code: ApiErrorCode,
+    message: string,
+  ): { title: string; description: string; code: ApiErrorCode; action?: "find-other-parking" | "sign-in" } {
+    switch (code) {
+      case "host_not_ready":
+        return {
+          code,
+          title: "This space can't be booked right now",
+          description:
+            "This host hasn't finished setting up payouts yet, so this space can't be booked right now. Your payment method was not charged.",
+          action: "find-other-parking",
+        };
+      case "conflict":
+        return {
+          code,
+          title: "That time was just booked",
+          description:
+            "Someone reserved this space while you were checking out. Your payment method was not charged. Choose a different time, or another space nearby.",
+          action: "find-other-parking",
+        };
+      case "validation":
+        return {
+          code,
+          title: "Check your reservation details",
+          description: `${message || "Some details could not be validated."} Your payment method was not charged.`,
+        };
+      case "unauthorized":
+        return {
+          code,
+          title: "Your session expired",
+          description: "Sign in again to finish booking. Your payment method was not charged.",
+          action: "sign-in",
+        };
+      case "server":
+        return {
+          code,
+          title: "Something went wrong on our end",
+          description: "This is not your fault — try again in a moment. Your payment method was not charged.",
+        };
+      case "network":
+      case "timeout":
+        return {
+          code,
+          title: "We could not reach ParkPlugs",
+          description: "Check your connection and try again. Your payment method was not charged.",
+        };
+      default: {
+        const copy = ERROR_COPY[code];
+        return {
+          code,
+          title: copy.title,
+          description: `${message || copy.description} Your payment method was not charged.`,
+        };
+      }
     }
-
-    // No payment step required (local-storage demo mode) — already "confirmed".
-    router.push(`/reservations/${result.data.reference}?new=1`);
   }
 
   /* -------------------------------- Render ------------------------------- */
@@ -371,13 +470,32 @@ export function BookingFlow({ slug }: { slug: string }) {
           ) : null}
 
           {submitError ? (
-            <Alert tone="danger" live title={submitError.title} className="mb-6">
-              <p>{submitError.description}</p>
-              <p className="mt-2 font-medium">
-                Nothing has been charged and no reservation was created. Your
-                details on this page have been kept.
-              </p>
-            </Alert>
+            <div ref={submitErrorRef} tabIndex={-1} className="mb-6 focus:outline-none">
+              <Alert tone="danger" live title={submitError.title}>
+                <p>{submitError.description}</p>
+                <p className="mt-2 font-medium">
+                  No reservation was created. Your details on this page have
+                  been kept.
+                </p>
+                {submitError.action === "find-other-parking" ? (
+                  <p className="mt-3">
+                    <Link href="/search" className="font-bold underline underline-offset-2">
+                      Find other parking
+                    </Link>
+                  </p>
+                ) : null}
+                {submitError.action === "sign-in" ? (
+                  <p className="mt-3">
+                    <Link
+                      href={`/signin?next=${encodeURIComponent(`/book/${slug}?start=${startAt ?? ""}&end=${endAt ?? ""}`)}`}
+                      className="font-bold underline underline-offset-2"
+                    >
+                      Sign in to continue
+                    </Link>
+                  </p>
+                ) : null}
+              </Alert>
+            </div>
           ) : null}
 
           {step === 0 ? (
