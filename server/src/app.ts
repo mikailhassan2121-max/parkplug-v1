@@ -24,6 +24,8 @@ import { conversationsRouter } from "./routes/conversations.routes.js";
 import { uploadsRouter } from "./routes/uploads.routes.js";
 import { geocodeRouter } from "./routes/geocode.routes.js";
 import { webhooksRouter } from "./routes/webhooks.routes.js";
+import { sensorsRouter } from "./routes/sensors.routes.js";
+import { facilitiesRouter } from "./routes/facilities.routes.js";
 
 export function createApp() {
   const app = express();
@@ -150,6 +152,8 @@ export function createApp() {
   app.use("/conversations", conversationsRouter);
   app.use("/media", uploadsRouter); // upload endpoints; served files are under /uploads (static, above)
   app.use("/geocode", geocodeRouter);
+  app.use("/api/v1/sensors", sensorsRouter);
+  app.use("/api/v1/facilities", facilitiesRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

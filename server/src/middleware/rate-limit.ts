@@ -60,4 +60,23 @@ export function userLimiter(opts: { windowMs: number; limit: number; message: st
   });
 }
 
+/**
+ * Keyed by the sensor_id in the request body, so one misbehaving or
+ * misconfigured device can't consume another sensor's quota. Falls back to
+ * IP for malformed bodies (missing sensor_id fails validation right after
+ * anyway).
+ */
+export function sensorLimiter(opts: { windowMs: number; limit: number; message: string }) {
+  return rateLimit({
+    ...DEFAULTS,
+    windowMs: opts.windowMs,
+    limit: opts.limit,
+    keyGenerator: (req: Request) => {
+      const sensorId = typeof req.body?.sensor_id === "string" ? req.body.sensor_id : undefined;
+      return sensorId ?? req.ip ?? "unknown";
+    },
+    handler: jsonOn429(opts.message),
+  });
+}
+
 export type { Options as RateLimitOptions };
