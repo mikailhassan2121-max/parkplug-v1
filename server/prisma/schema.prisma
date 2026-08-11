@@ -141,6 +141,29 @@ enum VoteKind {
   taken
 }
 
+// ----------------------- Live sensor platform enums ------------------------
+// Additive: a third parking type (sensor-monitored facilities) alongside the
+// existing marketplace Listing and community FreeParkingReport. Nothing
+// below removes or renames an existing model or field.
+
+enum SpaceStatus {
+  AVAILABLE
+  OCCUPIED
+  UNKNOWN
+  OFFLINE
+}
+
+enum SensorOnlineStatus {
+  ONLINE
+  OFFLINE
+}
+
+enum OccupancyEventSource {
+  SENSOR
+  SIMULATOR
+  MANUAL
+}
+
 // --------------------------------- Models ----------------------------------
 
 model User {
@@ -179,6 +202,7 @@ model User {
   conversationsAsDriver Conversation[]   @relation("ConversationDriver")
   conversationsAsHost   Conversation[]   @relation("ConversationHost")
   messagesSent          Message[]
+  ownedFacilities       ParkingFacility[]
 
   @@index([email])
 }
@@ -302,6 +326,7 @@ model Listing {
   reviews      Review[]
   savedBy      SavedListing[]
   conversations Conversation[]
+  facility     ParkingFacility?
 
   @@index([hostId])
   @@index([status])
@@ -560,4 +585,87 @@ model Message {
   readAt         DateTime?
 
   @@index([conversationId])
+}
+
+// ------------------------- Live sensor platform -----------------------------
+// A third, additive parking type: real per-space occupancy reported by
+// hardware sensors, distinct from both marketplace Listings and community
+// FreeParkingReports. A facility may optionally be linked to a marketplace
+// Listing (so a host's paid space can also carry live sensor status) or
+// stand alone as a pure sensor-monitored facility.
+
+model ParkingFacility {
+  id            String  @id @default(cuid())
+  facilityId    String  @unique
+  name          String
+  address       String
+  latitude      Float
+  longitude     Float
+  totalSpaces   Int
+  sensorEnabled Boolean @default(true)
+  timezone      String  @default("America/New_York")
+
+  ownerId String?
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  listingId String?  @unique
+  listing   Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  spaces          ParkingSpace[]
+  occupancyEvents OccupancyEvent[]
+
+  @@index([ownerId])
+  @@index([latitude, longitude])
+}
+
+model ParkingSpace {
+  id              String      @id @default(cuid())
+  spotId          String      @unique
+  facilityId      String
+  facility        ParkingFacility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  displayName     String
+  status          SpaceStatus @default(UNKNOWN)
+  lastUpdated     DateTime    @default(now())
+  lastSensorValue Float?
+  confidence      Float?
+  sortOrder       Int         @default(0)
+
+  sensor          Sensor?
+  occupancyEvents OccupancyEvent[]
+
+  @@index([facilityId])
+}
+
+model Sensor {
+  id              String   @id @default(cuid())
+  sensorId        String   @unique
+  spaceId         String   @unique
+  space           ParkingSpace       @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  deviceType      String             @default("ESP32+BMM150")
+  firmwareVersion String?
+  onlineStatus    SensorOnlineStatus @default(OFFLINE)
+  lastSeen        DateTime?
+  batteryLevel    Float?
+  signalStrength  Float?
+  createdAt       DateTime           @default(now())
+}
+
+model OccupancyEvent {
+  id             String       @id @default(cuid())
+  spaceId        String
+  space          ParkingSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  facilityId     String
+  facility       ParkingFacility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  previousStatus SpaceStatus
+  newStatus      SpaceStatus
+  source         OccupancyEventSource
+  sensorValue    Float?
+  confidence     Float?
+  occurredAt     DateTime     @default(now())
+
+  @@index([facilityId, occurredAt(sort: Desc)])
+  @@index([spaceId])
 }

@@ -58,6 +58,23 @@ const schema = z.object({
     .string()
     .optional()
     .transform((v) => v !== "false"),
+
+  // --- Live sensor platform -------------------------------------------
+  // Bearer token real sensor hardware (and the admin simulator, server-side
+  // only) authenticates with against POST /api/v1/sensors/*. Left unset,
+  // the ingest endpoints refuse every request rather than accepting
+  // unauthenticated writes — see sensorIngestConfigured below.
+  SENSOR_INGEST_TOKEN: z.string().optional().default(""),
+  // How long a sensor can go quiet before the background sweeper flips its
+  // space to OFFLINE.
+  SENSOR_OFFLINE_AFTER_SECONDS: z.coerce.number().optional().default(90),
+  // Gates /admin/sensor-simulator server-side, in addition to the frontend's
+  // own NEXT_PUBLIC_ADMIN_SIMULATOR_ENABLED flag and the route's normal
+  // admin-auth check — off by default so it's never reachable by accident.
+  ADMIN_SIMULATOR_ENABLED: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -73,6 +90,7 @@ export const env = parsed.data;
 export const corsOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim());
 export const paymentsConfigured = env.STRIPE_SECRET_KEY.length > 0;
 export const feesConfigured = env.SERVICE_FEE_BPS !== undefined;
+export const sensorIngestConfigured = env.SENSOR_INGEST_TOKEN.length > 0;
 
 export type ResolvedMailProvider = { name: "resend" | "brevo"; apiKey: string };
 
