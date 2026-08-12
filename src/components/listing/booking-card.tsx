@@ -75,7 +75,10 @@ export function BookingCard({
         })
       : null;
 
-  const blocked = Boolean(rangeError || durationError || availabilityError) || minutes === 0;
+  // Only an explicit `false` blocks — `undefined` (the local-storage demo
+  // adapter, which has no payout concept) behaves exactly as before.
+  const payoutNotReady = listing.hostPayoutReady === false;
+  const blocked = Boolean(rangeError || durationError || availabilityError) || minutes === 0 || payoutNotReady;
 
   function reserve() {
     if (blocked || !startAt || !endAt) return;
@@ -85,6 +88,12 @@ export function BookingCard({
 
   const form = (
     <>
+      {payoutNotReady ? (
+        <Alert tone="warning" title="This space cannot be booked right now" className="mb-4">
+          The host has not finished setting up payouts yet, so reservations are not being accepted.
+        </Alert>
+      ) : null}
+
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-2xl font-extrabold tracking-tight text-ink-950">
           {formatMoney(listing.pricePerHourCents, listing.currency)}
@@ -205,7 +214,9 @@ export function BookingCard({
               {formatMoney(listing.pricePerHourCents, listing.currency)}
               <span className="text-xs font-semibold text-ink-500"> /hr</span>
             </p>
-            {price && !blocked ? (
+            {payoutNotReady ? (
+              <p className="truncate text-xs text-warning-700">Not accepting reservations right now</p>
+            ) : price && !blocked ? (
               <p className="truncate text-xs text-ink-600">
                 {formatMoney(price.totalCents, price.currency)} total · {formatDuration(minutes)}
               </p>
@@ -213,7 +224,7 @@ export function BookingCard({
               <p className="truncate text-xs text-ink-500">Choose your times</p>
             )}
           </div>
-          <Button size="lg" onClick={() => setMobileOpen(true)} className="shrink-0">
+          <Button size="lg" disabled={payoutNotReady} onClick={() => setMobileOpen(true)} className="shrink-0">
             Reserve
           </Button>
         </div>

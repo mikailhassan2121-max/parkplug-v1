@@ -116,7 +116,7 @@ listingsRouter.get(
       await prisma.listing.update({ where: { id: listing.id }, data: { viewCount: { increment: 1 } } });
     }
 
-    const [ratingAgg, completedReservations] = await Promise.all([
+    const [ratingAgg, completedReservations, payoutAccount] = await Promise.all([
       prisma.review.aggregate({
         where: { listingId: listing.id, role: "driver" },
         _avg: { rating: true },
@@ -125,6 +125,7 @@ listingsRouter.get(
       prisma.reservation.count({
         where: { listing: { hostId: listing.hostId }, status: "completed" },
       }),
+      prisma.payoutAccount.findUnique({ where: { userId: listing.hostId } }),
     ]);
 
     res.json(
@@ -134,6 +135,10 @@ listingsRouter.get(
             ? { average: ratingAgg._avg.rating ?? 0, count: ratingAgg._count.rating }
             : undefined,
         completedReservations: completedReservations > 0 ? completedReservations : undefined,
+        // Same readiness check POST /reservations enforces (409 host_not_ready)
+        // — this just lets the listing page disable the CTA before a driver
+        // ever reaches that request.
+        hostPayoutReady: Boolean(payoutAccount && payoutAccount.state === "complete" && payoutAccount.stripeAccountId),
       }),
     );
   }),

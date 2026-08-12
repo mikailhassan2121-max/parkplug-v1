@@ -105,7 +105,12 @@ function cancellationPolicyDto(listing: Listing) {
  */
 export function toListingPublicDto(
   listing: ListingWithRelations,
-  extra: { rating?: { average: number; count: number }; completedReservations?: number },
+  extra: {
+    rating?: { average: number; count: number };
+    completedReservations?: number;
+    /** Omit when the caller hasn't looked it up — the frontend treats "absent" as "no gating information," never as "not ready." */
+    hostPayoutReady?: boolean;
+  },
 ) {
   return {
     id: listing.id,
@@ -141,6 +146,7 @@ export function toListingPublicDto(
     rating: extra.rating && extra.rating.count > 0 ? extra.rating : undefined,
     instantBook: listing.instantBook,
     status: listing.status,
+    hostPayoutReady: extra.hostPayoutReady,
   };
 }
 

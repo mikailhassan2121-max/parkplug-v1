@@ -177,6 +177,8 @@ export type Listing = {
   rating?: { average: number; count: number };
   instantBook: boolean;
   status: ListingStatus;
+  /** False only when the server has confirmed the host's payout account is not ready; absent (e.g. the local-storage demo adapter) means "no gating information," not "not ready." */
+  hostPayoutReady?: boolean;
 };
 
 export type ListingStatus =
