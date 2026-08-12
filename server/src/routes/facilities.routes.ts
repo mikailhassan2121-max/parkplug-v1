@@ -3,9 +3,10 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
 import { requireAuth } from "../middleware/session.js";
-import { badRequest, notFound } from "../lib/errors.js";
+import { badRequest, forbidden, notFound } from "../lib/errors.js";
 import { toFacilityDto, toFacilitySummaryDto, toOccupancyEventDto } from "../lib/sensor-dto.js";
 import { subscribeFacility } from "../lib/sensor-realtime.js";
+import { computeFacilityAnalytics } from "../lib/sensor-analytics.js";
 
 export const facilitiesRouter = Router();
 
@@ -92,6 +93,42 @@ facilitiesRouter.get(
       take: 30,
     });
     res.json(events.map(toOccupancyEventDto));
+  }),
+);
+
+/**
+ * Owner-scoped analytics — same ownership rule as /mine (an unclaimed,
+ * ownerId-null facility is visible to any signed-in host; an owned one only
+ * to its owner). See server/src/lib/sensor-analytics.ts for how the
+ * sparkline and busiest-hour rollups are derived from real OccupancyEvent
+ * history, and why timezone matters only for the latter.
+ */
+facilitiesRouter.get(
+  "/:facilityId/analytics",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const facility = await prisma.parkingFacility.findUnique({
+      where: { facilityId: req.params.facilityId! },
+      include: { spaces: { select: { id: true, status: true } } },
+    });
+    if (!facility) throw notFound("We could not find that facility.");
+    if (facility.ownerId !== null && facility.ownerId !== req.user!.id) {
+      throw forbidden("This facility belongs to a different account.");
+    }
+
+    // Every event ever recorded for this facility — the sparkline needs the
+    // full history to correctly know each space's status going into the
+    // 24h window, not just events that happened to land inside it. Bounded
+    // to a generous cap since this is demo-scale data; a facility running
+    // long enough to exceed it would want a narrower lookback query instead.
+    const events = await prisma.occupancyEvent.findMany({
+      where: { facilityId: facility.id },
+      select: { spaceId: true, previousStatus: true, newStatus: true, occurredAt: true, source: true },
+      orderBy: { occurredAt: "asc" },
+      take: 5000,
+    });
+
+    res.json(computeFacilityAnalytics(facility.timezone, facility.spaces, events));
   }),
 );
 

@@ -7,27 +7,34 @@ import { IconBolt } from "@/components/ui/icons";
 import { LiveBadge } from "@/components/sensor/live-badge";
 import { SpaceGrid } from "@/components/sensor/space-grid";
 import { ActivityLog } from "@/components/sensor/activity-log";
+import { AnalyticsPanel } from "@/components/sensor/analytics-panel";
 import { useFacilityLiveStatus } from "@/lib/use-facility-live-status";
-import { fetchFacilityEvents } from "@/lib/api/sensors";
-import type { OccupancyEvent } from "@/lib/sensor-types";
+import { fetchFacilityAnalytics, fetchFacilityEvents } from "@/lib/api/sensors";
+import type { FacilityAnalytics, OccupancyEvent } from "@/lib/sensor-types";
 
 export function HostFacilityView({ facilityId }: { facilityId: string }) {
   const state = useFacilityLiveStatus(facilityId);
   const [events, setEvents] = useState<OccupancyEvent[]>([]);
+  const [analytics, setAnalytics] = useState<FacilityAnalytics | null>(null);
   const lastEventAt = state.status === "ready" ? state.lastEvent?.occurredAt : undefined;
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const result = await fetchFacilityEvents(facilityId);
-      if (!cancelled && result.ok) setEvents(result.data);
+      const [eventsResult, analyticsResult] = await Promise.all([
+        fetchFacilityEvents(facilityId),
+        fetchFacilityAnalytics(facilityId),
+      ]);
+      if (cancelled) return;
+      if (eventsResult.ok) setEvents(eventsResult.data);
+      if (analyticsResult.ok) setAnalytics(analyticsResult.data);
     })();
     return () => {
       cancelled = true;
     };
     // Refetch whenever the live hook reports a new occupancy transition, so
-    // the activity panel updates without a page refresh — same trigger the
-    // rest of the dashboard reacts to.
+    // both panels update without a page refresh — same trigger the rest of
+    // the dashboard reacts to.
   }, [facilityId, lastEventAt]);
 
   if (state.status === "unconfigured") {
@@ -78,10 +85,24 @@ export function HostFacilityView({ facilityId }: { facilityId: string }) {
             <SpaceGrid spaces={facility.spaces} />
           </div>
         </div>
-        <div>
-          <h2 className="text-lg font-bold text-ink-900">Recent activity</h2>
-          <div className="mt-4">
-            <ActivityLog events={events} />
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-lg font-bold text-ink-900">Analytics</h2>
+            <div className="mt-4">
+              {analytics ? (
+                <AnalyticsPanel analytics={analytics} />
+              ) : (
+                <div className="grid h-40 place-items-center rounded-card border border-ink-200 bg-ink-50">
+                  <Spinner label="Loading analytics" size="sm" />
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-ink-900">Recent activity</h2>
+            <div className="mt-4">
+              <ActivityLog events={events} />
+            </div>
           </div>
         </div>
       </div>

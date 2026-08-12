@@ -84,3 +84,13 @@ export const SPACE_STATUS_LABEL: Record<SpaceStatus, string> = {
   UNKNOWN: "Unknown",
   OFFLINE: "Offline",
 };
+
+export type SparklinePoint = { at: string; occupancyPct: number };
+export type BusiestHour = { hour: number; label: string; eventCount: number } | null;
+
+export type FacilityAnalytics = {
+  timezone: string;
+  hasData: boolean;
+  sparkline: SparklinePoint[];
+  busiestHour: BusiestHour;
+};

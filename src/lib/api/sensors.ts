@@ -8,7 +8,7 @@
  */
 import { fail, ok, type ApiResult } from "./result";
 import { getSessionToken } from "./index";
-import type { Facility, FacilitySummary, OccupancyEvent } from "@/lib/sensor-types";
+import type { Facility, FacilityAnalytics, FacilitySummary, OccupancyEvent } from "@/lib/sensor-types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 
@@ -79,4 +79,8 @@ export function fetchMyFacilities(): Promise<ApiResult<Facility[]>> {
 
 export function fetchFacilityEvents(facilityId: string): Promise<ApiResult<OccupancyEvent[]>> {
   return getJson<OccupancyEvent[]>(`/api/v1/facilities/${encodeURIComponent(facilityId)}/events`, { auth: true });
+}
+
+export function fetchFacilityAnalytics(facilityId: string): Promise<ApiResult<FacilityAnalytics>> {
+  return getJson<FacilityAnalytics>(`/api/v1/facilities/${encodeURIComponent(facilityId)}/analytics`, { auth: true });
 }
