@@ -37,6 +37,24 @@ and the `/api/admin/simulate` route handler.
 A Netlify env change needs a redeploy to take effect (env vars are read at
 build/boot, not at request time).
 
+## 1a. Grant an admin account
+
+The simulator is gated server-side on a real `isAdmin` flag on the `User`
+row (not `isHost` — any host can list a space, admin is platform staff
+only). Nothing in the app ever sets this from a user-facing page; it's
+granted with a one-off script, same safety shape as the seed:
+
+```bash
+# from server/, with DATABASE_URL pointed at the right database
+npm run grant-admin -- someone@example.com
+
+# to revoke:
+npm run grant-admin -- someone@example.com --revoke
+```
+
+Same rule as the seed in §3 — prefer running this as a Railway one-off so
+`DATABASE_URL` never has to leave Railway's own environment.
+
 ## 2. Generate a strong ingest token locally
 
 Run this on your own machine — don't type the output anywhere but directly
@@ -100,8 +118,9 @@ curl -X POST https://<railway-domain>/api/v1/sensors/heartbeat \
 - `GET https://<railway-domain>/api/v1/facilities` returns one facility
   (`TEST-GARAGE-001`) with 6 spaces.
 - `https://<site>/live` shows the facility with a pulsing marker.
-- `https://<site>/admin/sensor-simulator` loads (requires a signed-in host
-  account) and "Vehicle arrives" on A1 flips it to OCCUPIED live.
+- `https://<site>/admin/sensor-simulator` loads (requires a signed-in
+  **admin** account — see §1a) and "Vehicle arrives" on A1 flips it to
+  OCCUPIED live.
 
 ## 6. Teardown after the demo
 

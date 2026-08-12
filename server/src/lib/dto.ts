@@ -29,6 +29,7 @@ export function toSessionUser(user: User) {
     emailVerified: user.emailVerified,
     avatarUrl: undef(user.avatarUrl),
     isHost: user.isHost,
+    isAdmin: user.isAdmin,
     createdAt: user.createdAt.toISOString(),
     notificationPrefs: {
       reservationUpdates: user.notifyReservationUpdates,

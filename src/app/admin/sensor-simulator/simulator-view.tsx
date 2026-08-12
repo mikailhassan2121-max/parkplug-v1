@@ -55,17 +55,22 @@ export function SimulatorView() {
 
   return (
     <RequireAuth>
-      <HostGate />
+      <AdminGate />
     </RequireAuth>
   );
 }
 
-function HostGate() {
+/**
+ * UX-level gate only — shows/hides the page for a signed-in non-admin. The
+ * real security boundary is server-side, in /api/admin/simulate's own
+ * isAdmin check against the session it fetches directly from the backend.
+ */
+function AdminGate() {
   const session = useSession();
-  if (session.status !== "authenticated" || !session.user?.isHost) {
+  if (session.status !== "authenticated" || !session.user?.isAdmin) {
     return (
       <Container size="narrow" className="py-16 text-center">
-        <EmptyState icon={<IconLock />} title="Host account required" description="Sign in with a host account to use the sensor simulator." />
+        <EmptyState icon={<IconLock />} title="Admin access required" description="Sign in with an admin account to use the sensor simulator." />
       </Container>
     );
   }

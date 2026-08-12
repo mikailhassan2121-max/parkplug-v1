@@ -155,6 +155,8 @@ export type SessionUser = {
   emailVerified: boolean;
   avatarUrl?: string;
   isHost: boolean;
+  /** Platform staff only, distinct from isHost — gates admin-only surfaces (the sensor simulator). Never settable from user-facing signup/settings. */
+  isAdmin: boolean;
   createdAt: string;
   notificationPrefs: {
     reservationUpdates: boolean;
@@ -227,6 +229,7 @@ export const auth = {
       email,
       emailVerified: false,
       isHost: false,
+      isAdmin: false,
       createdAt: new Date().toISOString(),
       passwordHash: await digest(input.password),
       notificationPrefs: {
