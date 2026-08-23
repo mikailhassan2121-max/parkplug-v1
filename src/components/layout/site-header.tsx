@@ -84,7 +84,7 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-70 bg-pp-bg/95 backdrop-blur-md transition-shadow duration-200",
+        "sticky top-0 z-70 bg-white/98 transition-shadow duration-200",
         scrolled ? "shadow-e1 border-b border-pp-border" : "border-b border-transparent",
       )}
     >
@@ -109,14 +109,14 @@ export function SiteHeader() {
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                      active ? "text-pp-live" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
+                      active ? "text-brand-700" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
                     )}
                   >
                     {link.label}
                     {active ? (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-pp-live pp-glow-live"
+                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-brand-500"
                       />
                     ) : null}
                   </Link>
@@ -175,7 +175,7 @@ export function SiteHeader() {
                 Sign In
               </ButtonLink>
               <ButtonLink href="/signup" size="sm">
-                Get Started
+                Create account
               </ButtonLink>
             </span>
           )}
@@ -276,7 +276,7 @@ export function SiteHeader() {
               ) : (
                 <div className="space-y-2.5 px-1">
                   <ButtonLink href="/signup" fullWidth size="lg">
-                    Get Started
+                    Create account
                   </ButtonLink>
                   <ButtonLink href="/signin" variant="secondary" fullWidth size="lg">
                     Sign In

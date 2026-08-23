@@ -14,16 +14,16 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
   "relative inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap " +
-  "rounded-xl transition-[background-color,border-color,color,box-shadow,transform] duration-150 " +
+  "rounded-lg transition-[background-color,border-color,color,box-shadow,transform] duration-150 " +
   "active:scale-[0.985] disabled:pointer-events-none disabled:opacity-55 " +
   "disabled:active:scale-100 select-none";
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand-600 text-white shadow-e1 hover:bg-brand-700 " +
+    "bg-brand-700 text-white hover:bg-brand-800 " +
     "focus-visible:outline-brand-700",
   secondary:
-    "bg-ink-100 text-ink-900 border border-ink-300 shadow-e1 hover:bg-ink-200 hover:border-ink-400",
+    "bg-white text-ink-900 border border-ink-300 hover:bg-ink-50 hover:border-ink-400",
   tertiary:
     "bg-brand-50 text-brand-800 hover:bg-brand-100",
   destructive:

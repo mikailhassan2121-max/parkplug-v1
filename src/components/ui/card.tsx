@@ -15,9 +15,9 @@ export function Card({
   return (
     <Tag
       className={cn(
-        "bg-ink-50 border border-ink-200 rounded-card",
+        "bg-white border border-ink-200 rounded-card",
         interactive &&
-          "transition-[box-shadow,border-color,transform] duration-200 hover:shadow-e2 hover:border-ink-300 focus-within:shadow-e2",
+          "transition-[box-shadow,border-color,transform] duration-200 hover:shadow-e1 hover:border-ink-300 focus-within:shadow-e1",
         className,
       )}
     >
@@ -114,7 +114,7 @@ export function SectionHeading({
       )}
     >
       {eyebrow ? (
-        <p className="text-sm font-bold uppercase tracking-[0.08em] text-brand-700">
+        <p className="text-sm font-semibold tracking-[0.02em] text-brand-700">
           {eyebrow}
         </p>
       ) : null}
