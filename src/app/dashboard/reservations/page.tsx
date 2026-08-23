@@ -109,7 +109,7 @@ export default function ReservationsPage() {
                   icon={<IconCalendar />}
                   title={emptyCopy[id].title}
                   description={emptyCopy[id].description}
-                  actions={id === "upcoming" ? [{ label: "Find Parking", href: "/search" }] : []}
+                  actions={id === "upcoming" ? [{ label: "Find Parking", href: "/parking" }] : []}
                 />
               ) : (
                 <ul className="space-y-4">

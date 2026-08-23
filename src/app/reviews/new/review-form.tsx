@@ -146,7 +146,7 @@ export function ReviewForm() {
           <ButtonLink href="/dashboard/reservations" variant="secondary" fullWidth>
             My reservations
           </ButtonLink>
-          <ButtonLink href="/search" fullWidth>
+          <ButtonLink href="/parking" fullWidth>
             Find Parking
           </ButtonLink>
         </div>

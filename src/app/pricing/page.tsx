@@ -239,7 +239,7 @@ export default function PricingPage() {
               Ready to park, or ready to earn?
             </h2>
             <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/search">Find Parking</ButtonLink>
+              <ButtonLink href="/parking">Find Parking</ButtonLink>
               <ButtonLink href="/host/listings/new" variant="secondary">
                 List Your Space
               </ButtonLink>

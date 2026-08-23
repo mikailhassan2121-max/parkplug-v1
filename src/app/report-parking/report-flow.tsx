@@ -259,7 +259,7 @@ export function ReportFlow() {
           >
             Report Another Space
           </Button>
-          <ButtonLink href="/search?free=1" variant="secondary" fullWidth>
+          <ButtonLink href="/parking?free=1" variant="secondary" fullWidth>
             Return to Map
           </ButtonLink>
         </div>

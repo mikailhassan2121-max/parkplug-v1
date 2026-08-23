@@ -67,7 +67,7 @@ const AUDIENCES = [
         a: "Extend before your window ends if the space is still free. Do not overstay — another driver may be booked straight after you.",
       },
     ],
-    cta: { href: "/search", label: "Find Parking" },
+    cta: { href: "/parking", label: "Find Parking" },
   },
   {
     id: "hosts",

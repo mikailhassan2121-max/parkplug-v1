@@ -54,7 +54,7 @@ export function ConversationList({ audience }: { audience: "driver" | "host" }) 
             actions={
               audience === "host"
                 ? [{ label: "View reservations", href: "/host/reservations" }]
-                : [{ label: "Find Parking", href: "/search" }]
+                : [{ label: "Find Parking", href: "/parking" }]
             }
           />
         ) : (

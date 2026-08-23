@@ -4,8 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { search as searchApi, saved as savedApi } from "@/lib/api";
+import { fetchFacilitiesList } from "@/lib/api/sensors";
 import { ERROR_COPY } from "@/lib/api/result";
 import { formatRange } from "@/lib/format";
+import { distanceMeters as distanceBetween } from "@/lib/geo";
 import {
   countActiveFilters,
   parseSearchParams,
@@ -13,6 +15,7 @@ import {
   validateDateRange,
 } from "@/lib/search-params";
 import { AMENITIES, PARKING_TYPES, SORT_OPTIONS, type Coordinates, type SearchFilters, type SearchQuery, type SearchResults, type SortOption } from "@/lib/types";
+import type { FacilitySummary } from "@/lib/sensor-types";
 import { useSession } from "@/lib/session";
 import { ParkingMap, type MapSelection } from "@/components/map/parking-map";
 import { Button } from "@/components/ui/button";
@@ -32,7 +35,7 @@ import {
 } from "@/components/ui/icons";
 import { SearchModule } from "@/components/search/search-module";
 import { FilterPanel } from "@/components/search/filter-panel";
-import { ListingResultCard, ReportResultCard } from "@/components/search/result-card";
+import { FacilityResultCard, ListingResultCard, ReportResultCard } from "@/components/search/result-card";
 
 type LoadState =
   | { phase: "idle" }
@@ -40,7 +43,9 @@ type LoadState =
   | { phase: "ready"; results: SearchResults }
   | { phase: "error"; code: keyof typeof ERROR_COPY; message: string };
 
-export function SearchView() {
+type FacilityWithDistance = FacilitySummary & { distanceMeters: number };
+
+export function ParkingView() {
   const params = useSearchParams();
   const router = useRouter();
   const session = useSession();
@@ -49,6 +54,7 @@ export function SearchView() {
   const query = useMemo(() => parseSearchParams(new URLSearchParams(params.toString())), [params]);
 
   const [state, setState] = useState<LoadState>({ phase: "idle" });
+  const [facilities, setFacilities] = useState<FacilityWithDistance[]>([]);
   const [selected, setSelected] = useState<MapSelection>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -67,15 +73,31 @@ export function SearchView() {
     async (q: SearchQuery) => {
       if (!q.center) {
         setState({ phase: "idle" });
+        setFacilities([]);
         return;
       }
+      const center = q.center;
       setState({ phase: "loading" });
-      const result = await searchApi.run(q);
+      const [result, facilitiesResult] = await Promise.all([
+        searchApi.run(q),
+        fetchFacilitiesList(),
+      ]);
       setState(
         result.ok
           ? { phase: "ready", results: result.data }
           : { phase: "error", code: result.error.code, message: result.error.message },
       );
+      if (facilitiesResult.ok) {
+        const maxDistance = q.filters.maxDistanceMeters ?? 16000;
+        setFacilities(
+          facilitiesResult.data
+            .map((facility) => ({ ...facility, distanceMeters: distanceBetween(center, facility.location) }))
+            .filter((facility) => facility.distanceMeters <= maxDistance)
+            .sort((a, b) => a.distanceMeters - b.distanceMeters),
+        );
+      } else {
+        setFacilities([]);
+      }
     },
     [],
   );
@@ -83,6 +105,7 @@ export function SearchView() {
   useEffect(() => {
     if (rangeError) {
       setState({ phase: "idle" });
+      setFacilities([]);
       return;
     }
     void load(query);
@@ -95,7 +118,7 @@ export function SearchView() {
   /* ---------------------------- Mutations --------------------------- */
 
   function updateQuery(patch: Partial<SearchQuery>) {
-    router.replace(`/search?${serializeSearchQuery({ ...query, ...patch })}`, { scroll: false });
+    router.replace(`/parking?${serializeSearchQuery({ ...query, ...patch })}`, { scroll: false });
   }
 
   async function toggleSave(listingId: string) {
@@ -104,7 +127,7 @@ export function SearchView() {
         tone: "info",
         title: "Sign in to save spaces",
         description: "Saved spaces are kept with your account.",
-        action: { label: "Sign in", onClick: () => router.push("/signin?next=/search") },
+        action: { label: "Sign in", onClick: () => router.push("/signin?next=/parking") },
       });
       return;
     }
@@ -143,7 +166,7 @@ export function SearchView() {
   const results = state.phase === "ready" ? state.results : null;
   const listings = results?.listings ?? [];
   const reports = results?.reports ?? [];
-  const totalCount = listings.length + reports.length;
+  const totalCount = facilities.length + listings.length + reports.length;
   const activeFilterCount = countActiveFilters(query.filters);
 
   const summary =
@@ -298,7 +321,7 @@ export function SearchView() {
                     <SkeletonListingCard key={i} />
                   ))}
                 </div>
-              ) : state.phase === "error" ? (
+              ) : state.phase === "error" && facilities.length === 0 ? (
                 <ErrorState
                   title={ERROR_COPY[state.code].title}
                   description={state.message || ERROR_COPY[state.code].description}
@@ -358,8 +381,31 @@ export function SearchView() {
                       <span>{results.partial.message}</span>
                     </div>
                   ) : null}
+                  {state.phase === "error" ? (
+                    <div className="mb-4 flex gap-2.5 rounded-xl border border-warning-200 bg-warning-50 p-3.5 text-xs text-warning-800">
+                      <IconAlert className="mt-px shrink-0" aria-hidden="true" />
+                      <span>
+                        Marketplace search is temporarily unavailable. Live facilities below are
+                        still current.
+                      </span>
+                    </div>
+                  ) : null}
 
                   <ul className="space-y-4">
+                    {facilities.map((facility) => (
+                      <li key={facility.id} data-result={facility.facilityId}>
+                        <FacilityResultCard
+                          facility={facility}
+                          distanceMeters={facility.distanceMeters}
+                          selected={
+                            (selected?.kind === "facility" && selected.id === facility.facilityId) ||
+                            hovered === facility.facilityId
+                          }
+                          onHover={(h) => setHovered(h ? facility.facilityId : null)}
+                          onFocusCard={() => setSelected({ kind: "facility", id: facility.facilityId })}
+                        />
+                      </li>
+                    ))}
                     {listings.map((listing) => (
                       <li key={listing.id} data-result={listing.id}>
                         <ListingResultCard
@@ -409,12 +455,13 @@ export function SearchView() {
               mobileView === "list" && "hidden lg:block",
             )}
           >
-            {results ? (
+            {query.center && (results || facilities.length > 0) ? (
               <>
                 <ParkingMap
-                  center={results.center}
+                  center={results?.center ?? query.center}
                   listings={listings}
                   reports={reports}
+                  facilities={facilities}
                   selected={selected}
                   onSelect={(next) => {
                     setSelected(next);
@@ -425,9 +472,9 @@ export function SearchView() {
                     }
                   }}
                   onBoundsChange={(center) => {
+                    const base = results?.center ?? query.center!;
                     const moved =
-                      Math.abs(center.lat - results.center.lat) > 0.004 ||
-                      Math.abs(center.lng - results.center.lng) > 0.004;
+                      Math.abs(center.lat - base.lat) > 0.004 || Math.abs(center.lng - base.lng) > 0.004;
                     setPendingCenter(moved ? center : null);
                   }}
                   destination={query.center}

@@ -2,19 +2,19 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { SkeletonListingCard } from "@/components/ui/feedback";
-import { SearchView } from "./search-view";
+import { ParkingView } from "./parking-view";
 
 export const metadata: Metadata = buildMetadata({
   title: "Find parking near your destination",
   description:
-    "Search reservable private parking and recently reported free public spaces. Compare price, distance, and walking time on an interactive map.",
-  path: "/search",
+    "Search live sensor-monitored facilities, reservable private parking, and recently reported free public spaces. Compare price, distance, and availability on an interactive map.",
+  path: "/parking",
 });
 
-export default function SearchPage() {
+export default function ParkingPage() {
   return (
     <Suspense fallback={<SearchSkeleton />}>
-      <SearchView />
+      <ParkingView />
     </Suspense>
   );
 }

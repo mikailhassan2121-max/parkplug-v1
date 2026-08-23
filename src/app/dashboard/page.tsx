@@ -95,7 +95,7 @@ export default function DashboardPage() {
               icon={<IconCalendar />}
               title="You have no upcoming reservations."
               description="Search for parking near where you are heading next."
-              actions={[{ label: "Find Parking", href: "/search" }]}
+              actions={[{ label: "Find Parking", href: "/parking" }]}
             />
           )}
         </div>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                 compact
                 icon={<IconHeart />}
                 title="Save spaces to quickly find them later."
-                actions={[{ label: "Explore Parking", href: "/search" }]}
+                actions={[{ label: "Explore Parking", href: "/parking" }]}
               />
             ) : (
               <ul className="space-y-3">

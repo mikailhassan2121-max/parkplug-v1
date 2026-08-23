@@ -19,6 +19,7 @@ import {
   type ListingSummary,
   type VehicleSize,
 } from "@/lib/types";
+import type { FacilitySummary } from "@/lib/sensor-types";
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import { RatingStars } from "@/components/ui/feedback";
 import { IconButton } from "@/components/ui/button";
@@ -206,6 +207,93 @@ export function ListingResultCard({
             View Space
           </span>
         </div>
+      </div>
+    </article>
+  );
+}
+
+/* -------------------------------------------------------------------------
+   Sensor-monitored live facility
+   ------------------------------------------------------------------------- */
+
+export function FacilityResultCard({
+  facility,
+  distanceMeters,
+  selected,
+  onHover,
+  onFocusCard,
+}: {
+  facility: FacilitySummary;
+  distanceMeters?: number;
+  selected?: boolean;
+  onHover?: (hovering: boolean) => void;
+  onFocusCard?: () => void;
+}) {
+  const full = facility.available === 0 && facility.total > 0;
+
+  return (
+    <article
+      onMouseEnter={() => onHover?.(true)}
+      onMouseLeave={() => onHover?.(false)}
+      className={cn(
+        "overflow-hidden rounded-card border-l-4 border-l-teal border bg-white transition-all duration-200",
+        selected
+          ? "border-teal shadow-e2 ring-1 ring-teal"
+          : "border-ink-200 hover:border-ink-300 hover:shadow-e2",
+      )}
+    >
+      <div className="p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-teal">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal" aria-hidden="true" />
+            Live · Sensor-monitored facility
+          </span>
+          {full ? <StatusBadge status="taken" size="sm" /> : null}
+        </div>
+
+        <h3 className="mt-2.5 text-[0.9375rem] font-bold leading-snug text-ink-900">
+          <Link
+            href={`/facilities/${facility.facilityId}`}
+            onFocus={onFocusCard}
+            className="after:absolute after:inset-0 after:content-[''] hover:underline underline-offset-2"
+          >
+            {facility.name}
+          </Link>
+        </h3>
+        <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-600">
+          <IconMapPin className="shrink-0 text-ink-400" aria-hidden="true" />
+          <span className="truncate">{facility.address}</span>
+        </p>
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-base font-extrabold text-ink-950">
+            {facility.available} of {facility.total}
+            <span className="ml-1.5 text-xs font-semibold text-ink-500">spaces available</span>
+          </p>
+          {distanceMeters !== undefined ? (
+            <span className="shrink-0 text-xs font-semibold text-ink-700">
+              {formatDistance(distanceMeters)}
+            </span>
+          ) : null}
+        </div>
+
+        <div
+          role="progressbar"
+          aria-valuenow={facility.occupancyPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${facility.name} occupancy`}
+          className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-200"
+        >
+          <div
+            className="h-full rounded-full bg-teal transition-[width] duration-300 ease-out"
+            style={{ width: `${facility.occupancyPct}%` }}
+          />
+        </div>
+
+        <span className="relative z-10 mt-3 inline-block text-xs font-bold text-teal group-hover:underline">
+          View live facility
+        </span>
       </div>
     </article>
   );

@@ -31,7 +31,7 @@ export default function NotFound() {
           <ButtonLink href="/" size="lg">
             Return Home
           </ButtonLink>
-          <ButtonLink href="/search" variant="secondary" size="lg">
+          <ButtonLink href="/parking" variant="secondary" size="lg">
             Find Parking
           </ButtonLink>
           <ButtonLink href="/help" variant="ghost" size="lg">

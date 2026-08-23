@@ -145,7 +145,7 @@ function NotificationsView() {
             }
             actions={
               filter === "all"
-                ? [{ label: "Find Parking", href: "/search" }]
+                ? [{ label: "Find Parking", href: "/parking" }]
                 : [{ label: "View all", onClick: () => setFilter("all") }]
             }
           />

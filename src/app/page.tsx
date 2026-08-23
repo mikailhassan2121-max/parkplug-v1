@@ -109,7 +109,7 @@ export default function HomePage() {
                 { title: "Compare nearby parking", body: "See reservable spaces and community reports side by side on the map." },
                 { title: "Reserve and park", body: "Book the space, then get the exact address and entry instructions." },
               ]}
-              action={{ href: "/search", label: "Find parking" }}
+              action={{ href: "/parking", label: "Find parking" }}
             />
             <StepCard
               tone="ink"
@@ -295,7 +295,7 @@ export default function HomePage() {
               has not actually used a space.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/search" size="lg">Find Parking</ButtonLink>
+              <ButtonLink href="/parking" size="lg">Find Parking</ButtonLink>
               <ButtonLink href="/host/listings/new" variant="secondary" size="lg">
                 List Your Space
               </ButtonLink>
@@ -317,7 +317,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <ButtonLink href="/search" size="lg" className="bg-white text-brand-900 hover:bg-brand-50">
+              <ButtonLink href="/parking" size="lg" className="bg-white text-brand-900 hover:bg-brand-50">
                 Find Parking
               </ButtonLink>
               <ButtonLink

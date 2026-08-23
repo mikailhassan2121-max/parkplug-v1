@@ -15,7 +15,7 @@ import { isActivePath } from "./nav-links";
 
 const TABS = [
   { href: "/", label: "Explore", icon: IconCompass, exact: true },
-  { href: "/search", label: "Map", icon: IconMap },
+  { href: "/parking", label: "Map", icon: IconMap },
   { href: "/dashboard/reservations", label: "Trips", icon: IconCalendar },
   { href: "/dashboard/saved", label: "Saved", icon: IconHeart },
 ];
@@ -24,7 +24,7 @@ const TABS = [
  * Bottom navigation for small screens. Hidden on routes that own the full
  * viewport (search map, multi-step flows) so it never covers a sticky action.
  */
-const HIDDEN_ON = ["/search", "/book/", "/host/listings/new", "/report-parking", "/signin", "/signup"];
+const HIDDEN_ON = ["/parking", "/book/", "/host/listings/new", "/report-parking", "/signin", "/signup"];
 
 export function MobileTabBar() {
   const pathname = usePathname();

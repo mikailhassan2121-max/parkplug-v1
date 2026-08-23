@@ -70,7 +70,7 @@ export function ListingView({ slug }: { slug: string }) {
               : state.error.message || copy.description
           }
           actions={[
-            { label: "Find other parking", href: "/search" },
+            { label: "Find other parking", href: "/parking" },
             { label: "Return home", href: "/", variant: "secondary" },
           ]}
         />
@@ -143,7 +143,7 @@ function ListingDetail({
             </li>
             <li aria-hidden="true"><IconChevronRight className="text-[0.7rem]" /></li>
             <li>
-              <Link href="/search" className="hover:text-brand-700 hover:underline">Find parking</Link>
+              <Link href="/parking" className="hover:text-brand-700 hover:underline">Find parking</Link>
             </li>
             <li aria-hidden="true"><IconChevronRight className="text-[0.7rem]" /></li>
             <li>

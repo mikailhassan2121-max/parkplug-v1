@@ -172,7 +172,7 @@ export function BookingFlow({ slug }: { slug: string }) {
         <ErrorState
           title={listingState.error.code === "not_found" ? "This space is no longer available" : copy.title}
           description={listingState.error.message || copy.description}
-          actions={[{ label: "Find other parking", href: "/search" }]}
+          actions={[{ label: "Find other parking", href: "/parking" }]}
         />
       </Container>
     );
@@ -479,7 +479,7 @@ export function BookingFlow({ slug }: { slug: string }) {
                 </p>
                 {submitError.action === "find-other-parking" ? (
                   <p className="mt-3">
-                    <Link href="/search" className="font-bold underline underline-offset-2">
+                    <Link href="/parking" className="font-bold underline underline-offset-2">
                       Find other parking
                     </Link>
                   </p>

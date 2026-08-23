@@ -54,7 +54,7 @@ export default function SavedSpacesPage() {
             icon={<IconHeart />}
             title="Save spaces to quickly find them later."
             description="Tap the heart on any listing and it will show up here."
-            actions={[{ label: "Explore Parking", href: "/search" }]}
+            actions={[{ label: "Explore Parking", href: "/parking" }]}
           />
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2">
