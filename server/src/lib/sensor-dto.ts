@@ -29,6 +29,10 @@ export function toSpaceDto(space: SpaceWithSensor) {
     lastSensorValue: undef(space.lastSensorValue),
     confidence: undef(space.confidence),
     sortOrder: space.sortOrder,
+    active: space.active,
+    reservable: space.reservable,
+    accessible: space.accessible,
+    restrictions: undef(space.restrictions),
     sensor: space.sensor
       ? {
           sensorId: space.sensor.sensorId,

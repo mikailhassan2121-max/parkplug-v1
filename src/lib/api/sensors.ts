@@ -54,8 +54,64 @@ async function getJson<T>(path: string, opts: { auth?: boolean; timeoutMs?: numb
   }
 }
 
+async function patchJson<T>(path: string, body: unknown): Promise<ApiResult<T>> {
+  if (!API_BASE) {
+    return fail("network", "The live sensor API is not configured.", { retryable: false });
+  }
+  const token = getSessionToken();
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      const responseBody = await response.json().catch(() => ({}) as Record<string, unknown>);
+      const message = typeof responseBody.message === "string" ? responseBody.message : response.statusText;
+      const code =
+        response.status === 401
+          ? "unauthorized"
+          : response.status === 403
+            ? "forbidden"
+            : response.status === 404
+              ? "not_found"
+              : response.status >= 500
+                ? "server"
+                : response.status === 400
+                  ? "validation"
+                  : "unknown";
+      return fail(code, message);
+    }
+    return ok((await response.json()) as T);
+  } catch {
+    return fail("network", "We could not reach the live sensor API.");
+  }
+}
+
 export function fetchFacilitySnapshot(facilityId: string): Promise<ApiResult<Facility>> {
   return getJson<Facility>(`/api/v1/facilities/${encodeURIComponent(facilityId)}`);
+}
+
+export function updateFacilityConfig(
+  facilityId: string,
+  patch: { name?: string; address?: string },
+): Promise<ApiResult<Facility>> {
+  return patchJson<Facility>(`/api/v1/facilities/${encodeURIComponent(facilityId)}`, patch);
+}
+
+export function updateSpaceConfig(
+  facilityId: string,
+  spaceId: string,
+  patch: { active?: boolean; reservable?: boolean; accessible?: boolean; restrictions?: string | null },
+): Promise<ApiResult<Facility>> {
+  return patchJson<Facility>(
+    `/api/v1/facilities/${encodeURIComponent(facilityId)}/spaces/${encodeURIComponent(spaceId)}`,
+    patch,
+  );
 }
 
 export type FacilityBbox = { minLat: number; maxLat: number; minLng: number; maxLng: number };

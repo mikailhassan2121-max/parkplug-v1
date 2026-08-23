@@ -638,6 +638,15 @@ model ParkingSpace {
   confidence      Float?
   sortOrder       Int         @default(0)
 
+  // Owner-editable configuration — separate from `status`, which is sensor-
+  // reported and never touched by these. `active: false` means "not part of
+  // operations right now" (excluded from availability counts) without
+  // deleting the space's sensor history.
+  active          Boolean     @default(true)
+  reservable      Boolean     @default(false)
+  accessible      Boolean     @default(false)
+  restrictions    String?
+
   sensor          Sensor?
   occupancyEvents OccupancyEvent[]
 

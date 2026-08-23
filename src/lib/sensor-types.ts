@@ -26,6 +26,11 @@ export type FacilitySpace = {
   lastSensorValue?: number;
   confidence?: number;
   sortOrder: number;
+  /** Owner-editable configuration — separate from `status`, which is sensor-reported. */
+  active: boolean;
+  reservable: boolean;
+  accessible: boolean;
+  restrictions?: string;
   sensor?: FacilitySensorInfo;
 };
 

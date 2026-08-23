@@ -7,9 +7,10 @@ import { SpaceGrid } from "@/components/sensor/space-grid";
 import { ActivityLog } from "@/components/sensor/activity-log";
 import { AnalyticsPanel } from "@/components/sensor/analytics-panel";
 import { SensorHealthTable } from "@/components/owner/sensor-health-table";
+import { FacilityConfigForm } from "@/components/owner/facility-config-form";
 import { Tabs, TabPanel } from "@/components/ui/menu";
 import { EmptyState, ErrorState, Spinner } from "@/components/ui/feedback";
-import { IconBolt, IconSettings } from "@/components/ui/icons";
+import { IconBolt } from "@/components/ui/icons";
 import { useFacilityLiveStatus } from "@/lib/use-facility-live-status";
 import { fetchFacilityAnalytics, fetchFacilityEvents } from "@/lib/api/sensors";
 import type { FacilityAnalytics, OccupancyEvent } from "@/lib/sensor-types";
@@ -27,6 +28,9 @@ export function OwnerFacilityView({ facilityId }: { facilityId: string }) {
   const state = useFacilityLiveStatus(facilityId);
   const [events, setEvents] = useState<OccupancyEvent[]>([]);
   const [analytics, setAnalytics] = useState<FacilityAnalytics | null>(null);
+  // The SSE hook only reconciles occupancy — a saved name/address edit needs
+  // its own local echo until the next snapshot naturally reflects it.
+  const [configOverride, setConfigOverride] = useState<{ name: string; address: string } | null>(null);
   const lastEventAt = state.status === "ready" ? state.lastEvent?.occurredAt : undefined;
 
   useEffect(() => {
@@ -63,7 +67,8 @@ export function OwnerFacilityView({ facilityId }: { facilityId: string }) {
     return <ErrorState title="We could not load this facility" description={state.error.message} />;
   }
 
-  const { facility, live } = state;
+  const facility = configOverride ? { ...state.facility, ...configOverride } : state.facility;
+  const { live } = state;
   const sensorsOnline = facility.spaces.filter((s) => s.sensor?.onlineStatus === "ONLINE").length;
   const sensorsTotal = facility.spaces.filter((s) => s.sensor).length;
 
@@ -128,14 +133,16 @@ export function OwnerFacilityView({ facilityId }: { facilityId: string }) {
       </TabPanel>
 
       <TabPanel id="configuration" active={tab}>
-        <div className="rounded-card border border-dashed border-ink-300 bg-ink-50/50 p-6 text-center">
-          <span className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-ink-100 text-xl text-ink-400">
-            <IconSettings aria-hidden="true" />
-          </span>
-          <p className="mt-3 text-sm font-semibold text-ink-800">Facility configuration is not yet available</p>
-          <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-ink-500">
-            Renaming this facility, editing its address, or reassigning sensors from here is not
-            supported by the API yet. Contact support if something needs to change in the meantime.
+        <div className="max-w-lg">
+          <FacilityConfigForm
+            facilityId={facilityId}
+            name={facility.name}
+            address={facility.address}
+            onSaved={(next) => setConfigOverride(next)}
+          />
+          <p className="mt-6 text-xs leading-relaxed text-ink-500">
+            Reassigning sensors between spaces, or changing this facility&apos;s map location, is not
+            supported from here yet. Contact support if something needs to change in the meantime.
           </p>
         </div>
       </TabPanel>

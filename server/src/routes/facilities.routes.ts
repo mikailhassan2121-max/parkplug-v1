@@ -78,6 +78,78 @@ facilitiesRouter.get(
   }),
 );
 
+/** Same ownership rule as /mine and /analytics: unclaimed (ownerId null) is editable by any signed-in host. */
+function assertOwnable(facility: { ownerId: string | null }, userId: string) {
+  if (facility.ownerId !== null && facility.ownerId !== userId) {
+    throw forbidden("This facility belongs to a different account.");
+  }
+}
+
+const facilityConfigSchema = z.object({
+  name: z.string().trim().min(1).max(120).optional(),
+  address: z.string().trim().min(1).max(240).optional(),
+});
+
+/** Owner-editable facility configuration — name and address only; location, sensors, and spaces are not editable here. */
+facilitiesRouter.patch(
+  "/:facilityId",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const parsed = facilityConfigSchema.safeParse(req.body);
+    if (!parsed.success) throw badRequest("Invalid facility configuration.");
+    if (Object.keys(parsed.data).length === 0) throw badRequest("Nothing to update.");
+
+    const existing = await prisma.parkingFacility.findUnique({ where: { facilityId: req.params.facilityId! } });
+    if (!existing) throw notFound("We could not find that facility.");
+    assertOwnable(existing, req.user!.id);
+
+    const facility = await prisma.parkingFacility.update({
+      where: { id: existing.id },
+      data: parsed.data,
+      include: { spaces: { include: { sensor: true } } },
+    });
+    res.json(toFacilityDto(facility, facility.spaces));
+  }),
+);
+
+const spaceConfigSchema = z.object({
+  active: z.boolean().optional(),
+  reservable: z.boolean().optional(),
+  accessible: z.boolean().optional(),
+  restrictions: z.string().trim().max(280).nullable().optional(),
+});
+
+/**
+ * Owner-editable space configuration. Deliberately separate from the
+ * sensor-reported `status` field — nothing here can be used to fake an
+ * occupancy reading, only to describe how the space should be treated
+ * operationally (active/inactive, reservable, accessible, restrictions).
+ */
+facilitiesRouter.patch(
+  "/:facilityId/spaces/:spaceId",
+  requireAuth,
+  asyncRoute(async (req, res) => {
+    const parsed = spaceConfigSchema.safeParse(req.body);
+    if (!parsed.success) throw badRequest("Invalid space configuration.");
+    if (Object.keys(parsed.data).length === 0) throw badRequest("Nothing to update.");
+
+    const facility = await prisma.parkingFacility.findUnique({ where: { facilityId: req.params.facilityId! } });
+    if (!facility) throw notFound("We could not find that facility.");
+    assertOwnable(facility, req.user!.id);
+
+    const space = await prisma.parkingSpace.findUnique({ where: { id: req.params.spaceId! } });
+    if (!space || space.facilityId !== facility.id) throw notFound("We could not find that space.");
+
+    await prisma.parkingSpace.update({ where: { id: space.id }, data: parsed.data });
+
+    const updated = await prisma.parkingFacility.findUniqueOrThrow({
+      where: { id: facility.id },
+      include: { spaces: { include: { sensor: true } } },
+    });
+    res.json(toFacilityDto(updated, updated.spaces));
+  }),
+);
+
 /** Recent activity for the owner dashboard — the one place OccupancyEvent history is exposed. */
 facilitiesRouter.get(
   "/:facilityId/events",
