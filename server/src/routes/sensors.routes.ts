@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { asyncRoute } from "../middleware/error-handler.js";
-import { requireSensorToken } from "../middleware/sensor-auth.js";
+import { requireAuthenticatedSensor, requireSensorToken } from "../middleware/sensor-auth.js";
 import { sensorLimiter } from "../middleware/rate-limit.js";
 import { badRequest, forbidden, notFound } from "../lib/errors.js";
 import { summarizeSpaces } from "../lib/sensor-dto.js";
@@ -10,9 +10,8 @@ import { publishFacilitySnapshot } from "../lib/sensor-realtime.js";
 
 export const sensorsRouter = Router();
 
-// Every write below authenticates with the same Bearer SENSOR_INGEST_TOKEN —
-// real ESP32 hardware and the admin simulator's server-side proxy hit this
-// exact same endpoint with the exact same auth, never a separate code path.
+// Device tokens identify one sensor. The shared Bearer token remains a
+// temporary compatibility path for existing devices and the simulator.
 sensorsRouter.use(requireSensorToken);
 
 const SPACE_STATUSES = ["AVAILABLE", "OCCUPIED", "UNKNOWN", "OFFLINE"] as const;
@@ -52,6 +51,8 @@ sensorsRouter.post(
       throw badRequest("Check the occupancy report and try again.", fieldErrors);
     }
     const d = parsed.data;
+
+    requireAuthenticatedSensor(req, d.sensor_id);
 
     const sensor = await prisma.sensor.findUnique({
       where: { sensorId: d.sensor_id },
@@ -151,6 +152,8 @@ sensorsRouter.post(
     const parsed = heartbeatSchema.safeParse(req.body);
     if (!parsed.success) throw badRequest("Check the heartbeat payload and try again.");
     const d = parsed.data;
+
+    requireAuthenticatedSensor(req, d.sensor_id);
 
     const sensor = await prisma.sensor.findUnique({ where: { sensorId: d.sensor_id }, include: { space: true } });
     if (!sensor) throw notFound(`Unknown sensor "${d.sensor_id}".`);

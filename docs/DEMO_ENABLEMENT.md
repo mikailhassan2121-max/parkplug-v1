@@ -106,6 +106,12 @@ curl -X POST https://<railway-domain>/api/v1/sensors/occupancy \
   -H "Content-Type: application/json" \
   -d '{"sensor_id":"PP-001","spot_id":"TEST-A1","occupied":true,"sensor_value":842,"confidence":0.94}'
 
+# Preferred for real devices: issue with
+# `npm run sensor-token -- issue PP-001`, then replace the Authorization
+# header above with `X-ParkPlugs-Sensor-Token: <device-token>`. A device token
+# may report only the sensor_id it was issued for. Rotate or revoke it with
+# the corresponding `npm run sensor-token -- rotate|revoke PP-001` command.
+
 # Heartbeat, independent of occupancy, roughly every 30s
 curl -X POST https://<railway-domain>/api/v1/sensors/heartbeat \
   -H "Authorization: Bearer <SENSOR_INGEST_TOKEN>" \

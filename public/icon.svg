@@ -1,13 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <rect x="6" y="6" width="88" height="88" rx="22" fill="#184878"/>
-  <rect x="26" y="24" width="42" height="32" rx="16" fill="#ffffff"/>
-  <rect x="40" y="33" width="16" height="10" rx="5" fill="#184878"/>
-  <rect x="26" y="24" width="16" height="54" rx="7" fill="#ffffff"/>
-  <rect x="59" y="59" width="37" height="37" rx="13" fill="#ffffff"/>
-  <g transform="translate(77.5 77.5) rotate(45)" fill="#184878">
-    <rect x="-7" y="-2" width="14" height="9" rx="3"/>
-    <rect x="-4.3" y="-9.5" width="2.8" height="8.5" rx="1.4"/>
-    <rect x="1.5" y="-9.5" width="2.8" height="8.5" rx="1.4"/>
-    <rect x="-1.4" y="6.5" width="2.8" height="7" rx="1.4"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#ffffff"/>
+  <path d="M12 54V10h22c11 0 18 7.2 18 17.2S45 44.4 34 44.4H23.5V54H12Zm11.5-20.1h9.4c4.8 0 7.4-2.5 7.4-6.7s-2.6-6.7-7.4-6.7h-9.4v13.4Z" fill="#171C19"/>
+  <path d="M23.5 39h13.2a5 5 0 0 1 5 5v10H23.5V39Z" fill="#20B6A4"/>
 </svg>

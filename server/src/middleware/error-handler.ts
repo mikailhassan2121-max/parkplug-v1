@@ -14,6 +14,11 @@ export function errorHandler(
   // must stay even though it is unused.
   _next: NextFunction,
 ) {
+  if (err instanceof SyntaxError && "status" in err && err.status === 400 && "body" in err) {
+    res.status(400).json({ message: "Request body contains malformed JSON." });
+    return;
+  }
+
   if (err instanceof ApiError) {
     res.status(err.status).json(err.toJSON());
     return;

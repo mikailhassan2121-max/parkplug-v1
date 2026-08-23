@@ -655,6 +655,10 @@ model Sensor {
   lastSeen        DateTime?
   batteryLevel    Float?
   signalStrength  Float?
+  tokenHash       String?            @unique
+  tokenLastFour   String?
+  tokenIssuedAt   DateTime?
+  tokenRevokedAt  DateTime?
   createdAt       DateTime           @default(now())
 }
 
