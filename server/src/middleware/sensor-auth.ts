@@ -1,7 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
+import { prisma } from "../db.js";
 import { env, sensorIngestConfigured } from "../env.js";
 import { ApiError } from "../lib/errors.js";
+import { hashToken, SENSOR_TOKEN_PREFIX } from "../lib/tokens.js";
 
 function constantTimeEqual(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
@@ -17,24 +19,38 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Guards every /api/v1/sensors/* write. Real hardware and the admin
- * simulator's server-side proxy both authenticate the same way: a Bearer
- * token compared in constant time against SENSOR_INGEST_TOKEN. Left
- * unconfigured, ingest is refused outright rather than silently accepting
- * unauthenticated writes.
+ * Guards every /api/v1/sensors/* write. A per-device header is preferred and
+ * resolved to one Sensor row. The shared Bearer secret is retained only as a
+ * legacy compatibility path and can be disabled by leaving it unset.
  */
-export function requireSensorToken(req: Request, _res: Response, next: NextFunction) {
-  if (!sensorIngestConfigured) {
-    next(new ApiError(503, "Sensor ingest is not configured on this server."));
-    return;
-  }
+export async function requireSensorToken(req: Request, _res: Response, next: NextFunction) {
+  try {
+    const deviceToken = req.header("x-parkplugs-sensor-token")?.trim();
+    if (deviceToken) {
+      if (!deviceToken.startsWith(SENSOR_TOKEN_PREFIX)) throw new ApiError(401, "Invalid or missing sensor token.");
+      const sensor = await prisma.sensor.findUnique({ where: { tokenHash: hashToken(deviceToken) } });
+      if (!sensor || sensor.tokenRevokedAt) throw new ApiError(401, "Invalid or missing sensor token.");
+      req.sensor = sensor;
+      req.sensorAuth = "device";
+      next();
+      return;
+    }
 
-  const header = req.header("authorization") ?? "";
-  const [scheme, token] = header.split(" ");
-  if (scheme !== "Bearer" || !token || !constantTimeEqual(token, env.SENSOR_INGEST_TOKEN)) {
-    next(new ApiError(401, "Invalid or missing sensor token."));
-    return;
+    const header = req.header("authorization") ?? "";
+    const match = /^Bearer\s+(\S+)$/.exec(header);
+    if (sensorIngestConfigured && match?.[1] && constantTimeEqual(match[1], env.SENSOR_INGEST_TOKEN)) {
+      req.sensorAuth = "legacy";
+      next();
+      return;
+    }
+    throw new ApiError(401, "Invalid or missing sensor token.");
+  } catch (err) {
+    next(err);
   }
+}
 
-  next();
+export function requireAuthenticatedSensor(req: Request, sensorId: string): void {
+  if (req.sensor && req.sensor.sensorId !== sensorId) {
+    throw new ApiError(403, "This device token is not authorized for that sensor.");
+  }
 }

@@ -60,10 +60,9 @@ const schema = z.object({
     .transform((v) => v !== "false"),
 
   // --- Live sensor platform -------------------------------------------
-  // Bearer token real sensor hardware (and the admin simulator, server-side
-  // only) authenticates with against POST /api/v1/sensors/*. Left unset,
-  // the ingest endpoints refuse every request rather than accepting
-  // unauthenticated writes — see sensorIngestConfigured below.
+  // Temporary shared Bearer credential for legacy sensor hardware and the
+  // server-side simulator. New hardware uses a database-backed per-sensor
+  // token. Leaving this unset disables only the legacy fallback.
   SENSOR_INGEST_TOKEN: z.string().optional().default(""),
   // How long a sensor can go quiet before the background sweeper flips its
   // space to OFFLINE.

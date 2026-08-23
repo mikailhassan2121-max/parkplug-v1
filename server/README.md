@@ -19,6 +19,22 @@ npm run typecheck
 npm run prisma:studio        # browse the database
 ```
 
+## Sensor device tokens
+
+Issue a distinct credential for each sensor and send it on occupancy and
+heartbeat requests as `X-ParkPlugs-Sensor-Token`:
+
+```bash
+npm run sensor-token -- issue PP-001
+npm run sensor-token -- rotate PP-001
+npm run sensor-token -- revoke PP-001
+```
+
+Only the token hash is stored. The raw value is printed once when issued or
+rotated, and a device credential can report only its own `sensor_id`. The
+shared `SENSOR_INGEST_TOKEN` Bearer credential remains temporarily available
+for legacy devices and the server-side simulator.
+
 ### Using Supabase (or any Postgres where tables shouldn't live in `public`)
 
 `schema.prisma` has no `@@schema(...)` annotations — it's single-schema, so
