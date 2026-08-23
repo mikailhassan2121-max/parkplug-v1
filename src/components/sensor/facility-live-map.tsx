@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/feedback";
 import type { FacilitySummary } from "@/lib/sensor-types";
 
 function facilityIconHtml(facility: FacilitySummary, selected: boolean): string {
-  // Cyan pulse ring marks every sensor-enabled facility as LIVE; the core
+  // A restrained teal ring marks every sensor-enabled facility; the core
   // dot's color is the current dominant status — never the pulse alone.
   const core =
     facility.total === 0
@@ -20,8 +20,8 @@ function facilityIconHtml(facility: FacilitySummary, selected: boolean): string 
           : "bg-ink-400";
   return `
     <span class="relative flex ${selected ? "h-11 w-11" : "h-9 w-9"} items-center justify-center transition-all duration-150">
-      <span class="absolute inset-0 rounded-full bg-pp-live/40 animate-pulse-live"></span>
-      <span class="relative grid h-full w-full place-items-center rounded-full border-2 border-pp-live bg-pp-bg-elevated shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+      <span class="absolute inset-0 rounded-full bg-pp-live/15"></span>
+      <span class="relative grid h-full w-full place-items-center rounded-full border-2 border-pp-live bg-white shadow-[0_2px_5px_rgba(18,23,20,0.18)]">
         <span class="h-3 w-3 rounded-full ${core}"></span>
       </span>
     </span>`;

@@ -38,7 +38,7 @@ export function SpaceGrid({ spaces }: { spaces: FacilitySpace[] }) {
               {space.sensor ? (
                 <div className="flex items-center justify-between gap-2">
                   <dt>Sensor</dt>
-                  <dd className="font-mono text-ink-700">{space.sensor.sensorId}</dd>
+                  <dd className="font-medium text-ink-700">{space.sensor.sensorId}</dd>
                 </div>
               ) : null}
               <div className="flex items-center justify-between gap-2">

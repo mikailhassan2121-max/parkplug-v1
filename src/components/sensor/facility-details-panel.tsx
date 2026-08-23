@@ -54,8 +54,8 @@ export function FacilityDetailsPanel({
     <div className="flex h-full flex-col">
       <div className="flex items-start justify-between gap-3 border-b border-ink-200 p-4 sm:p-5">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-pp-border bg-pp-bg-elevated px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-pp-live">
-            Sensor-powered
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-2xs font-semibold text-brand-800">
+            Live sensors
           </span>
           <h2 className="mt-1.5 truncate text-lg font-extrabold tracking-tight text-ink-950">{facility.name}</h2>
           <p className="text-sm text-ink-600">{facility.address}</p>

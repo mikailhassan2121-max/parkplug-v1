@@ -34,19 +34,19 @@ export default function HomePage() {
   return (
     <>
       {/* ---------------------------------------------------------------- Hero */}
-      <section className="relative overflow-hidden border-b border-ink-200 bg-gradient-to-b from-brand-50/70 to-white">
-        <Container size="wide" className="py-10 lg:py-16">
+      <section className="border-b border-ink-200 bg-white">
+        <Container size="wide" className="py-12 lg:py-20">
           <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14">
             <div className="max-w-xl">
-              <Badge tone="brand" icon={<IconMapPin />}>
-                Local parking, made simple
-              </Badge>
-              <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.1] tracking-tight text-ink-950 sm:text-4xl lg:text-5xl">
-                Parking made easier, one space at a time.
+              <p className="text-sm font-semibold tracking-[0.02em] text-brand-700">
+                Parking for drivers, hosts, and property teams
+              </p>
+              <h1 className="mt-3 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.035em] text-ink-950 sm:text-5xl lg:text-[3.75rem]">
+                Find parking before you arrive.
               </h1>
-              <p className="mt-4 text-base leading-relaxed text-ink-600 sm:text-lg">
-                Find reservable private parking and recently reported free spaces
-                near your destination.
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-600 sm:text-lg">
+                Search reservable spaces, check sensor-confirmed availability,
+                or rent out parking you are not using.
               </p>
 
               <div className="mt-7 lg:hidden">
@@ -55,15 +55,22 @@ export default function HomePage() {
 
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Link
+                  href="/live"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline"
+                >
+                  <IconMapPin aria-hidden="true" />
+                  See live availability
+                </Link>
+                <Link
                   href="/report-parking"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-800 underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline"
                 >
                   <IconBolt aria-hidden="true" />
                   Report free parking
                 </Link>
                 <Link
                   href="/host/listings/new"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-800 underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline"
                 >
                   <IconWallet aria-hidden="true" />
                   List your space

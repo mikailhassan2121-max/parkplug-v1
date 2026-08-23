@@ -110,12 +110,12 @@ export function LiveView() {
 
 function MapLegend() {
   return (
-    <div className="absolute left-3 top-3 z-20 rounded-xl border border-pp-border bg-pp-bg-elevated/95 p-3 text-xs text-ink-300 shadow-e2 backdrop-blur-sm">
+    <div className="absolute left-3 top-3 z-20 rounded-lg border border-pp-border bg-white/95 p-3 text-xs text-ink-700 shadow-e1">
       <p className="mb-2 text-2xs font-bold uppercase tracking-wider text-ink-500">Legend</p>
       <ul className="space-y-1.5">
         <li className="flex items-center gap-2">
           <span className="relative flex h-3 w-3">
-            <span className="absolute inset-0 rounded-full bg-pp-live/40 animate-pulse-live" />
+            <span className="absolute inset-0 rounded-full bg-pp-live/15" />
             <span className="relative h-3 w-3 rounded-full border border-pp-live" />
           </span>
           Sensor-monitored facility

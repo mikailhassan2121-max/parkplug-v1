@@ -71,7 +71,7 @@ export function ParkingPreview() {
   const hasResults = listings.length + reports.length > 0;
 
   return (
-    <div className="overflow-hidden rounded-card border border-ink-200 bg-white shadow-e2">
+    <div className="overflow-hidden rounded-card border border-ink-300 bg-white">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink-200 px-4 py-3 sm:px-5">
         <Legend />
         {state.phase === "ready" ? (
