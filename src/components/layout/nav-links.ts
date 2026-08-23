@@ -2,16 +2,15 @@ export type NavLink = { href: string; label: string };
 
 /** Primary navigation, shared by the desktop header and the mobile menu. */
 export const PRIMARY_NAV: NavLink[] = [
-  { href: "/search", label: "Find Parking" },
-  { href: "/live", label: "Live Map" },
-  { href: "/host/listings/new", label: "List Your Parking" },
+  { href: "/parking", label: "Find Parking" },
+  { href: "/host/listings/new", label: "List Your Space" },
   { href: "/for-property-owners", label: "For Property Owners" },
 ];
 
+/** Marketplace host — listing management, separate from facility/sensor operations (OWNER_NAV below). */
 export const HOST_NAV: NavLink[] = [
   { href: "/host", label: "Overview" },
   { href: "/host/listings", label: "Listings" },
-  { href: "/host/facilities", label: "Facilities" },
   { href: "/host/calendar", label: "Calendar" },
   { href: "/host/reservations", label: "Reservations" },
   { href: "/host/earnings", label: "Earnings" },
@@ -19,6 +18,17 @@ export const HOST_NAV: NavLink[] = [
   { href: "/host/messages", label: "Messages" },
   { href: "/host/payouts", label: "Payout Settings" },
   { href: "/host/settings", label: "Host Settings" },
+];
+
+/** Property owner / operator app shell — facility and sensor operations. */
+export const OWNER_NAV: NavLink[] = [
+  { href: "/owner", label: "Overview" },
+  { href: "/owner/facilities", label: "Facilities" },
+  { href: "/owner/spaces", label: "Parking Spaces" },
+  { href: "/owner/sensors", label: "Sensors" },
+  { href: "/owner/bookings", label: "Bookings" },
+  { href: "/owner/analytics", label: "Analytics" },
+  { href: "/owner/settings", label: "Settings" },
 ];
 
 export const ACCOUNT_NAV: NavLink[] = [

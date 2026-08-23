@@ -57,7 +57,7 @@ export function clusterIcon(leaflet: typeof L, count: number, hasFree: boolean):
   return leaflet.divIcon({
     className: "",
     html: `<span class="grid place-items-center rounded-full font-bold text-white ring-2 ring-white
-      shadow-[0_2px_8px_rgba(3,39,35,0.35)] ${hasFree ? "bg-ink-200" : "bg-brand-700"}"
+      shadow-[0_2px_8px_rgba(28,31,34,0.35)] ${hasFree ? "bg-ink-700" : "bg-brand-700"}"
       style="width:${size}px;height:${size}px;font-size:${size > 40 ? "0.85rem" : "0.75rem"}">${count}</span>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -67,7 +67,7 @@ export function clusterIcon(leaflet: typeof L, count: number, hasFree: boolean):
 export function destinationIcon(leaflet: typeof L): L.DivIcon {
   return leaflet.divIcon({
     className: "",
-    html: `<span class="grid place-items-center h-9 w-9 rounded-full bg-ink-200 text-white ring-3 ring-white shadow-[0_2px_8px_rgba(3,39,35,0.4)]">
+    html: `<span class="grid place-items-center h-9 w-9 rounded-full bg-ink-900 text-white ring-3 ring-white shadow-[0_2px_8px_rgba(28,31,34,0.4)]">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M20 10c0 4.4-5.4 9.6-7.4 11.3a1 1 0 0 1-1.2 0C9.4 19.6 4 14.4 4 10a8 8 0 1 1 16 0Z" />
@@ -82,8 +82,36 @@ export function destinationIcon(leaflet: typeof L): L.DivIcon {
 export function userLocationIcon(leaflet: typeof L): L.DivIcon {
   return leaflet.divIcon({
     className: "",
-    html: `<span class="block h-4 w-4 rounded-full bg-info-600 ring-3 ring-white shadow-[0_0_0_6px_rgba(46,144,250,0.22)]"></span>`,
+    html: `<span class="block h-4 w-4 rounded-full bg-info-500 ring-3 ring-white shadow-[0_0_0_6px_rgba(46,125,214,0.22)]"></span>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
+  });
+}
+
+/**
+ * Live sensor-monitored facility. Distinct pin shape from the paid-listing
+ * pill and the free-parking diamond: a rounded square with a small live
+ * dot, colour tracks whether it currently has any open space — status is
+ * always paired with the marker's accessible name, never colour alone.
+ */
+export function facilityMarkerIcon(
+  leaflet: typeof L,
+  available: number,
+  total: number,
+  selected: boolean,
+): L.DivIcon {
+  const hasSpace = total > 0 && available > 0;
+  const tone = total === 0 ? "bg-ink-400" : hasSpace ? "bg-success-500" : "bg-danger-500";
+  const size = selected ? 42 : 34;
+  return leaflet.divIcon({
+    className: "",
+    html: `<span class="relative grid place-items-center rounded-xl ${tone} text-white font-bold
+        ring-2 ring-white shadow-[0_2px_8px_rgba(28,31,34,0.35)] ${selected ? "scale-105 z-10" : ""}"
+        style="width:${size}px;height:${size}px;font-size:${selected ? "0.8rem" : "0.7rem"}">
+      ${total > 0 ? available : "—"}
+      <span class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-600 ring-2 ring-white"></span>
+    </span>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 }

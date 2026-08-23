@@ -227,20 +227,20 @@ function SimulatorBody() {
 
       <div className="mt-10">
         <h2 className="text-lg font-bold text-ink-900">Request / response log</h2>
-        <div className="mt-3 max-h-96 space-y-2 overflow-y-auto rounded-card border border-ink-200 bg-pp-bg-elevated p-3 font-mono text-2xs">
+        <div className="mt-3 max-h-96 space-y-2 overflow-y-auto rounded-card border border-ink-200 bg-ink-50 p-3 font-mono text-2xs">
           {log.length === 0 ? (
             <p className="p-2 text-ink-500">No requests sent yet.</p>
           ) : (
             log.map((entry) => (
               <div
                 key={entry.id}
-                className={`rounded-lg border p-2.5 ${entry.ok ? "border-success-100 bg-success-50/30" : "border-danger-100 bg-danger-50/30"}`}
+                className={`rounded-lg border p-2.5 ${entry.ok ? "border-success-200 bg-success-50" : "border-danger-200 bg-danger-50"}`}
               >
                 <p className="text-ink-500">
                   {new Date(entry.at).toLocaleTimeString()} · {entry.ok ? entry.status : `error ${entry.status}`}
                 </p>
-                <p className="mt-1 text-ink-300">→ {JSON.stringify(entry.request)}</p>
-                <p className="mt-1 text-ink-400">← {JSON.stringify(entry.response)}</p>
+                <p className="mt-1 text-ink-700">→ {JSON.stringify(entry.request)}</p>
+                <p className="mt-1 text-ink-600">← {JSON.stringify(entry.response)}</p>
               </div>
             ))
           )}

@@ -58,26 +58,26 @@ const STEPS = [
 export default function ForPropertyOwnersPage() {
   return (
     <>
-      <section className="border-b border-pp-border bg-pp-bg-elevated">
+      <section className="border-b border-ink-200 bg-ink-50">
         <Container size="default" className="py-14 lg:py-20">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.08em] text-pp-live">
+            <p className="text-sm font-bold uppercase tracking-[0.08em] text-teal">
               For property owners
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-pp-text sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink-950 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
               Turn unused parking into steady income.
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-pp-text-secondary sm:text-lg">
+            <p className="mt-4 text-base leading-relaxed text-ink-600 sm:text-lg">
               List a single driveway or a full garage. Add live sensor monitoring
               so every space reports its own availability in real time — no
               manual check-ins, no guesswork for drivers.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/host/listings/new" size="lg">
-                List Your Parking
+                List Your Space
               </ButtonLink>
-              <ButtonLink href="/host/facilities" variant="secondary" size="lg">
-                View Facility Dashboard
+              <ButtonLink href="/owner" variant="secondary" size="lg">
+                View Owner Dashboard
               </ButtonLink>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function ForPropertyOwnersPage() {
             const Icon = b.icon;
             return (
               <div key={b.title} className="rounded-card border border-ink-200 bg-ink-50 p-5">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-ink-100 text-xl text-pp-live">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-ink-100 text-xl text-teal">
                   <Icon aria-hidden="true" />
                 </span>
                 <h3 className="mt-4 text-base font-bold text-ink-900">{b.title}</h3>
@@ -145,7 +145,7 @@ export default function ForPropertyOwnersPage() {
                 "An owner dashboard with occupancy, sensor health, and activity history",
               ].map((item) => (
                 <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-ink-700">
-                  <IconCheckCircle className="mt-0.5 shrink-0 text-base text-pp-live" aria-hidden="true" />
+                  <IconCheckCircle className="mt-0.5 shrink-0 text-base text-teal" aria-hidden="true" />
                   {item}
                 </li>
               ))}

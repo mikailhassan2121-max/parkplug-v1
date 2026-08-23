@@ -54,7 +54,7 @@ export function FacilityDetailsPanel({
     <div className="flex h-full flex-col">
       <div className="flex items-start justify-between gap-3 border-b border-ink-200 p-4 sm:p-5">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-pp-border bg-pp-bg-elevated px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-pp-live">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-2xs font-bold uppercase tracking-wide text-teal">
             Sensor-powered
           </span>
           <h2 className="mt-1.5 truncate text-lg font-extrabold tracking-tight text-ink-950">{facility.name}</h2>
@@ -84,7 +84,7 @@ export function FacilityDetailsPanel({
           className="mt-2 h-2 overflow-hidden rounded-full bg-ink-200"
         >
           <div
-            className="h-full rounded-full bg-pp-live transition-[width] duration-300 ease-out"
+            className="h-full rounded-full bg-teal transition-[width] duration-300 ease-out"
             style={{ width: `${facility.occupancyPct}%` }}
           />
         </div>

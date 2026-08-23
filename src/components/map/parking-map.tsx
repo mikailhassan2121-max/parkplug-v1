@@ -6,31 +6,30 @@ import "leaflet/dist/leaflet.css";
 import { cn } from "@/lib/cn";
 import { getCurrentPosition, LOCATION_ERROR_COPY, type LocationError } from "@/lib/geo";
 import type { Coordinates, FreeParkingReport, ListingSummary } from "@/lib/types";
+import type { FacilitySummary } from "@/lib/sensor-types";
 import { Button } from "@/components/ui/button";
 import { IconCrosshair, IconNavigation, IconRefresh } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/feedback";
 import {
   clusterIcon,
   destinationIcon,
+  facilityMarkerIcon,
   freeMarkerIcon,
   paidMarkerIcon,
   userLocationIcon,
 } from "./map-markers";
 
-// Dark basemap by default (CARTO dark_matter), matching the app's dark
-// theme. Override with NEXT_PUBLIC_DARK_TILE_URL for a different provider
-// (e.g. Stadia Alidade Smooth Dark) without a code change.
-const DEFAULT_DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png";
-const DEFAULT_DARK_ATTRIBUTION =
+// Light basemap by default (CARTO Positron) — clean cartography, no API key
+// needed. Override with NEXT_PUBLIC_MAP_TILE_URL for a different provider
+// without a code change.
+const DEFAULT_TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const DEFAULT_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// Exported so other map surfaces (the live sensor map) use the exact same
-// basemap instead of duplicating the provider/env-var logic.
-export const TILE_URL =
-  process.env.NEXT_PUBLIC_DARK_TILE_URL ??
-  process.env.NEXT_PUBLIC_MAP_TILE_URL ??
-  DEFAULT_DARK_TILE_URL;
-export const TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? DEFAULT_DARK_ATTRIBUTION;
+// Exported so every map surface uses the exact same basemap instead of
+// duplicating the provider/env-var logic.
+export const TILE_URL = process.env.NEXT_PUBLIC_MAP_TILE_URL ?? DEFAULT_TILE_URL;
+export const TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ?? DEFAULT_ATTRIBUTION;
 // Leaflet only consults this when the tile URL actually contains `{s}` —
 // harmless to pass for single-host providers that don't use it.
 export const TILE_SUBDOMAINS = "abcd";
@@ -38,6 +37,7 @@ export const TILE_SUBDOMAINS = "abcd";
 export type MapSelection =
   | { kind: "listing"; id: string }
   | { kind: "report"; id: string }
+  | { kind: "facility"; id: string }
   | null;
 
 type Cluster = {
@@ -103,6 +103,8 @@ export type ParkingMapProps = {
   zoom?: number;
   listings?: ListingSummary[];
   reports?: FreeParkingReport[];
+  /** Sensor-monitored facilities — rendered with their own marker, never clustered. */
+  facilities?: FacilitySummary[];
   selected?: MapSelection;
   onSelect?: (selection: MapSelection) => void;
   /** Called after the user pans or zooms, enabling "Search this area". */
@@ -125,6 +127,7 @@ export function ParkingMap({
   zoom = 14,
   listings = [],
   reports = [],
+  facilities = [],
   selected = null,
   onSelect,
   onBoundsChange,
@@ -299,7 +302,22 @@ export function ParkingMap({
         marker.addTo(layer);
       }
     });
-  }, [listings, reports, selected, currentZoom]);
+
+    // Sensor-monitored facilities render on their own, never folded into a
+    // cluster bubble — there are typically few of them and each one is a
+    // meaningfully different kind of result (live data vs. a reservation).
+    facilities.forEach((facility) => {
+      const isSelected = selected?.kind === "facility" && selected.id === facility.facilityId;
+      const marker = leaflet.marker([facility.location.lat, facility.location.lng], {
+        icon: facilityMarkerIcon(leaflet, facility.available, facility.total, isSelected),
+        keyboard: true,
+        alt: `${facility.name}, live parking facility, ${facility.available} of ${facility.total} spaces available. Activate to preview.`,
+        zIndexOffset: isSelected ? 1000 : 500,
+      });
+      marker.on("click", () => onSelectRef.current?.({ kind: "facility", id: facility.facilityId }));
+      marker.addTo(layer);
+    });
+  }, [listings, reports, facilities, selected, currentZoom]);
 
   /* ------------------- Destination, user, privacy circle -------------- */
 

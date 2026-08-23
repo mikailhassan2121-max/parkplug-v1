@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
     // Add the real bucket/CDN host here when the upload API is connected.
     remotePatterns: [],
   },
+  async redirects() {
+    return [
+      // /search and /live merged into one unified driver discovery
+      // experience; /host/facilities became the property-owner app shell.
+      { source: "/search", destination: "/parking", permanent: false },
+      { source: "/live", destination: "/parking", permanent: false },
+      { source: "/host/facilities", destination: "/owner/facilities", permanent: false },
+      { source: "/host/facilities/:facilityId", destination: "/owner/facilities/:facilityId", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

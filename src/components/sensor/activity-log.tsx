@@ -33,7 +33,7 @@ export function ActivityLog({ events }: { events: OccupancyEvent[] }) {
             <span
               className={cn(
                 "mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full",
-                event.source === "SIMULATOR" ? "bg-pp-live/15 text-pp-live" : "bg-ink-100 text-ink-500",
+                event.source === "SIMULATOR" ? "bg-brand-50 text-teal" : "bg-ink-100 text-ink-500",
               )}
             >
               <Icon className="text-sm" aria-hidden="true" />

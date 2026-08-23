@@ -37,7 +37,7 @@ export function FacilityView({ facilityId }: { facilityId: string }) {
         <ErrorState
           title="We could not load this facility"
           description={state.error.message}
-          actions={[{ label: "Back to live map", href: "/live" }]}
+          actions={[{ label: "Back to parking search", href: "/parking" }]}
         />
       </Container>
     );
@@ -48,15 +48,15 @@ export function FacilityView({ facilityId }: { facilityId: string }) {
 
   return (
     <>
-      <section className="border-b border-pp-border bg-pp-bg-elevated">
+      <section className="border-b border-ink-200 bg-ink-50">
         <Container size="default" className="py-8 lg:py-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-pp-border bg-pp-bg px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-pp-live">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-teal">
             Sensor-powered
           </span>
           <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-pp-text sm:text-3xl">{facility.name}</h1>
-              <p className="mt-1 text-sm text-pp-text-secondary">{facility.address}</p>
+              <h1 className="text-2xl font-extrabold tracking-tight text-ink-950 sm:text-3xl">{facility.name}</h1>
+              <p className="mt-1 text-sm text-ink-600">{facility.address}</p>
               <div className="mt-3">
                 <LiveBadge live={live} updatedAt={facility.updatedAt} />
               </div>
@@ -68,12 +68,12 @@ export function FacilityView({ facilityId }: { facilityId: string }) {
 
           <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="text-3xl font-extrabold tracking-tight text-pp-text">
+              <span className="text-3xl font-extrabold tracking-tight text-ink-950">
                 {facility.available}/{facility.total}
               </span>
-              <span className="ml-2 text-sm text-pp-text-secondary">available</span>
+              <span className="ml-2 text-sm text-ink-600">available</span>
             </div>
-            <span className="text-sm text-pp-text-secondary">{facility.occupancyPct}% occupied</span>
+            <span className="text-sm text-ink-600">{facility.occupancyPct}% occupied</span>
           </div>
           <div
             role="progressbar"
@@ -81,10 +81,10 @@ export function FacilityView({ facilityId }: { facilityId: string }) {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label="Occupancy"
-            className="mt-2 h-2 overflow-hidden rounded-full bg-pp-surface-2"
+            className="mt-2 h-2 overflow-hidden rounded-full bg-ink-200"
           >
             <div
-              className="h-full rounded-full bg-pp-live transition-[width] duration-300 ease-out"
+              className="h-full rounded-full bg-teal transition-[width] duration-300 ease-out"
               style={{ width: `${facility.occupancyPct}%` }}
             />
           </div>

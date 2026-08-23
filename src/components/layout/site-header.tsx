@@ -14,6 +14,7 @@ import {
   IconBell,
   IconCalendar,
   IconCar,
+  IconChart,
   IconChevronDown,
   IconHeart,
   IconHelp,
@@ -74,6 +75,7 @@ export function SiteHeader() {
             description: "List your unused parking",
           },
         ] as MenuItem[])),
+    { kind: "link", label: "Owner Dashboard", href: "/owner", icon: <IconChart /> },
     { kind: "separator" },
     { kind: "link", label: "Account Settings", href: "/dashboard/settings", icon: <IconSettings /> },
     { kind: "link", label: "Help", href: "/help", icon: <IconHelp /> },
@@ -84,8 +86,8 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-70 bg-pp-bg/95 backdrop-blur-md transition-shadow duration-200",
-        scrolled ? "shadow-e1 border-b border-pp-border" : "border-b border-transparent",
+        "sticky top-0 z-70 bg-surface/95 backdrop-blur-md transition-shadow duration-200",
+        scrolled ? "shadow-e1 border-b border-border" : "border-b border-transparent",
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:h-18 lg:gap-6 lg:px-8">
@@ -109,14 +111,14 @@ export function SiteHeader() {
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                      active ? "text-pp-live" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
+                      active ? "text-teal" : "text-ink-700 hover:bg-ink-100 hover:text-ink-900",
                     )}
                   >
                     {link.label}
                     {active ? (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-pp-live pp-glow-live"
+                        className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-teal"
                       />
                     ) : null}
                   </Link>
@@ -133,7 +135,7 @@ export function SiteHeader() {
             which beats a `hidden` utility passed through `className`.
           */}
           <span className="lg:hidden">
-            <ButtonLink href="/search" variant="ghost" size="sm" aria-label="Find parking">
+            <ButtonLink href="/parking" variant="ghost" size="sm" aria-label="Find parking">
               <IconSearch className="text-lg" />
             </ButtonLink>
           </span>
@@ -208,7 +210,7 @@ export function SiteHeader() {
             aria-modal="true"
             aria-label="Main menu"
             tabIndex={-1}
-            className="relative max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-ink-200 bg-pp-bg pb-6 shadow-e3 animate-slide-up focus:outline-none"
+            className="relative max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-ink-200 bg-surface pb-6 shadow-e3 animate-slide-up focus:outline-none"
           >
             <nav aria-label="Mobile" className="px-4 pt-4">
               <ul className="space-y-1">
@@ -222,7 +224,7 @@ export function SiteHeader() {
                         className={cn(
                           "flex min-h-12 items-center rounded-xl px-4 text-[0.9375rem] font-semibold transition-colors",
                           active
-                            ? "bg-ink-100 text-pp-live"
+                            ? "bg-brand-50 text-teal"
                             : "text-ink-800 hover:bg-ink-100",
                         )}
                       >

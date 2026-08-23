@@ -1,149 +1,150 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   ParkPlugs design tokens — dark futuristic theme
+   ParkPlugs design tokens — light, restrained, infrastructure-company feel.
    Single source of truth for colour, type, spacing, radius and elevation.
 
-   Every existing ramp (brand, ink, success, warning, danger, info, accent)
-   keeps its original name and step numbers so the hundreds of existing
-   `bg-ink-100` / `text-brand-700` / `bg-white` call sites across the app
-   render correctly with zero per-component changes — only the *values*
-   changed, inverted from "low step = light" to "low step = dark", exactly
-   the direction a light->dark retheme needs. `bg-white` literals in the
-   shared UI primitives were replaced with `bg-ink-50` (see components/ui/*
-   and components/layout/*) since Tailwind's built-in white/black are not
-   theme tokens and can't be redefined here.
+   Two layers, deliberately:
+   1. Named Tailwind ramps (brand, ink, success, warning, danger, info,
+      accent) — kept so the many not-yet-rebuilt pages keep working with
+      zero changes, now pointing at genuinely new light values instead of
+      the old navy or the (now removed) dark sensor theme.
+   2. Flat semantic tokens (bg, surface, surface-muted, text, text-
+      secondary, border, teal, teal-hover, available, occupied, warning,
+      offline, error) — what every newly-built page uses directly. See
+      README-DESIGN.md is not needed; the mapping is documented inline
+      below each token.
 
-   New `--color-pp-*` tokens are additive, used by the sensor-platform
-   surfaces (facility grid, live map, simulator) that don't have decades of
-   existing call sites to preserve. `pp-accent` (electric blue, brand/action)
-   and `pp-live` (cyan, sensor/live data only) are deliberately separate
-   namespaces from each other and from the existing `accent-*` ramp, which
-   stays amber and stays owned by community-reported free parking — see the
-   comment on that ramp below for why they were never allowed to collide.
+   Colour discipline: teal is the ONE brand accent — buttons, selected
+   states, active nav, live availability. It is not a background wash.
+   Amber (accent-*) stays reserved for community-reported free parking,
+   a meaning that predates this rebuild — general UI warnings use a
+   separate, visually distinct `warning` token so the two never collide.
    ========================================================================== */
 
 @theme {
-  /* --- Brand: electric blue, sampled from the new mark's neon line.
-     brand-600 (#0A84FF) is the primary action colour everywhere a button,
-     link, or selected state used to read navy. --- */
-  --color-brand-50: #081428;
-  --color-brand-100: #0c1e3d;
-  --color-brand-200: #123255;
-  --color-brand-300: #17457a;
-  --color-brand-400: #145fae;
-  --color-brand-500: #0e72d6;
-  --color-brand-600: #0a84ff;
-  --color-brand-700: #3b9eff;
-  --color-brand-800: #7cbbff;
-  --color-brand-900: #badcff;
-  --color-brand-950: #e8f4ff;
+  /* --- Brand: teal. The one accent colour, used with intent. --- */
+  --color-brand-50: #eaf6f5;
+  --color-brand-100: #d2ebe9;
+  --color-brand-200: #a6d8d4;
+  --color-brand-300: #78c2bc;
+  --color-brand-400: #3fa9a2;
+  --color-brand-500: #178f88;
+  --color-brand-600: #0e7c7b;
+  --color-brand-700: #0b6362;
+  --color-brand-800: #094f4e;
+  --color-brand-900: #073938;
+  --color-brand-950: #042322;
 
-  /* --- Accent: amber. Reserved for community / free-parking reports so paid
-     and free parking never rely on shape alone to be told apart — this
-     meaning predates the sensor platform and deliberately keeps sole
-     ownership of amber; sensor "limited/warning" states use the blue/cyan
-     family plus an explicit text label instead (see pp-warning below,
-     which is amber in *value* for the sensor grid's own warning chip, but
-     is a distinct token from this ramp and never doubles as a free-parking
-     colour). --- */
-  --color-accent-50: #2b1704;
-  --color-accent-100: #40230a;
-  --color-accent-200: #5c3310;
-  --color-accent-300: #83480f;
-  --color-accent-400: #b8630f;
-  --color-accent-500: #fd7f12;
-  --color-accent-600: #ff9a3d;
-  --color-accent-700: #ffb166;
-  --color-accent-800: #ffcb99;
-  --color-accent-900: #ffe2c2;
-  --color-accent-950: #fff3e3;
+  /* --- Accent: amber. Reserved exclusively for community / free-parking
+     reports — never reused for generic "warning" or "limited spaces" (see
+     the separate warning-* ramp below), so a driver never has to guess
+     which meaning a given amber element carries. --- */
+  --color-accent-50: #fff7ec;
+  --color-accent-100: #ffecc8;
+  --color-accent-200: #ffd98c;
+  --color-accent-300: #ffc154;
+  --color-accent-400: #fca82e;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #c97d08;
+  --color-accent-700: #9c5f06;
+  --color-accent-800: #744705;
+  --color-accent-900: #4d2f03;
 
-  /* --- Neutrals: page/card surfaces and text. Low step = near-black
-     surface, high step = near-white text — see file header. --- */
-  --color-ink-50: #0b1520;
-  --color-ink-100: #101c29;
-  --color-ink-200: #16283a;
-  --color-ink-300: #1e3144;
-  --color-ink-400: #667789;
-  --color-ink-500: #7e8ca0;
-  --color-ink-600: #9ba8b8;
-  --color-ink-700: #b8c2ce;
-  --color-ink-800: #d7dee6;
-  --color-ink-900: #f4f7fa;
-  --color-ink-950: #ffffff;
+  /* --- Neutrals: warm-tinted gray, low step = light surface, high step =
+     dark text — the direction a normal light theme needs. --- */
+  --color-ink-50: #fafaf9;
+  --color-ink-100: #f3f2ee;
+  --color-ink-200: #e6e4de;
+  --color-ink-300: #d2cfc8;
+  --color-ink-400: #a6a9ac;
+  --color-ink-500: #7d8186;
+  --color-ink-600: #5b6168;
+  --color-ink-700: #3f4448;
+  --color-ink-800: #26292c;
+  --color-ink-900: #1c1f22;
+  --color-ink-950: #101214;
 
-  /* --- Status --- */
-  --color-success-50: #052014;
-  --color-success-100: #08301e;
-  --color-success-500: #22c55e;
-  --color-success-600: #4ade80;
-  --color-success-700: #86efac;
+  /* --- Status ramps --- */
+  --color-success-50: #f0fbf4;
+  --color-success-100: #dcf5e4;
+  --color-success-200: #b7e9c9;
+  --color-success-300: #86d6a5;
+  --color-success-400: #4cbb77;
+  --color-success-500: #1d8a4c;
+  --color-success-600: #166f3d;
+  --color-success-700: #125a32;
+  --color-success-800: #0f4728;
+  --color-success-900: #0b361f;
 
-  --color-warning-50: #241804;
-  --color-warning-100: #392505;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #fbbf24;
-  --color-warning-700: #fde047;
+  /* Generic UI warning — visually related to amber but a distinct value
+     from accent-*, which stays free-parking-only (see file header). */
+  --color-warning-50: #fdf6ec;
+  --color-warning-100: #f9e6c4;
+  --color-warning-200: #f1cd85;
+  --color-warning-300: #e6b155;
+  --color-warning-400: #d1970f;
+  --color-warning-500: #b5790c;
+  --color-warning-600: #93610a;
+  --color-warning-700: #744c08;
+  --color-warning-800: #593a06;
+  --color-warning-900: #402a05;
 
-  --color-danger-50: #240808;
-  --color-danger-100: #3a0d0d;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #f87171;
-  --color-danger-700: #fca5a5;
+  --color-danger-50: #fdf1f0;
+  --color-danger-100: #fad9d6;
+  --color-danger-200: #f2afa8;
+  --color-danger-300: #e67f74;
+  --color-danger-400: #d65c4e;
+  --color-danger-500: #c4453b;
+  --color-danger-600: #a6362d;
+  --color-danger-700: #852a23;
+  --color-danger-800: #66201b;
+  --color-danger-900: #481712;
 
-  --color-info-50: #051826;
-  --color-info-100: #0a2438;
-  --color-info-500: #38bdf8;
-  --color-info-600: #7dd3fc;
-  --color-info-700: #bae6fd;
+  --color-info-50: #eff6fd;
+  --color-info-100: #d7e9fa;
+  --color-info-200: #afd3f4;
+  --color-info-300: #7fb8ec;
+  --color-info-400: #4f9ae0;
+  --color-info-500: #2e7dd6;
+  --color-info-600: #2264ac;
+  --color-info-700: #194c85;
+  --color-info-800: #123863;
+  --color-info-900: #0c2745;
 
-  /* --- Sensor-platform semantic tokens (additive) ---
-     Colour discipline: brand/blue = action, live/cyan = sensor data. Never
-     mix them — see docs referenced in the PR description. Glow is opt-in
-     via the pp-glow-* utilities below and reserved for: selected nav item,
-     active map marker, sensor pulse, primary CTA, live status dot. */
-  --color-pp-bg: #04070c;
-  --color-pp-bg-elevated: #070e18;
-  --color-pp-surface: #0b1520;
-  --color-pp-surface-2: #101c29;
-  --color-pp-border: #16283a;
-  --color-pp-border-strong: #1e3144;
-  --color-pp-chrome: #c8d4e0;
-  --color-pp-accent: #0a84ff;
-  --color-pp-accent-hover: #1e9bff;
-  --color-pp-accent-deep: #2563eb;
-  --color-pp-live: #22d3ee;
-  --color-pp-text: #f4f7fa;
-  --color-pp-text-secondary: #9ba8b8;
-  --color-pp-text-muted: #667789;
-  --color-pp-available: #22c55e;
-  --color-pp-occupied: #ef4444;
-  --color-pp-warning: #f59e0b;
-  --color-pp-unknown: #667789;
+  /* --- Flat semantic tokens — what every newly-built page uses directly. --- */
+  --color-bg: #faf9f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f2ee;
+  --color-text: #1c1f22;
+  --color-text-secondary: #5b6168;
+  --color-border: #e4e2dc;
+  --color-teal: var(--color-brand-600);
+  --color-teal-hover: var(--color-brand-700);
+  --color-available: var(--color-success-500);
+  --color-occupied: var(--color-danger-500);
+  --color-warning: var(--color-warning-500);
+  --color-offline: #8a8f94;
+  --color-error: var(--color-danger-600);
 
-  /* --- Typography --- */
+  /* --- Typography. Inter only — no separate "display" font; a parking
+     operations product reads as more credible in one clean typeface than
+     with a second geometric/techy face layered on top. --- */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  /* Wordmark fallback only — see components/brand/logo.tsx. The logo ships
-     as an SVG asset with its own custom lettering; this is the display
-     fallback if that asset is ever unavailable, and is never used for
-     interface text. */
-  --font-display: var(--font-space-grotesk), var(--font-sans);
 
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
 
-  /* --- Radius --- */
-  --radius-card: 1rem;
-  --radius-sheet: 1.5rem;
+  /* --- Radius: restrained. Cards and inputs get a small, consistent
+     radius; nothing becomes a pill except small status chips. --- */
+  --radius-card: 0.75rem;
+  --radius-sheet: 1.25rem;
 
-  /* --- Elevation: restrained, never more than two visible layers. Dark
-     surfaces need a hairline top-edge highlight more than a drop shadow to
-     read as "raised" — see .pp-edge-chrome utility below. --- */
-  --shadow-e1: 0 1px 2px 0 rgb(0 0 0 / 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.3);
-  --shadow-e2: 0 2px 4px -2px rgb(0 0 0 / 0.4), 0 4px 16px -2px rgb(0 0 0 / 0.45);
-  --shadow-e3: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 20px 40px -8px rgb(0 0 0 / 0.55);
+  /* --- Elevation: only when depth is genuinely needed, small and real. --- */
+  --shadow-e1: 0 1px 2px 0 rgb(28 31 34 / 0.06), 0 1px 1px 0 rgb(28 31 34 / 0.04);
+  --shadow-e2: 0 2px 6px -2px rgb(28 31 34 / 0.08), 0 4px 12px -4px rgb(28 31 34 / 0.06);
+  --shadow-e3: 0 8px 24px -6px rgb(28 31 34 / 0.12), 0 16px 40px -12px rgb(28 31 34 / 0.1);
 
   /* --- Motion --- */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -155,7 +156,7 @@
 
 @layer base {
   * {
-    border-color: var(--color-ink-200);
+    border-color: var(--color-border);
   }
 
   html {
@@ -164,8 +165,8 @@
   }
 
   body {
-    background-color: var(--color-pp-bg);
-    color: var(--color-ink-900);
+    background-color: var(--color-bg);
+    color: var(--color-text);
     font-family: var(--font-sans);
     /* Guards every page against the horizontal-overflow failure mode. */
     overflow-x: hidden;
@@ -175,7 +176,7 @@
 
   h1, h2, h3, h4 {
     color: var(--color-ink-950);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
@@ -183,11 +184,9 @@
     text-wrap: pretty;
   }
 
-  /* Visible, consistent focus ring on every interactive element — cyan,
-     reserved for live/interactive affordance the same way it is everywhere
-     else in this theme (see file header colour discipline). */
+  /* Visible, consistent focus ring on every interactive element. */
   :focus-visible {
-    outline: 2px solid var(--color-pp-live);
+    outline: 2px solid var(--color-teal);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -197,10 +196,9 @@
     outline: none;
   }
 
-  /* Native controls inherit the brand. */
   :root {
-    accent-color: var(--color-brand-600);
-    color-scheme: dark;
+    accent-color: var(--color-teal);
+    color-scheme: light;
   }
 
   /* Keep the sticky header from covering anchor targets. */
@@ -249,8 +247,7 @@
     margin-inline-start: 0;
     padding-inline: 0;
     cursor: pointer;
-    opacity: 0.75;
-    filter: invert(1);
+    opacity: 0.6;
   }
 
   input[type="date"]::-webkit-calendar-picker-indicator:hover,
@@ -301,33 +298,9 @@
   }
 }
 
-/* A thin brushed-metal-toned top edge on a card, echoing the chrome P in the
-   mark. Opt-in, not a default card style — used sparingly. */
-@utility pp-edge-chrome {
-  position: relative;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-pp-chrome), transparent);
-    opacity: 0.35;
-  }
-}
-
-/* Soft, low-opacity glow — reserved for: selected nav item, active map
-   marker, sensor pulse, primary CTA, live status dot. Not a general-purpose
-   shadow; everywhere else uses flat surfaces and 1px borders. */
-@utility pp-glow-accent {
-  box-shadow: 0 0 0 1px rgb(10 132 255 / 0.4), 0 0 20px 2px rgb(10 132 255 / 0.25);
-}
-
-@utility pp-glow-live {
-  box-shadow: 0 0 0 1px rgb(34 211 238 / 0.4), 0 0 20px 2px rgb(34 211 238 / 0.3);
-}
-
 /* ==========================================================================
-   Motion — every animation below is disabled under prefers-reduced-motion.
+   Motion — small and purposeful; every animation below is disabled under
+   prefers-reduced-motion. No parallax, no magnetic hover, no scroll-fade.
    ========================================================================== */
 
 @keyframes pp-fade-in {
@@ -369,11 +342,11 @@
   to { transform: rotate(360deg); }
 }
 
-/* Sensor / live-data pulse — a slow, subtle breathing ring. Reserved for
-   LIVE badges, active sensor markers, and live status dots only. */
-@keyframes pp-pulse-live {
-  0%, 100% { box-shadow: 0 0 0 0 rgb(34 211 238 / 0.45); }
-  50% { box-shadow: 0 0 0 8px rgb(34 211 238 / 0); }
+/* A single soft breath, not a repeating neon pulse — used only on a live
+   occupancy dot to signal "this number can change," never decoratively. */
+@keyframes pp-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 
 @utility animate-fade-in { animation: pp-fade-in 0.2s var(--ease-out-soft) both; }
@@ -383,7 +356,7 @@
 @utility animate-toast-in { animation: pp-toast-in 0.24s var(--ease-out-soft) both; }
 @utility animate-pop { animation: pp-pop 0.3s var(--ease-out-soft); }
 @utility animate-spin-slow { animation: pp-spin 0.7s linear infinite; }
-@utility animate-pulse-live { animation: pp-pulse-live 2.2s var(--ease-out-soft) infinite; }
+@utility animate-live-dot { animation: pp-breathe 2.4s ease-in-out infinite; }
 
 /* Skeletons resemble the final layout rather than spinning. */
 @utility skeleton {
@@ -399,7 +372,7 @@
     background-image: linear-gradient(
       90deg,
       rgb(255 255 255 / 0) 0,
-      rgb(255 255 255 / 0.08) 50%,
+      rgb(255 255 255 / 0.6) 50%,
       rgb(255 255 255 / 0) 100%
     );
     animation: pp-shimmer 1.6s infinite;
@@ -426,13 +399,12 @@
 }
 
 /* ==========================================================================
-   Leaflet: scoped overrides so map chrome matches the design system and
-   never collides with the sticky header or bottom navigation.
+   Leaflet: scoped overrides so map chrome matches the light design system.
    ========================================================================== */
 
 .leaflet-container {
   font-family: var(--font-sans);
-  background: var(--color-pp-bg);
+  background: var(--color-surface-muted);
   isolation: isolate;
 }
 
@@ -443,34 +415,34 @@
 .leaflet-bar {
   border: none !important;
   box-shadow: var(--shadow-e2) !important;
-  border-radius: 0.75rem !important;
+  border-radius: 0.625rem !important;
   overflow: hidden;
-  background: var(--color-ink-50) !important;
+  background: var(--color-surface) !important;
 }
 
 .leaflet-bar a {
-  border-bottom-color: var(--color-ink-200) !important;
-  background: var(--color-ink-50) !important;
-  color: var(--color-ink-700) !important;
+  border-bottom-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-secondary) !important;
   width: 34px !important;
   height: 34px !important;
   line-height: 34px !important;
 }
 
 .leaflet-bar a:hover {
-  background-color: var(--color-ink-100) !important;
+  background-color: var(--color-surface-muted) !important;
 }
 
 .leaflet-control-attribution {
-  background: rgb(4 7 12 / 0.78) !important;
-  color: var(--color-ink-600) !important;
+  background: rgb(255 255 255 / 0.85) !important;
+  color: var(--color-text-secondary) !important;
   font-size: 10px !important;
   padding: 2px 6px !important;
   border-radius: 6px 0 0 0;
 }
 
 .leaflet-control-attribution a {
-  color: var(--color-brand-700) !important;
+  color: var(--color-teal) !important;
 }
 
 /* Custom markers are plain divs; strip Leaflet's default chrome. */
@@ -480,15 +452,15 @@
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 0.875rem;
+  border-radius: 0.75rem;
   box-shadow: var(--shadow-e3);
   padding: 0;
-  background: var(--color-ink-50);
-  color: var(--color-ink-900);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .leaflet-popup-tip {
-  background: var(--color-ink-50) !important;
+  background: var(--color-surface) !important;
 }
 
 .leaflet-popup-content {
@@ -499,5 +471,5 @@
 .leaflet-popup-close-button {
   top: 8px !important;
   right: 8px !important;
-  color: var(--color-ink-500) !important;
+  color: var(--color-text-secondary) !important;
 }

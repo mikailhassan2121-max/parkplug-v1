@@ -47,7 +47,7 @@ export function AnalyticsPanel({ analytics }: { analytics: FacilityAnalytics }) 
     <div className="rounded-card border border-ink-200 bg-ink-50 p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-sm font-bold text-ink-900">Occupancy, last 24h</h3>
-        {latest ? <span className="text-xs font-semibold text-pp-live">{latest.occupancyPct}% now</span> : null}
+        {latest ? <span className="text-xs font-semibold text-teal">{latest.occupancyPct}% now</span> : null}
       </div>
 
       <svg
@@ -56,7 +56,7 @@ export function AnalyticsPanel({ analytics }: { analytics: FacilityAnalytics }) 
         role="img"
         aria-label={`Occupancy trend over the last 24 hours, from ${earliest?.occupancyPct ?? 0}% to ${latest?.occupancyPct ?? 0}%`}
       >
-        <path d={path} fill="none" stroke="var(--color-pp-live)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="var(--color-teal)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
 
       <div className="mt-4 border-t border-ink-200 pt-3">

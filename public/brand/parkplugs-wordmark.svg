@@ -1,13 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" role="img" aria-label="ParkPlugs">
-  <!-- Placeholder wordmark: swap this file for the final artwork later. -->
-  <g transform="translate(0,0)">
-    <rect x="2" y="2" width="60" height="60" rx="14" fill="#04070C" stroke="#16283A" stroke-width="2" />
-    <rect x="16" y="13" width="10" height="38" rx="5" fill="#C8D4E0" />
-    <rect x="16" y="13" width="28" height="22" rx="11" fill="#C8D4E0" />
-    <rect x="25" y="19" width="12" height="9" rx="4.5" fill="#04070C" />
-    <circle cx="31" cy="23.5" r="3" fill="#0A84FF" />
-    <circle cx="46" cy="46" r="9" fill="none" stroke="#22D3EE" stroke-width="1.5" opacity="0.85" />
-    <circle cx="46" cy="46" r="14" fill="none" stroke="#22D3EE" stroke-width="1" opacity="0.45" />
-  </g>
-  <text x="78" y="42" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="30" fill="#F4F7FA">PARK<tspan fill="#0A84FF">PLUGS</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" role="img" aria-label="ParkPlugs">
+  <!-- Placeholder wordmark — swap this file for the real supplied logo asset later. -->
+  <rect x="2" y="2" width="44" height="44" rx="10" fill="#0E7C7B" />
+  <path
+    d="M16 12h10.4c4.9 0 8.3 3.3 8.3 8s-3.4 8-8.3 8H21v10h-5V12Zm5 4v8h6c2.5 0 4.2-1.6 4.2-4s-1.7-4-4.2-4H21Z"
+    fill="#ffffff"
+  />
+  <text x="58" y="32" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="26" fill="#1C1F22" letter-spacing="-0.5">
+    Park<tspan fill="#0E7C7B">Plugs</tspan>
+  </text>
 </svg>

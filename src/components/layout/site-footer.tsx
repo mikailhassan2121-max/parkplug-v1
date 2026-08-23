@@ -5,42 +5,38 @@ import { Container } from "@/components/ui/card";
 
 const COLUMNS: Array<{ heading: string; links: Array<{ href: string; label: string }> }> = [
   {
-    heading: "ParkPlugs",
+    heading: "Product",
     links: [
-      { href: "/about", label: "About" },
-      { href: "/how-it-works", label: "How It Works" },
+      { href: "/parking", label: "Find Parking" },
+      { href: "/report-parking", label: "Report Free Parking" },
       { href: "/pricing", label: "Pricing & Fees" },
+      { href: "/how-it-works", label: "How It Works" },
     ],
   },
   {
-    heading: "Drivers",
+    heading: "Property Owners",
     links: [
-      { href: "/search", label: "Find Parking" },
-      { href: "/live", label: "Live Map" },
-      { href: "/report-parking", label: "Report Free Parking" },
-      { href: "/dashboard/reservations", label: "Reservations" },
-      { href: "/help?audience=drivers", label: "Help Center" },
+      { href: "/for-property-owners", label: "For Property Owners" },
+      { href: "/owner", label: "Owner Dashboard" },
+      { href: "/legal/host-standards", label: "Facility Standards" },
     ],
   },
   {
     heading: "Hosts",
     links: [
-      { href: "/host/listings/new", label: "List Your Parking" },
-      { href: "/for-property-owners", label: "For Property Owners" },
+      { href: "/host/listings/new", label: "List Your Space" },
       { href: "/hosting-guide", label: "Hosting Guide" },
-      { href: "/legal/host-standards", label: "Host Standards" },
       { href: "/host/earnings", label: "Earnings" },
     ],
   },
   {
-    heading: "Trust & Legal",
+    heading: "Company",
     links: [
+      { href: "/about", label: "About" },
       { href: "/safety", label: "Safety" },
-      { href: "/legal/terms", label: "Terms" },
       { href: "/legal/privacy", label: "Privacy" },
-      { href: "/legal/cancellation", label: "Cancellation Policy" },
-      { href: "/legal/community-guidelines", label: "Community Guidelines" },
-      { href: "/support", label: "Contact Support" },
+      { href: "/legal/terms", label: "Terms" },
+      { href: "/support", label: "Contact" },
     ],
   },
 ];
