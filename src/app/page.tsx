@@ -6,6 +6,8 @@ import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SearchModule } from "@/components/search/search-module";
 import { ParkingPreview } from "@/components/home/parking-preview";
+import { LiveInfrastructureSection } from "@/components/home/live-infrastructure-section";
+import { OwnerPreviewSection } from "@/components/home/owner-preview-section";
 import {
   IconAccessible,
   IconArrowRight,
@@ -55,7 +57,7 @@ export default function HomePage() {
 
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Link
-                  href="/live"
+                  href="/parking"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline"
                 >
                   <IconMapPin aria-hidden="true" />
@@ -136,6 +138,8 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
+
+      <LiveInfrastructureSection />
 
       {/* --------------------------------------------------- Parking options */}
       <section className="border-y border-ink-200 bg-ink-50 py-14 lg:py-20">
@@ -240,6 +244,8 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
+
+      <OwnerPreviewSection />
 
       {/* ------------------------------------------------------------- Trust */}
       <section className="border-y border-ink-200 bg-ink-50 py-14 lg:py-20">
