@@ -57,11 +57,16 @@ const draftSchema = z.object({
   street: z.string().trim().min(1),
   city: z.string().trim().min(1),
   state: z.string().trim().min(1),
-  center: z.object({ lat: z.number(), lng: z.number() }),
+  center: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }),
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
   parkingType: z.enum(PARKING_TYPES),
-  photos: z.array(photoSchema).default([]),
+  // At least one photo and one availability window — a listing published
+  // with neither is permanently unbookable (isWithinAvailability rejects an
+  // empty window list) and shows a blank gallery in search. The wizard's UI
+  // already enforces this client-side; this closes the same gap for a
+  // direct API call that skips the wizard.
+  photos: z.array(photoSchema).min(1, "Add at least one photo."),
   pricePerHourCents: z.number().int().positive(),
   dailyMaxCents: z.number().int().positive().optional().nullable(),
   currency: z.string().default("USD"),
@@ -75,7 +80,7 @@ const draftSchema = z.object({
   minimumMinutes: z.number().int().positive(),
   maximumMinutes: z.number().int().positive(),
   advanceNoticeMinutes: z.number().int().min(0).default(0),
-  availability: z.array(availabilitySchema).default([]),
+  availability: z.array(availabilitySchema).min(1, "Add at least one availability window."),
   rules: z.array(z.string()).default([]),
   cancellationPolicy: z.object({
     summary: z.string(),

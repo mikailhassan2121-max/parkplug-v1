@@ -94,20 +94,6 @@ reservationsRouter.post(
       throw badRequest("This time falls outside the space's posted availability.");
     }
 
-    // Reject a double booking rather than silently overlapping it. A pending
-    // reservation (payment not yet confirmed) still holds the slot, the same
-    // as a confirmed one — otherwise two people could pay for the same
-    // window while both checkouts are in flight.
-    const clash = await prisma.reservation.findFirst({
-      where: {
-        listingId: listing.id,
-        status: { in: ["pending", "confirmed", "in_progress"] },
-        startAt: { lt: endAt },
-        endAt: { gt: startAt },
-      },
-    });
-    if (clash) throw conflict("That time was just reserved by someone else.");
-
     // Every free validation has passed — only now is it worth attempting a
     // real charge (or reporting that no payment provider is connected).
     if (!paymentsConfigured) {
@@ -138,6 +124,67 @@ reservationsRouter.post(
     const applicationFeeAmount = price.totalCents - price.hostEarningsCents;
 
     const reference = newReservationReference();
+    const now = new Date();
+
+    // The clash check and the insert must be atomic, or two requests can
+    // both pass the check before either commits (TOCTOU) — a real Stripe
+    // network round-trip used to sit between the two, widening that window
+    // further. pg_advisory_xact_lock serializes concurrent booking attempts
+    // for the same listing; it's released automatically at transaction end
+    // either way. The reservation is created here, before any charge is
+    // attempted — this reserves the slot first and charges second, so a
+    // failed charge just deletes an unpaid row instead of needing to unwind
+    // a real payment.
+    const reservation = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${listing.id})::bigint)`;
+
+      // Counted against spacesTotal, not rejected on any overlap — a
+      // multi-space listing should accept as many concurrent bookings as it
+      // has physical spaces for.
+      const overlapping = await tx.reservation.count({
+        where: {
+          listingId: listing.id,
+          status: { in: ["pending", "confirmed", "in_progress"] },
+          startAt: { lt: endAt },
+          endAt: { gt: startAt },
+        },
+      });
+      if (overlapping >= listing.spacesTotal) {
+        throw conflict("That time was just reserved by someone else.");
+      }
+
+      return tx.reservation.create({
+        data: {
+          reference,
+          status: "pending",
+          paymentStatus: "requires_payment",
+          listingId: listing.id,
+          userId: req.user!.id,
+          vehicleId: vehicle.id,
+          startAt,
+          endAt,
+          currency: price.currency,
+          subtotalCents: price.subtotalCents,
+          discountCents: price.discountCents,
+          serviceFeeCents: price.serviceFeeCents,
+          taxCents: price.taxCents,
+          totalCents: price.totalCents,
+          hostEarningsCents: price.hostEarningsCents,
+          hostFeeCents: price.hostFeeCents,
+          exactAddressLine1: listing.addressLine1,
+          exactAddressLine2: listing.addressLine2,
+          exactAddressCity: listing.addressCity,
+          exactAddressState: listing.addressState,
+          exactAddressPostalCode: listing.addressPostalCode,
+          exactAddressCountry: listing.addressCountry,
+          hostInstructions: listing.privateInstructions,
+          cancellationSummary: listing.cancellationSummary,
+          cancellationFullRefundHoursBefore: listing.cancellationFullRefundHoursBefore,
+          timeline: { create: [{ at: now, label: "Reservation started", description: "Awaiting payment confirmation." }] },
+        },
+        include,
+      });
+    });
 
     let intent: Stripe.PaymentIntent;
     try {
@@ -155,41 +202,15 @@ reservationsRouter.post(
       });
     } catch (error) {
       console.error("[stripe] payment intent failed:", error);
+      // The slot was reserved above but no charge could be started — release
+      // it rather than leaving an unpayable row occupying the window.
+      await prisma.reservation.delete({ where: { id: reservation.id } });
       throw paymentFailed("Your payment could not be started. Your reservation was not created.");
     }
 
-    const now = new Date();
-
-    const reservation = await prisma.reservation.create({
-      data: {
-        reference,
-        status: "pending",
-        paymentStatus: "requires_payment",
-        listingId: listing.id,
-        userId: req.user!.id,
-        vehicleId: vehicle.id,
-        startAt,
-        endAt,
-        currency: price.currency,
-        subtotalCents: price.subtotalCents,
-        discountCents: price.discountCents,
-        serviceFeeCents: price.serviceFeeCents,
-        taxCents: price.taxCents,
-        totalCents: price.totalCents,
-        hostEarningsCents: price.hostEarningsCents,
-        hostFeeCents: price.hostFeeCents,
-        exactAddressLine1: listing.addressLine1,
-        exactAddressLine2: listing.addressLine2,
-        exactAddressCity: listing.addressCity,
-        exactAddressState: listing.addressState,
-        exactAddressPostalCode: listing.addressPostalCode,
-        exactAddressCountry: listing.addressCountry,
-        hostInstructions: listing.privateInstructions,
-        cancellationSummary: listing.cancellationSummary,
-        cancellationFullRefundHoursBefore: listing.cancellationFullRefundHoursBefore,
-        stripePaymentIntentId: intent.id,
-        timeline: { create: [{ at: now, label: "Reservation started", description: "Awaiting payment confirmation." }] },
-      },
+    const withIntent = await prisma.reservation.update({
+      where: { id: reservation.id },
+      data: { stripePaymentIntentId: intent.id },
       include,
     });
 
@@ -199,7 +220,7 @@ reservationsRouter.post(
     // reservation reference does.
     await prisma.conversation.create({
       data: {
-        reservationId: reservation.id,
+        reservationId: withIntent.id,
         listingId: listing.id,
         driverId: req.user!.id,
         hostId: listing.hostId,
@@ -209,19 +230,26 @@ reservationsRouter.post(
     // No "confirmed" notification yet — that fires from the
     // payment_intent.succeeded webhook once payment actually captures, not
     // from this synchronous response.
-    res.status(201).json({ ...toReservationDto(reservation), clientSecret: intent.client_secret });
+    res.status(201).json({ ...toReservationDto(withIntent), clientSecret: intent.client_secret });
   }),
 );
 
 reservationsRouter.post(
   "/:reference/cancel",
   asyncRoute(async (req, res) => {
+    // Settles anything whose endAt has already passed to "completed" first,
+    // so a reservation that finished moments ago can't slip through the
+    // status check below while still showing a stale "confirmed".
+    await settleOverdueReservations();
     const reservation = await prisma.reservation.findFirst({
       where: { reference: req.params.reference, userId: req.user!.id },
       include: { listing: true },
     });
     if (!reservation) throw notFound("We could not find that reservation.");
     if (reservation.status === "canceled") throw conflict("This reservation is already canceled.");
+    if (reservation.status === "completed") {
+      throw conflict("This reservation has already been completed and can no longer be canceled.");
+    }
 
     const now = new Date();
     const hoursUntilArrival = (reservation.startAt.getTime() - now.getTime()) / 3600_000;

@@ -102,6 +102,23 @@ async function handlePaymentSucceeded(intent: Stripe.PaymentIntent): Promise<voi
   if (!reservation) return; // Not one of ours, or already deleted.
   if (reservation.paymentStatus === "succeeded") return; // Idempotent — Stripe can redeliver the same event.
 
+  // The driver canceled (cancel's own refund attempt no-ops when nothing has
+  // captured yet — see reservations.routes.ts) between checkout and this
+  // webhook landing. The charge did capture, but there's no valid booking
+  // for it to belong to, so refund it here rather than silently marking a
+  // dead reservation "paid" with no money ever coming back. charge.refunded
+  // will follow and run the normal bookkeeping in handleChargeRefunded.
+  if (reservation.status === "canceled") {
+    if (stripe) {
+      try {
+        await stripe.refunds.create({ payment_intent: intent.id });
+      } catch (error) {
+        console.error("[stripe] auto-refund for a payment on an already-canceled reservation failed:", error);
+      }
+    }
+    return;
+  }
+
   const now = new Date();
   const wasPending = reservation.status === "pending";
   const updated = await prisma.reservation.update({

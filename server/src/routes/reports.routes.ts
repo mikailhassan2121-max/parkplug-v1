@@ -7,6 +7,7 @@ import { userLimiter } from "../middleware/rate-limit.js";
 import { toReportDto } from "../lib/dto.js";
 import { badRequest, forbidden, notFound } from "../lib/errors.js";
 import { newTicketReference } from "../lib/tokens.js";
+import { env } from "../env.js";
 
 export const reportsRouter = Router();
 
@@ -49,7 +50,7 @@ const createSchema = z.object({
     neighborhood: z.string().optional().nullable(),
     city: z.string(),
     state: z.string(),
-    center: z.object({ lat: z.number(), lng: z.number() }),
+    center: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }),
     radiusMeters: z.number().default(150),
   }),
   observedAt: z.string(),
@@ -61,7 +62,16 @@ const createSchema = z.object({
   timeLimitMinutes: z.number().int().optional().nullable(),
   confidence: z.enum(["low", "medium", "high"]),
   notes: z.string().optional().nullable(),
-  photoUrl: z.string().optional().nullable(),
+  // No report-photo upload UI exists yet (the frontend never sends this),
+  // but the field is still API-reachable — hold it to the same
+  // uploaded-through-ParkPlugs constraint listing photos get, rather than
+  // accepting an arbitrary unmoderated external URL.
+  photoUrl: z
+    .string()
+    .trim()
+    .startsWith(env.PUBLIC_UPLOAD_BASE_URL, "Photos must be uploaded through ParkPlugs.")
+    .optional()
+    .nullable(),
 });
 
 reportsRouter.post(
