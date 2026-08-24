@@ -52,13 +52,12 @@ sensorsRouter.post(
     }
     const d = parsed.data;
 
-    requireAuthenticatedSensor(req, d.sensor_id);
-
     const sensor = await prisma.sensor.findUnique({
       where: { sensorId: d.sensor_id },
       include: { space: true },
     });
     if (!sensor) throw notFound(`Unknown sensor "${d.sensor_id}".`);
+    requireAuthenticatedSensor(req, sensor);
     if (sensor.space.spotId !== d.spot_id) {
       throw forbidden(`Sensor "${d.sensor_id}" is not bound to spot "${d.spot_id}".`);
     }
@@ -153,10 +152,9 @@ sensorsRouter.post(
     if (!parsed.success) throw badRequest("Check the heartbeat payload and try again.");
     const d = parsed.data;
 
-    requireAuthenticatedSensor(req, d.sensor_id);
-
     const sensor = await prisma.sensor.findUnique({ where: { sensorId: d.sensor_id }, include: { space: true } });
     if (!sensor) throw notFound(`Unknown sensor "${d.sensor_id}".`);
+    requireAuthenticatedSensor(req, sensor);
 
     const now = new Date();
     const wasOffline = sensor.onlineStatus !== "ONLINE";
