@@ -14,7 +14,8 @@ const scoreSchema = z.number().int().min(1).max(5);
 
 const createSchema = z.object({
   reservationId: z.string().min(1),
-  listingId: z.string().min(1),
+  // listingId is deliberately not accepted here — it's always derived from
+  // the reservation itself, never trusted from the client.
   rating: scoreSchema,
   categories: z
     .object({ accuracy: scoreSchema, access: scoreSchema, safety: scoreSchema, value: scoreSchema })
@@ -63,7 +64,9 @@ reviewsRouter.post(
 
     const review = await prisma.review.create({
       data: {
-        listingId: d.listingId,
+        // The reservation's own listing, never the client-supplied one — a
+        // driver could otherwise attach a review to any active listing.
+        listingId: reservation.listingId,
         reservationId: d.reservationId,
         authorId: req.user!.id,
         role,

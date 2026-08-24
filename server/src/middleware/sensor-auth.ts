@@ -49,8 +49,29 @@ export async function requireSensorToken(req: Request, _res: Response, next: Nex
   }
 }
 
-export function requireAuthenticatedSensor(req: Request, sensorId: string): void {
-  if (req.sensor && req.sensor.sensorId !== sensorId) {
-    throw new ApiError(403, "This device token is not authorized for that sensor.");
+/**
+ * Call after loading the target Sensor row (so its tokenHash is known), not
+ * before — a device-token caller must be bound to that exact sensor, and a
+ * legacy-secret caller is only trusted for a sensor that has never been
+ * issued a per-device token. Once a sensor has a real token, the shared
+ * secret can no longer speak for it, closing the gap where anyone holding
+ * SENSOR_INGEST_TOKEN could report occupancy for any sensor_id/spot_id in
+ * the body, including ones belonging to other facilities.
+ */
+export function requireAuthenticatedSensor(
+  req: Request,
+  sensor: { sensorId: string; tokenHash: string | null },
+): void {
+  if (req.sensorAuth === "device") {
+    if (!req.sensor || req.sensor.sensorId !== sensor.sensorId) {
+      throw new ApiError(403, "This device token is not authorized for that sensor.");
+    }
+    return;
+  }
+  if (sensor.tokenHash) {
+    throw new ApiError(
+      403,
+      `Sensor "${sensor.sensorId}" has a device token issued; the shared legacy secret is no longer accepted for it.`,
+    );
   }
 }

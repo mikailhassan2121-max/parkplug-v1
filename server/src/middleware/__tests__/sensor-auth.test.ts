@@ -59,12 +59,27 @@ describe("sensor authentication", () => {
     expect(next.mock.calls[0]?.[0]).toMatchObject({ status: 401 });
   });
 
-  it("binds a device credential to its sensor id while leaving legacy requests compatible", () => {
-    const deviceReq = { sensor: { sensorId: "PP-001" } } as Request;
-    expect(() => requireAuthenticatedSensor(deviceReq, "PP-001")).not.toThrow();
-    expect(() => requireAuthenticatedSensor(deviceReq, "PP-002")).toThrow(
-      expect.objectContaining({ status: 403 }),
-    );
-    expect(() => requireAuthenticatedSensor({ sensorAuth: "legacy" } as Request, "PP-002")).not.toThrow();
+  it("binds a device credential to its sensor id", () => {
+    const deviceReq = { sensorAuth: "device", sensor: { sensorId: "PP-001" } } as Request;
+    expect(() =>
+      requireAuthenticatedSensor(deviceReq, { sensorId: "PP-001", tokenHash: "irrelevant" }),
+    ).not.toThrow();
+    expect(() =>
+      requireAuthenticatedSensor(deviceReq, { sensorId: "PP-002", tokenHash: "irrelevant" }),
+    ).toThrow(expect.objectContaining({ status: 403 }));
+  });
+
+  it("accepts the legacy secret only for a sensor that has never been issued a device token", () => {
+    const legacyReq = { sensorAuth: "legacy" } as Request;
+    expect(() =>
+      requireAuthenticatedSensor(legacyReq, { sensorId: "PP-002", tokenHash: null }),
+    ).not.toThrow();
+  });
+
+  it("rejects the legacy secret for a sensor that already has a device token, closing the cross-facility spoofing gap", () => {
+    const legacyReq = { sensorAuth: "legacy" } as Request;
+    expect(() =>
+      requireAuthenticatedSensor(legacyReq, { sensorId: "PP-002", tokenHash: "some-hash" }),
+    ).toThrow(expect.objectContaining({ status: 403 }));
   });
 });

@@ -157,6 +157,7 @@ facilitiesRouter.get(
   asyncRoute(async (req, res) => {
     const facility = await prisma.parkingFacility.findUnique({ where: { facilityId: req.params.facilityId! } });
     if (!facility) throw notFound("We could not find that facility.");
+    assertOwnable(facility, req.user!.id);
 
     const events = await prisma.occupancyEvent.findMany({
       where: { facilityId: facility.id },
